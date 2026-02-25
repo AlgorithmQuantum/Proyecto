@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro Medico R.A.S.A</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="contenedor-principal">
+        <div class="tarjeta-login">
+            <div class="icono-encabezado">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+
+            <h1>Bienvenido</h1>
+            <p class="subtitulo">Por favor selecciona tu rol e ingresa tus datos para acceder</p>
+
+            <form>
+                <div class="grupo-entrada">
+                    <label><i class="fa-solid fa-user-tag"></i> Selecciona tu Rol</label>
+                    <select class="selector-rol">
+                        <option>Pacientes</option>
+                        <option>Médico</option>
+                        <option>Administrativo</option>
+                    </select>
+                </div>
+
+                <div class="grupo-entrada">
+                    <label><i class="fa-solid fa-envelope"></i> Correo Electrónico</label>
+                    <input type="email" class="campo-texto" placeholder="ej. j.perez@.gmailmx" required>
+                </div>
+
+                <div class="grupo-entrada">
+                    <div class="fila-etiqueta">
+                        <label><i class="fa-solid fa-key"></i> Contraseña</label>
+                        <a href="pendiente" class="enlace-olvido">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <div class="contenedor-password">
+                        <input type="password" id="campoPassword" class="campo-texto" placeholder="********" required>
+                        <i class="fa-solid fa-eye icono-ojo" id="iconoAlternar"></i>
+                    </div>
+                </div>
+
+                <div class="grupo-checkbox">
+                    <input type="checkbox" id="recordar">
+                    <label for="recordar">Mantener sesión iniciada</label>
+                </div>
+
+                <button type="submit" class="boton-ingresar">
+                    Iniciar Sesión <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <p class="enlace-registro">¿Eres nuevo? <a href="pendiente">Crear una cuenta</a></p>
+        </div>
+        
+        <div class="pie-seguridad">
+            <i class="fa-solid fa-shield-halved"></i> ENCRIPTACIÓN SEGURA DE GRADO MÉDICO
+        </div>
+    </div>
+
+</body>
+</html>

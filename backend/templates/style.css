@@ -1,0 +1,123 @@
+:root {
+    --azul-medico: #1e88e5;
+    --azul-oscuro: #1565c0;
+    --gris-fondo: #f8fafc;
+    --borde-suave: #e0e0e0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--gris-fondo);
+    /* Patrón de puntos */
+    background-image: radial-gradient(#ced4da 1px, transparent 1px);
+    background-size: 20px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.contenedor-principal {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.tarjeta-login {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.icono-encabezado {
+    background-color: #e3f2fd;
+    color: var(--azul-medico);
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+}
+
+.subtitulo {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.grupo-entrada {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.grupo-entrada label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.campo-texto, .selector-rol {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--borde-suave);
+    border-radius: 8px;
+    box-sizing: border-box; /* Evita que el padding ensanche el input */
+}
+
+.fila-etiqueta {
+    display: flex;
+    justify-content: space-between;
+}
+
+.enlace-olvido {
+    font-size: 11px;
+    color: var(--azul-medico);
+    text-decoration: none;
+}
+
+.contenedor-password {
+    position: relative;
+}
+
+.icono-ojo {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ccc;
+    cursor: pointer;
+}
+
+.boton-ingresar {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--azul-medico);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.boton-ingresar:hover {
+    background-color: var(--azul-oscuro);
+}
+
+.enlace-registro {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.pie-seguridad {
+    margin-top: 20px;
+    font-size: 10px;
+    color: #999;
+    text-align: center;
+    text-transform: uppercase;
+}
