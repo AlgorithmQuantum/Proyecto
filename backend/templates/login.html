@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centro Medico R.A.S.A</title>
-    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
@@ -15,49 +16,82 @@
             </div>
 
             <h1>Bienvenido</h1>
-            <p class="subtitulo">Por favor selecciona tu rol e ingresa tus datos para acceder</p>
+            <p class="subtitulo">
+                Por favor selecciona tu rol e ingresa tus datos para acceder
+            </p>
 
-            <form>
+            <form method="POST" action="/auth/login">
+
                 <div class="grupo-entrada">
-                    <label><i class="fa-solid fa-user-tag"></i> Selecciona tu Rol</label>
-                    <select class="selector-rol">
-                        <option>Pacientes</option>
-                        <option>Médico</option>
-                        <option>Administrativo</option>
+                    <label>
+                        <i class="fa-solid fa-user-tag"></i> Selecciona tu Rol
+                    </label>
+                    <select class="selector-rol" name="rol" required>
+                        <option value="Paciente">Paciente</option>
+                        <option value="Doctor">Médico</option>
+                        <option value="Recepcionista">Administrativo</option>
                     </select>
                 </div>
 
                 <div class="grupo-entrada">
-                    <label><i class="fa-solid fa-envelope"></i> Correo Electrónico</label>
-                    <input type="email" class="campo-texto" placeholder="ej. j.perez@.gmailmx" required>
+                    <label>
+                        <i class="fa-solid fa-envelope"></i> Correo Electrónico
+                    </label>
+                    <input
+                        type="email"
+                        class="campo-texto"
+                        name="usuario"
+                        placeholder="ej. j.perez@gmail.com"
+                        required>
                 </div>
 
                 <div class="grupo-entrada">
                     <div class="fila-etiqueta">
-                        <label><i class="fa-solid fa-key"></i> Contraseña</label>
-                        <a href="pendiente" class="enlace-olvido">¿Olvidaste tu contraseña?</a>
+                        <label>
+                            <i class="fa-solid fa-key"></i> Contraseña
+                        </label>
+                        <a href="#" class="enlace-olvido">
+                            ¿Olvidaste tu contraseña?
+                        </a>
                     </div>
+
                     <div class="contenedor-password">
-                        <input type="password" id="campoPassword" class="campo-texto" placeholder="********" required>
+                        <input
+                            type="password"
+                            id="campoPassword"
+                            class="campo-texto"
+                            name="password"
+                            placeholder="********"
+                            required>
                         <i class="fa-solid fa-eye icono-ojo" id="iconoAlternar"></i>
                     </div>
                 </div>
 
                 <div class="grupo-checkbox">
-                    <input type="checkbox" id="recordar">
+                    <input type="checkbox" id="recordar" name="recordar">
                     <label for="recordar">Mantener sesión iniciada</label>
                 </div>
-
+                <br>
                 <button type="submit" class="boton-ingresar">
                     Iniciar Sesión <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
 
-            <p class="enlace-registro">¿Eres nuevo? <a href="pendiente">Crear una cuenta</a></p>
+            <!-- MENSAJE DE ERROR -->
+            {% if error %}
+                <p style="color:red; margin-top:10px;">
+                    {{ error }}
+                </p>
+            {% endif %}
+
+            <p class="enlace-registro">
+                ¿Eres nuevo? <a href="/auth/registro">Crear una cuenta</a>
+            </p>
         </div>
-        
+
         <div class="pie-seguridad">
-            <i class="fa-solid fa-shield-halved"></i> ENCRIPTACIÓN SEGURA DE GRADO MÉDICO
+            <i class="fa-solid fa-shield-halved"></i>
+            ENCRIPTACIÓN SEGURA DE GRADO MÉDICO
         </div>
     </div>
 
