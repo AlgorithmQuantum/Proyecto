@@ -1,0 +1,113 @@
+:root {
+    --color-fondo: #f4f7fe;
+    --azul-primario: #1a73e8;
+    --blanco: #ffffff;
+    --gris-texto: #6b7280;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-fondo);
+}
+
+.contenedor-app {
+    display: grid;
+    grid-template-columns: 240px 1fr; /* Barra lateral fija, contenido flexible */
+    min-height: 100vh;
+}
+
+/* Barra Lateral */
+.barra-lateral {
+    background-color: var(--blanco);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #e5e7eb;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--azul-primario);
+    margin-bottom: 40px;
+}
+
+.menu-navegacion a {
+    display: block;
+    padding: 12px;
+    color: var(--gris-texto);
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 5px;
+}
+
+.menu-navegacion a.activo {
+    background-color: #eef2ff;
+    color: var(--azul-primario);
+}
+
+/* Contenido Principal */
+.contenido-principal {
+    padding: 30px;
+}
+
+.encabezado-dashboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.cuadricula-dashboard {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Columna principal y columna de datos */
+    gap: 24px;
+}
+
+/* Tarjetas */
+.tarjeta-conteo {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    flex: 1;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.fila-resumen {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.tarjeta-cita {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    border-left: 5px solid var(--azul-primario);
+}
+
+.tarjeta-ficha-azul {
+    background: linear-gradient(135deg, #2196f3, #1565c0);
+    color: white;
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+}
+
+.tarjeta-blanca {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+}
+
+.boton-agendar {
+    background-color: var(--azul-primario);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
