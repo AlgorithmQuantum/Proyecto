@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Médico - Centro Médico R.A.S.A</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="contenedor-app">
+        <aside class="barra-lateral">
+            <div class="logo">
+                <i class="fa-solid fa-user-doctor"></i>
+                <span>Portal Médico R.A.S.A</span>
+            </div>
+            
+            <nav class="navegacion-principal">
+                <a href="#" class="item-menu activo"><i class="fa-solid fa-stethoscope"></i> Mi Consultorio</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-users"></i> Mis Pacientes</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-calendar-check"></i> Agenda Semanal</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-file-waveform"></i> Resultados de Lab</a>
+                
+                <div class="separador"></div>
+                <a href="#" class="item-menu"><i class="fa-solid fa-gear"></i> Ajustes</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-circle-question"></i> Soporte IT</a>
+            </nav>
+
+            <div class="perfil-usuario-inferior">
+                <div class="info-user">
+                    <strong>Dr. Roberto Sánchez</strong>
+                    <span>Cardiología | ID: #MED-092</span>
+                </div>
+                <button class="btn-cerrar"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </aside>
+
+        <main class="contenido-principal">
+            <header class="encabezado-simple">
+                <div class="migas-pan">Mi Consultorio > Resumen de Hoy</div>
+                <div class="fecha-actual">
+                    <i class="fa-solid fa-calendar-day"></i> Martes, 3 de Marzo
+                </div>
+            </header>
+
+            <section class="seccion-bienvenida">
+                <div class="texto-saludo">
+                    <h1>Turno Matutino</h1>
+                    <p>Tienes 8 pacientes programados para hoy. 3 ya están en sala de espera.</p>
+                </div>
+                <button class="btn-accion-principal"><i class="fa-solid fa-file-medical"></i> Nuevo Expediente</button>
+            </section>
+
+            <div class="fila-resumen">
+                <div class="tarjeta-contador">
+                    <i class="fa-solid fa-users azul"></i>
+                    <div><span>Total de Hoy</span> <strong>8</strong></div>
+                </div>
+                <div class="tarjeta-contador">
+                    <i class="fa-solid fa-spinner naranja"></i>
+                    <div><span>En Espera</span> <strong>3</strong></div>
+                </div>
+                <div class="tarjeta-contador">
+                    <i class="fa-solid fa-check-double verde"></i>
+                    <div><span>Atendidos</span> <strong>2</strong></div>
+                </div>
+            </div>
+
+            <div class="cuadricula-doctor">
+                <div class="columna-principal">
+                    
+                    <div class="tarjeta-destacada">
+                        <div class="etiqueta-urgencia normal">Siguiente Paciente</div>
+                        <div class="info-paciente-actual">
+                            <div>
+                                <h2>María López</h2>
+                                <span>Mujer, 45 años | Tipo de Sangre: A+</span>
+                                <p><i class="fa-solid fa-notes-medical"></i> Motivo: gripa.</p>
+                            </div>
+                            <div class="hora-cita">10:00 AM</div>
+                        </div>
+                        <div class="acciones-medicas">
+                            <button class="btn-ver-historial">Ver Historial</button>
+                            <button class="btn-iniciar-consulta">Iniciar Consulta</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <aside class="columna-secundaria">
+                    <div class="tarjeta-sala-espera">
+                        <h3><i class="fa-solid fa-chair"></i> En Sala de Espera</h3>
+                        
+                        <div class="item-espera">
+                            <div class="tiempo-espera">15 min</div>
+                            <div class="datos-espera">
+                                <strong>Carlos Ruiz</strong>
+                                <span>10:30 AM (Chequeo General)</span>
+                            </div>
+                        </div>
+
+                        <div class="item-espera">
+                            <div class="tiempo-espera">5 min</div>
+                            <div class="datos-espera">
+                                <strong>Ana Torres</strong>
+                                <span>11:00 AM (Resultados Lab)</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

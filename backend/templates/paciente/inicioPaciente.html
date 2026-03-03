@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel R.A.S.A</title>
+    <title>Panel MediGest - Centro Médico R.A.S.A</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -11,88 +11,119 @@
     <div class="contenedor-app">
         <aside class="barra-lateral">
             <div class="logo">
-                <i class="fa-solid fa-square-plus"></i> CENTRO MEDICO R.A.S.A
+                <i class="fa-solid fa-house-medical"></i>
+                <span>CENTRO MÉDICO R.A.S.A</span>
             </div>
             
-            <nav class="menu-navegacion">
-                <a href="#" class="activo"><i class="fa-solid fa-house"></i> Inicio</a>
-                <a href="#"><i class="fa-solid fa-calendar-days"></i> Mis Citas</a>
-                <a href="#"><i class="fa-solid fa-file-medical"></i> Historial</a>
-                <a href="#"><i class="fa-solid fa-user"></i> Perfil</a>
+            <nav class="navegacion-principal">
+                <a href="#" class="item-menu activo"><i class="fa-solid fa-house"></i> Inicio</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-calendar-days"></i> Mis Citas</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-file-medical"></i> Historial</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-user"></i> Perfil</a>
+                
+                <div class="separador"></div>
+                <a href="#" class="item-menu"><i class="fa-solid fa-gear"></i> Ajustes</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-circle-question"></i> Ayuda</a>
             </nav>
 
-            <div class="menu-inferior">
-                <a href="#"><i class="fa-solid fa-gear"></i> Ajustes</a>
-                <a href="#"><i class="fa-solid fa-circle-question"></i> Ayuda</a>
+            <div class="perfil-usuario-inferior">
+                <img src="https://via.placeholder.com/40" alt="Juan Pérez">
+                <div class="info-user">
+                    <strong>Juan Pérez</strong>
+                    <span>ID: #44892-PT</span>
+                </div>
+                <button class="btn-cerrar"><i class="fa-solid fa-right-from-bracket"></i></button>
             </div>
         </aside>
 
         <main class="contenido-principal">
-            <header class="encabezado-dashboard">
+            <header class="encabezado-simple">
                 <div class="migas-pan">Inicio > Resumen del Dashboard</div>
-                <div class="barra-busqueda">
-                    <input type="text" placeholder="Buscar citas, doctores...">
+                <div class="notificaciones">
                     <i class="fa-solid fa-bell"></i>
                 </div>
             </header>
 
-            <section class="bienvenida">
-                <div class="texto-bienvenida">
+            <section class="seccion-bienvenida">
+                <div class="texto-saludo">
                     <h1>Bienvenido, Juan</h1>
-                    <p>Tienes N citas programadas para esta semana.</p>
+                    <p>Tienes 3 citas programadas para esta semana. ¡Cuida tu salud!</p>
                 </div>
-                <button class="boton-agendar">+ Agendar Cita</button>
+                <button class="btn-agendar-cita"><i class="fa-solid fa-plus"></i> Agendar Cita</button>
             </section>
 
             <div class="cuadricula-dashboard">
                 <div class="columna-izquierda">
                     
                     <div class="fila-resumen">
-                        <div class="tarjeta-conteo">Confirmadas: 2</div>
-                        <div class="tarjeta-conteo">Pendientes: 1</div>
-                        <div class="tarjeta-conteo">Completadas: 15</div>
-                    </div>
-
-                    <div class="seccion-citas">
-                        <h3>Próximas Citas</h3>
-                        <div class="contenedor-tarjetas-citas">
-                            <div class="tarjeta-cita">
-                                <div class="info-doctor">
-                                    <img src="https://via.placeholder.com/50" alt="Doctora">
-                                    <div>
-                                        <strong>Dra. NOMBRE</strong>
-                                        <span>SPECIALIDAD A CONFIRMAR</span>
-                                    </div>
-                                </div>
-                                <div class="detalle-fecha">12 de Octubre, 2023 - 10:30 AM</div>
-                                <div class="botones-accion">
-                                    <button class="btn-secundario">Reprogramar</button>
-                                    <button class="btn-primario">Detalles</button>
-                                </div>
-                            </div>
+                        <div class="tarjeta-contador">
+                            <i class="fa-solid fa-check-circle azul"></i>
+                            <div><span>Confirmadas</span> <strong>2</strong></div>
+                        </div>
+                        <div class="tarjeta-contador">
+                            <i class="fa-solid fa-clock naranja"></i>
+                            <div><span>Pendientes</span> <strong>1</strong></div>
+                        </div>
+                        <div class="tarjeta-contador">
+                            <i class="fa-solid fa-circle-check verde"></i>
+                            <div><span>Completadas</span> <strong>15</strong></div>
                         </div>
                     </div>
 
+                    <div class="bloque-citas">
+                        <div class="cabecera-bloque">
+                            <h3>Próximas Citas</h3>
+                            <a href="#">Ver todas</a>
+                        </div>
+
+                        <div class="tarjeta-cita-detalle">
+    <div class="cabecera-cita">
+        <div class="doctor-meta">
+            <strong>Dra. Sarah Smith</strong>
+            <span>CARDIOLOGÍA</span>
+        </div>
+        <span class="etiqueta-estado confirmada">CONFIRMADA</span>
+    </div>
+    
+    <div class="info-cita">
+        <p><i class="fa-solid fa-calendar"></i> 12 de Octubre, 2023</p>
+        <p><i class="fa-solid fa-clock"></i> 10:30 AM (45 min)</p>
+    </div>
+    
+    <div class="acciones-cita">
+        <button class="btn-cancelar">Cancelar</button>
+        <button class="btn-detalles">Detalles</button>
+    </div>
+</div>
+                    </div>
                 </div>
 
-                <div class="columna-derecha">
+                <aside class="columna-derecha">
                     <div class="tarjeta-ficha-azul">
-                        <h4>Ficha Médica</h4>
-                        <div class="datos-ficha">
-                            <div>Tipo: O+</div>
-                            <div>Peso: 72kg</div>
-                            <div>Edad: 34</div>
+                        <div class="cabecera-ficha">
+                            <span>Ficha Médica</span>
+                            <i class="fa-solid fa-circle-info"></i>
+                        </div>
+                        <div class="stats-ficha">
+                            <div class="stat"><span>Tipo Sangre</span><strong>O+</strong></div>
+                            <div class="stat"><span>Peso</span><strong>72 kg</strong></div>
+                            <div class="stat"><span>Edad</span><strong>34</strong></div>
                         </div>
                     </div>
 
-                    <div class="tarjeta-blanca">
-                        <h4>Datos Personales</h4>
-                        <ul class="lista-datos">
-                            <li><i class="fa-solid fa-user"></i> Juan Pérez de la Rosa</li>
-                            <li><i class="fa-solid fa-envelope"></i> j.perez@ejemplo.com</li>
-                        </ul>
+                    <div class="tarjeta-datos-personales">
+                        <h3>Datos Personales</h3>
+                        <div class="dato-item">
+                            <i class="fa-solid fa-user"></i>
+                            <div><span>NOMBRE COMPLETO</span><strong>Juan Pérez de la Rosa</strong></div>
+                        </div>
+                        <div class="dato-item">
+                            <i class="fa-solid fa-envelope"></i>
+                            <div><span>CORREO ELECTRÓNICO</span><strong>j.perez@ejemplo.com</strong></div>
+                        </div>
+                        <button class="btn-editar-perfil">Editar Perfil Detallado</button>
                     </div>
-                </div>
+                </aside>
             </div>
         </main>
     </div>
