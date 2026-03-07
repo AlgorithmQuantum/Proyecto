@@ -18,8 +18,7 @@ def login():
     recordar = request.form.get("recordar")
 
     for u in USUARIOS:
-        if u.get("usuario") == usuario and check_password_hash(u["password"], password):
-
+        if password == u["password"]:
             if recordar:
                 session.permanent = True  # dura 30 minutos
             else:
@@ -29,8 +28,12 @@ def login():
             session["nombre"] = u["nombre"]
             session["rol"] = u["rol"]
 
-            return redirect("/dashboard")
-
+        RUTAS_ROL = {
+        "Paciente": "/dashboard/paciente",
+        "Doctor": "/dashboard/doctor",
+        "Recepcionista": "/dashboard/admin"
+        }
+        return redirect(RUTAS_ROL.get(u["rol"], "/auth/login"))
     return render_template(
         "login.html",
         error="Usuario o contraseña incorrectos"
@@ -81,7 +84,8 @@ def register():
     registrar_evento(
         usuario,
         "LOGIN",
-        "Inicio de sesión exitoso"
+        "Inicio de sesión exitoso",
+        "Del usuario "
     )
 
     return redirect("/auth/login")

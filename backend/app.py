@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template, redirect
 from routes.auth import auth_bp
 from routes.citas import citas_bp
 from datetime import timedelta
@@ -21,7 +21,13 @@ def create_app():
     @login_requerido
     @rol_requerido("Paciente")
     def dashboard_paciente():
-        return "Panel Paciente"
+        return render_template("/paciente/inicioPaciente.html")
+    
+    @app.route("/dashboard/doctor")
+    @login_requerido
+    @rol_requerido("Doctor")
+    def dashboard_doctor():
+        return render_template("/doctor/inicioDoctor.html")
 
     #ruta provisional en revision
     @app.route("/dashboard/admin")
@@ -29,12 +35,16 @@ def create_app():
     @rol_requerido("Recepcionista")
     def dashboard_admin():
         return "Panel Administrativo"
-    
+
     #ruta de prueba
     app.route("/bitacora")
+    @login_requerido
+    @rol_requerido("Admin")
     def ver_bitacora():
         from utils.bitacora import BITACORA
         return {"bitacora": BITACORA}
+    
+    
     return app
 
 if __name__ == "__main__":
