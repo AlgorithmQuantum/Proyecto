@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect
 from routes.auth import auth_bp
 from routes.citas import citas_bp
+from routes.dashboard import dashboard_bp
 from datetime import timedelta
 from utils.decorador import login_requerido, rol_requerido
 
@@ -11,30 +12,23 @@ def create_app():
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(citas_bp)
+    app.register_blueprint(dashboard_bp)
 
     @app.route("/")
     def index():
         return {"mensaje": "API Hospital (BD falsa)"}
 
-    #ruta provisional en revision
-    @app.route("/dashboard/paciente")
-    @login_requerido
-    @rol_requerido("Paciente")
-    def dashboard_paciente():
-        return render_template("/paciente/inicioPaciente.html")
+    @app.errorhandler(404)
+    def pagina_no_encontrada(error):
+        return render_template("404.html"), 404
     
-    @app.route("/dashboard/doctor")
-    @login_requerido
-    @rol_requerido("Doctor")
-    def dashboard_doctor():
-        return render_template("/doctor/inicioDoctor.html")
-
-    #ruta provisional en revision
-    @app.route("/dashboard/admin")
-    @login_requerido
-    @rol_requerido("Recepcionista")
-    def dashboard_admin():
-        return "Panel Administrativo"
+    @app.errorhandler(403)
+    def acceso_prohibido(error):
+        return render_template("403.html"), 403
+    
+    @app.errorhandler(500)
+    def acceso_prohibido(error):
+        return render_template("500.html"), 500
 
     #ruta de prueba
     app.route("/bitacora")

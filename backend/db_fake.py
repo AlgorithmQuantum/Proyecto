@@ -3,6 +3,13 @@
 # Usuarios simulados
 USUARIOS = [
     {
+        "id": 0,
+        "usuario": "cuentadeadmin0@prueba.com",
+        "password": "12345678",
+        "rol": "Admin",
+        "nombre": "Administrador"
+    },
+    {
         "id": 1,
         "usuario": "paciente1@prueba.com",
         "password": "1234",

@@ -18,22 +18,19 @@ def login():
     recordar = request.form.get("recordar")
 
     for u in USUARIOS:
-        if password == u["password"]:
+        if usuario == u["usuario"] and password == u["password"]:
+
             if recordar:
-                session.permanent = True  # dura 30 minutos
+                session.permanent = True
             else:
-                session.permanent = False  # se borra al cerrar navegador
-            
+                session.permanent = False
+
             session["usuario_id"] = u["id"]
             session["nombre"] = u["nombre"]
             session["rol"] = u["rol"]
 
-        RUTAS_ROL = {
-        "Paciente": "/dashboard/paciente",
-        "Doctor": "/dashboard/doctor",
-        "Recepcionista": "/dashboard/admin"
-        }
-        return redirect(RUTAS_ROL.get(u["rol"], "/auth/login"))
+            return redirect("/dashboard")
+
     return render_template(
         "login.html",
         error="Usuario o contraseña incorrectos"
@@ -51,11 +48,11 @@ def logout():
     return redirect("/auth/login")
 
 #ruta para registrarse
-@auth_bp.route("/register", methods=["GET", "POST"])
+@auth_bp.route("/registro", methods=["GET", "POST"])
 def register():
 
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template("registro.html")
 
     nombre = request.form.get("nombre")
     usuario = request.form.get("usuario")
@@ -65,7 +62,7 @@ def register():
     for u in USUARIOS:
         if u.get("usuario") == usuario:
             return render_template(
-                "register.html",
+                "registro.html",
                 error="El usuario ya existe"
             )
 

@@ -1,3 +1,127 @@
+:root {
+    --azul-medico: #1e88e5;
+    --azul-oscuro: #1565c0;
+    --gris-fondo: #f8fafc;
+    --borde-suave: #e0e0e0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--gris-fondo);
+    /* Patrón de puntos */
+    background-image: radial-gradient(#ced4da 1px, transparent 1px);
+    background-size: 20px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.contenedor-principal {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.tarjeta-login {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.icono-encabezado {
+    background-color: #e3f2fd;
+    color: var(--azul-medico);
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+}
+
+.subtitulo {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.grupo-entrada {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.grupo-entrada label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.campo-texto, .selector-rol {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--borde-suave);
+    border-radius: 8px;
+    box-sizing: border-box; /* Evita que el padding ensanche el input */
+}
+
+.fila-etiqueta {
+    display: flex;
+    justify-content: space-between;
+}
+
+.enlace-olvido {
+    font-size: 11px;
+    color: var(--azul-medico);
+    text-decoration: none;
+}
+
+.contenedor-password {
+    position: relative;
+}
+
+.icono-ojo {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ccc;
+    cursor: pointer;
+}
+
+.boton-ingresar {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--azul-medico);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.boton-ingresar:hover {
+    background-color: var(--azul-oscuro);
+}
+
+.enlace-registro {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.pie-seguridad {
+    margin-top: 20px;
+    font-size: 10px;
+    color: #999;
+    text-align: center;
+    text-transform: uppercase;
+}
+
 .body-404 {
     display: flex;
     justify-content: center;
@@ -72,382 +196,3 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(26, 115, 232, 0.3);
 }
-
-/* ESTILOS ESPECÍFICOS DEL PANEL DE RECEPCIÓN */
-
-/* 1. Tipografía moderna importada de Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-/* 2. Paleta de colores nivel "Startup" */
-:root {
-    --primario: #2563eb;          /* Azul vibrante moderno */
-    --primario-hover: #1d4ed8;
-    --primario-suave: #eff6ff;    /* Fondo para elementos activos */
-    --fondo-app: #f8fafc;         /* Gris azulado muy elegante para el fondo */
-    --superficie: #ffffff;        /* Blanco puro para las tarjetas */
-    --texto-principal: #0f172a;   /* Azul marino casi negro, mejor que el negro puro */
-    --texto-secundario: #64748b;  /* Gris moderno para subtítulos */
-    --borde-suave: #e2e8f0;       /* Líneas divisorias casi invisibles */
-    --exito: #10b981;
-    --alerta: #f59e0b;
-    
-    /* El secreto moderno: Sombras multicapa muy suaves */
-    --sombra-tarjeta: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 10px 15px -3px rgba(0, 0, 0, 0.03);
-    --sombra-boton: 0 4px 14px 0 rgba(37, 99, 235, 0.3);
-}
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: var(--fondo-app);
-    color: var(--texto-principal);
-    -webkit-font-smoothing: antialiased; /* Hace que la fuente se vea más nítida */
-}
-
-.contenedor-app {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    min-height: 100vh;
-}
-
-/* --- BARRA LATERAL (Elegante y limpia) --- */
-.barra-lateral {
-    background-color: var(--superficie);
-    border-right: 1px solid var(--borde-suave);
-    display: flex;
-    flex-direction: column;
-    padding: 24px 16px;
-}
-
-.logo {
-    padding: 10px 16px 40px;
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--texto-principal);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    letter-spacing: -0.5px;
-}
-
-.logo i {
-    color: var(--primario);
-    font-size: 24px;
-}
-
-.navegacion-principal {
-    display: flex;
-    flex-direction: column;
-    gap: 4px; /* Separación sutil entre botones */
-    flex-grow: 1;
-}
-
-.item-menu {
-    padding: 14px 16px;
-    text-decoration: none;
-    color: var(--texto-secundario);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-weight: 600;
-    font-size: 14.5px;
-    border-radius: 12px;
-    transition: all 0.2s ease;
-}
-
-.item-menu:hover {
-    background-color: #f1f5f9;
-    color: var(--texto-principal);
-}
-
-.item-menu.activo {
-    background-color: var(--primario);
-    color: white;
-    box-shadow: var(--sombra-boton);
-}
-
-.separador {
-    height: 1px;
-    background: var(--borde-suave);
-    margin: 20px 16px;
-}
-
-.perfil-usuario-inferior {
-    background: var(--fondo-app);
-    padding: 16px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: auto;
-}
-
-.perfil-usuario-inferior img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.info-user strong {
-    display: block;
-    font-size: 14px;
-    color: var(--texto-principal);
-}
-
-.info-user span {
-    font-size: 12px;
-    color: var(--texto-secundario);
-    font-weight: 500;
-}
-
-/* --- CONTENIDO PRINCIPAL --- */
-.contenido-principal {
-    padding: 40px 48px;
-    overflow-y: auto;
-}
-
-/* Encabezado */
-.encabezado-simple, .encabezado-admin {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 40px;
-}
-
-.fecha-actual {
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--texto-secundario);
-}
-
-/* Buscador Moderno */
-.barra-busqueda-global {
-    display: flex;
-    align-items: center;
-    background: var(--superficie);
-    padding: 12px 24px;
-    border-radius: 100px; /* Bordes totalmente redondos tipo píldora */
-    box-shadow: var(--sombra-tarjeta);
-    width: 450px;
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
-}
-
-.barra-busqueda-global:focus-within {
-    border-color: var(--primario);
-    box-shadow: 0 0 0 4px var(--primario-suave);
-}
-
-.barra-busqueda-global input {
-    border: none;
-    outline: none;
-    width: 100%;
-    font-size: 14px;
-    font-family: inherit;
-    margin-left: 12px;
-}
-
-/* Bienvenida */
-.seccion-bienvenida {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 32px;
-}
-
-.texto-saludo h1 {
-    margin: 0 0 8px 0;
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: -1px;
-}
-
-.texto-saludo p {
-    margin: 0;
-    font-size: 15px;
-    color: var(--texto-secundario);
-}
-
-/* Botones Premium */
-
-/* Botón Secundario (Outline) */
-.btn-secundario-admin {
-    background-color: var(--superficie); 
-    color: var(--primario); 
-    border: 2px solid var(--primario-suave); /* Borde de 2px visible */
-    padding: 12px 24px; /* Padding unificado */
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Centra el texto y el icono */
-    gap: 8px;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    font-family: inherit;
-    min-width: 220px; /* Fuerza a que tenga el mismo ancho */
-}
-
-.btn-secundario-admin:hover {
-    background-color: var(--primario-suave); 
-    border-color: var(--primario); 
-    transform: translateY(-2px); 
-}
-
-.btn-secundario-admin i {
-    font-size: 16px;
-}
-
-/* Botón Principal (Sólido) */
-.btn-agendar-cita, .btn-accion-principal {
-    background: var(--primario);
-    color: white;
-    border: 2px solid transparent; /* Borde INVISIBLE para igualar la altura */
-    padding: 12px 24px; /* Padding unificado */
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Centra el texto y el icono */
-    gap: 10px;
-    box-shadow: var(--sombra-boton);
-    transition: all 0.2s ease;
-    font-family: inherit;
-    min-width: 220px; /* Fuerza a que tenga el mismo ancho */
-}
-
-.btn-agendar-cita:hover, .btn-accion-principal:hover {
-    background: var(--primario-hover);
-    transform: translateY(-2px);
-}
-
-.fila-resumen {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 32px;
-}
-
-.tarjeta-contador {
-    background: var(--superficie);
-    padding: 24px;
-    border-radius: 20px;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    box-shadow: var(--sombra-tarjeta);
-    border: 1px solid var(--borde-suave);
-}
-
-.tarjeta-contador i {
-    font-size: 24px;
-    width: 56px;
-    height: 56px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 16px;
-}
-
-.azul { color: var(--primario); background: var(--primario-suave); }
-.naranja { color: var(--alerta); background: #fef3c7; }
-.verde { color: var(--exito); background: #d1fae5; }
-
-.tarjeta-contador div {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.tarjeta-contador span {
-    color: var(--texto-secundario);
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.tarjeta-contador strong {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--texto-principal);
-}
-
-.cuadricula-dashboard, .cuadricula-doctor, .cuadricula-admin {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 24px;
-}
-
-.tarjeta-cita-detalle, .tarjeta-destacada, .tarjeta-sala-espera, .tarjeta-panel {
-    background: var(--superficie);
-    padding: 32px;
-    border-radius: 24px; /* Curvas amplias y modernas */
-    box-shadow: var(--sombra-tarjeta);
-    border: 1px solid var(--borde-suave);
-}
-
-.cabecera-bloque {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-.cabecera-bloque h3, .tarjeta-panel h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 700;
-}
-
-/* --- LISTAS INTERNAS --- */
-.fila-cita-admin {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    margin-bottom: 8px;
-    border-radius: 12px;
-    background: var(--fondo-app);
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
-}
-
-.fila-cita-admin:hover {
-    background: white;
-    border-color: var(--borde-suave);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-}
-
-.hora-admin {
-    font-weight: 700;
-    color: var(--primario);
-    min-width: 85px;
-    font-size: 15px;
-}
-
-.info-cruce strong {
-    display: block;
-    font-size: 15px;
-    color: var(--texto-principal);
-    margin-bottom: 2px;
-}
-
-/* Etiquetas */
-.estado-admin {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 6px 12px;
-    border-radius: 8px;
-    letter-spacing: 0.5px;
-}
-
-.en-consulta { background: #d1fae5; color: #065f46; }
-.en-espera { background: #fef3c7; color: #92400e; }
-.por-llegar { background: #f1f5f9; color: #475569; }

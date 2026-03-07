@@ -5,6 +5,7 @@
     <title>Panel MediGest - Centro Médico R.A.S.A</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_paciente.css') }}">
 </head>
 <body>
 
@@ -46,7 +47,7 @@
 
             <section class="seccion-bienvenida">
                 <div class="texto-saludo">
-                    <h1>Bienvenido, Juan</h1>
+                    <h1>Bienvenido, {{ session.nombre }}</h1>
                     <p>Tienes 3 citas programadas para esta semana. ¡Cuida tu salud!</p>
                 </div>
                 <button class="btn-agendar-cita"><i class="fa-solid fa-plus"></i> Agendar Cita</button>
@@ -69,35 +70,30 @@
                             <div><span>Completadas</span> <strong>15</strong></div>
                         </div>
                     </div>
-
                     <div class="bloque-citas">
                         <div class="cabecera-bloque">
                             <h3>Próximas Citas</h3>
                             <a href="#">Ver todas</a>
                         </div>
-
                         <div class="tarjeta-cita-detalle">
-    <div class="cabecera-cita">
-        <div class="doctor-meta">
-            <strong>Dra. Sarah Smith</strong>
-            <span>CARDIOLOGÍA</span>
-        </div>
-        <span class="etiqueta-estado confirmada">CONFIRMADA</span>
-    </div>
-    
-    <div class="info-cita">
-        <p><i class="fa-solid fa-calendar"></i> 12 de Octubre, 2023</p>
-        <p><i class="fa-solid fa-clock"></i> 10:30 AM (45 min)</p>
-    </div>
-    
-    <div class="acciones-cita">
-        <button class="btn-cancelar">Cancelar</button>
-        <button class="btn-detalles">Detalles</button>
-    </div>
-</div>
+                            <div class="cabecera-cita">
+                                <div class="doctor-meta">
+                                    <strong>Dra. Sarah Smith</strong>
+                                    <span>CARDIOLOGÍA</span>
+                                </div>
+                                <span class="etiqueta-estado confirmada">CONFIRMADA</span>
+                            </div>
+                            <div class="info-cita">
+                                <p><i class="fa-solid fa-calendar"></i> 12 de Octubre, 2023</p>
+                                <p><i class="fa-solid fa-clock"></i> 10:30 AM (45 min)</p>
+                            </div>
+                            <div class="acciones-cita">
+                                <button class="btn-cancelar">Cancelar</button>
+                                <button class="btn-detalles">Detalles</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
                 <aside class="columna-derecha">
                     <div class="tarjeta-ficha-azul">
                         <div class="cabecera-ficha">
@@ -110,7 +106,6 @@
                             <div class="stat"><span>Edad</span><strong>34</strong></div>
                         </div>
                     </div>
-
                     <div class="tarjeta-datos-personales">
                         <h3>Datos Personales</h3>
                         <div class="dato-item">
