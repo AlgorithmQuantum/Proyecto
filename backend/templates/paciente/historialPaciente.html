@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial Médico - Centro Médico R.A.S.A</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="contenedor-app">
+        <aside class="barra-lateral">
+            <div class="logo">
+                <i class="fa-solid fa-house-medical"></i>
+                <span>CENTRO MÉDICO R.A.S.A</span>
+            </div>
+            
+            <nav class="navegacion-principal">
+                <a href="index.html" class="item-menu"><i class="fa-solid fa-house"></i> Inicio</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-calendar-days"></i> Mis Citas</a>
+                <a href="#" class="item-menu activo"><i class="fa-solid fa-file-medical"></i> Historial</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-user"></i> Perfil</a>
+                
+                <div class="separador"></div>
+                <a href="#" class="item-menu"><i class="fa-solid fa-gear"></i> Ajustes</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-circle-question"></i> Ayuda</a>
+            </nav>
+
+            <div class="perfil-usuario-inferior">
+                <img src="https://via.placeholder.com/40" alt="Juan Pérez">
+                <div class="info-user">
+                    <strong>Juan Pérez</strong>
+                    <span>ID: #44892-PT</span>
+                </div>
+                <button class="btn-cerrar"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </aside>
+
+        <main class="contenido-principal">
+            
+            <header class="encabezado-simple">
+                <div class="migas-pan">Inicio > <strong>Historial Médico</strong></div>
+                
+                <div class="barra-busqueda-global" style="width: 350px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar citas, doctores, recetas...">
+                </div>
+
+                <div class="notificaciones">
+                    <i class="fa-solid fa-bell"></i>
+                </div>
+            </header>
+
+            <section class="seccion-bienvenida">
+                <div class="texto-saludo">
+                    <h1>Tu Expediente y Consultas</h1>
+                    <p>Revisa el registro de tus visitas médicas, diagnósticos y resultados de laboratorio.</p>
+                </div>
+            </section>
+
+            <div class="barra-filtros">
+                <button class="btn-filtro activo">Todas</button>
+                <button class="btn-filtro">Consultas Generales</button>
+                <button class="btn-filtro">Especialidad</button>
+                <button class="btn-filtro">Laboratorios</button>
+            </div>
+
+            <div class="tarjeta-panel">
+                <div class="lista-historial">
+
+                    <div class="item-historial">
+                        <div class="fecha-historial">
+                            <span class="dia">15</span>
+                            <span class="mes">OCT</span>
+                            <span class="anio">2023</span>
+                        </div>
+                        <div class="icono-tipo-cita azul">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        <div class="detalle-historial">
+                            <h3>Consulta de Cardiología</h3>
+                            <p><strong>Dra. Sarah Smith</strong> • Presión arterial estable, se ajustó dosis de Lisinopril.</p>
+                            <div class="etiquetas-registro">
+                                <span class="tag tag-receta"><i class="fa-solid fa-pills"></i> Receta Emitida</span>
+                                <span class="tag tag-ok"><i class="fa-solid fa-check"></i> Completada</span>
+                            </div>
+                        </div>
+                        <div class="acciones-historial">
+                            <a href="comprobante.html" class="btn-accion-historial"><i class="fa-solid fa-file-invoice"></i> Ver Recibo</a>
+                            <button class="btn-accion-historial"><i class="fa-solid fa-prescription"></i> Receta</button>
+                        </div>
+                    </div>
+
+                    <div class="item-historial">
+                        <div class="fecha-historial">
+                            <span class="dia">10</span>
+                            <span class="mes">OCT</span>
+                            <span class="anio">2023</span>
+                        </div>
+                        <div class="icono-tipo-cita verde">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <div class="detalle-historial">
+                            <h3>Análisis de Sangre Clínico</h3>
+                            <p><strong>Laboratorio Central</strong> • Biometría hemática y química sanguínea de 6 elementos.</p>
+                            <div class="etiquetas-registro">
+                                <span class="tag tag-lab"><i class="fa-solid fa-file-pdf"></i> Resultados PDF</span>
+                            </div>
+                        </div>
+                        <div class="acciones-historial">
+                            <button class="btn-accion-historial principal"><i class="fa-solid fa-download"></i> Descargar</button>
+                        </div>
+                    </div>
+
+                    <div class="item-historial">
+                        <div class="fecha-historial">
+                            <span class="dia">02</span>
+                            <span class="mes">SEP</span>
+                            <span class="anio">2023</span>
+                        </div>
+                        <div class="icono-tipo-cita naranja">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                        <div class="detalle-historial">
+                            <h3>Consulta General</h3>
+                            <p><strong>Dr. Michael Chen</strong> • Chequeo de rutina por molestias en la garganta (Faringitis leve).</p>
+                            <div class="etiquetas-registro">
+                                <span class="tag tag-receta"><i class="fa-solid fa-pills"></i> Receta Emitida</span>
+                            </div>
+                        </div>
+                        <div class="acciones-historial">
+                            <button class="btn-accion-historial"><i class="fa-solid fa-file-invoice"></i> Ver Recibo</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>
