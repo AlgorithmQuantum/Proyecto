@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de Cita - Portal Médico</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body style="background-color: var(--fondo-gris);">
+
+    <header class="header-comprobante">
+        <div class="logo-portal">
+            <span class="material-icons">medical_services</span>
+            Portal Médico
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Inicio</a></li>
+                <li><a href="#" class="active">Citas</a></li>
+                <li><a href="#">Expediente</a></li>
+                <li><a href="#">Pagos</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <span class="material-icons">notifications</span>
+            <span class="material-icons">settings</span>
+            <div class="profile-pic">AT</div>
+        </div>
+    </header>
+
+    <main class="main-comprobante">
+        <div class="title-folio-section">
+            <div>
+                <h1>Comprobante de Cita</h1>
+                <p class="folio">Folio #HOSP-2023-8842</p>
+            </div>
+            <div class="receipt-actions">
+                <a href="#" class="btn-receipt btn-primary">
+                    <span class="material-icons">print</span> Imprimir
+                </a>
+            </div>
+        </div>
+
+        <div class="receipt-card">
+            <div class="card-header">
+                <div class="header-left">
+                    <div class="calendar-icon-container">
+                        <span class="material-icons">calendar_today</span>
+                    </div>
+                    <div>
+                        <p class="receipt-main-title">COMPROBANTE DE CITA MÉDICA</p>
+                        <p class="receipt-sub-title">Sistema de Gestión Hospitalaria General</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <span class="folio-label">FOLIO</span>
+                    <p class="folio-number-big">HOSP-2023-8842</p>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row-patient-date">
+                    <div class="patient-info">
+                        <p class="data-label">PACIENTE</p>
+                        <p class="data-value">Juan Perez</p>
+                        <p class="patient-id">ID Paciente: P-99824021</p>
+                    </div>
+                    <div class="date-time-info">
+                        <p class="data-label">FECHA Y HORARIO</p>
+                        <p class="data-value">Lunes, 24 Oct, 2023</p>
+                        <p class="date-time-detailed">10:30 AM — 11:15 AM</p>
+                    </div>
+                </div>
+
+                <div class="row-details">
+                    <div class="detail-item">
+                        <span class="material-icons">face</span>
+                        <div>
+                            <p class="data-label">DOCTOR</p>
+                            <p class="data-value">Dra. Maria Perez</p>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="material-icons">cardiology</span>
+                        <div>
+                            <p class="data-label">ESPECIALIDAD</p>
+                            <p class="data-value">Departamento de<br>Cardiología</p>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="material-icons">room</span>
+                        <div>
+                            <p class="data-label">CONSULTORIO</p>
+                            <p class="data-value">Sala 402, 4to Piso</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-payment">
+                    <div class="payment-info-container">
+                        <div class="payment-icon-container">
+                            <span class="material-icons">payments</span>
+                        </div>
+                        <div>
+                            <p class="payment-main-title">Línea de Pago</p>
+                            <p class="payment-sub-title">Cuota por consulta de especialidad</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="payment-amount">$1,200.00 MXN</p>
+                        <p class="payment-status-pending"><span class="dot-pending"></span> PENDIENTE EN CAJA</p>
+                    </div>
+                </div>
+
+                <div class="row-important-info">
+                    <div class="info-header-container">
+                        <span class="material-icons">info</span>
+                        <p class="info-main-title">Información Importante</p>
+                    </div>
+                    <div class="important-points">
+                        <div class="point-item">
+                            <span class="material-icons">history_toggle_off</span>
+                            <div>
+                                <span class="point-title">Límite de Pago (24 hrs):</span> Para garantizar su lugar, el pago debe realizarse al menos 24 horas antes del horario programado de su cita.
+                            </div>
+                        </div>
+                        <div class="point-item">
+                            <span class="material-icons">cancel_schedule_send</span>
+                            <div>
+                                <span class="point-title">Política de Cancelación:</span> Las cancelaciones con menos de 24 horas de antelación estarán sujetas a un cargo administrativo de $250.00 MXN.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <div>
+                    DOCUMENTO GENERADO EL: 20 DE OCT, 2023 A LAS 09:12 AM
+                    <p style="margin-top: 5px; font-style: italic;">Documento Digital Oficial del Sistema de Salud</p>
+                </div>
+                <div class="barcode">*HOSP-2023-8842*</div>
+            </div>
+        </div>
+
+        <div class="back-button-container">
+            <a href="#" class="btn-outline"><span class="material-icons">arrow_back</span> Volver al Tablero</a>
+        </div>
+    </main>
+
+    <footer class="footer-comprobante">
+        © 2023 Sistema de Gestión Hospitalaria. Todos los derechos reservados.
+    </footer>
+
+</body>
+</html>
