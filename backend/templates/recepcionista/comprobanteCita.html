@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de Cita - Portal Médico</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar-top">
+        <div class="nav-brand">
+            <div class="logo-icon"><i class="ph-fill ph-plus-square"></i></div>
+            <div class="logo-texts">
+                <span class="logo-text-top">Portal</span>
+                <span class="logo-text-bottom">R.A.S.A</span>
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="inicioRecepcion.html">Inicio</a></li>
+            <li><a href="#" class="active">Citas</a></li>
+            <li><a href="#">Expediente</a></li>
+            <li><a href="#">Pagos</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="icon-btn rounded-icon"><i class="ph ph-bell"></i></button>
+            <button class="icon-btn rounded-icon"><i class="ph ph-gear"></i></button>
+            <button class="icon-btn rounded-icon profile-btn"><i class="ph ph-user"></i></button>
+        </div>
+    </nav>
+
+    <div class="action-row">
+        <div class="breadcrumb">
+            Inicio / Citas / <span>Comprobante de Cita</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline">
+                <i class="ph ph-download-simple"></i> Descargar PDF
+            </button>
+            <button class="btn btn-primary">
+                <i class="ph ph-printer"></i> Imprimir
+            </button>
+        </div>
+    </div>
+
+    <main class="main-container">
+        
+        <header class="page-header">
+            <div>
+                <h1>Comprobante de Cita</h1>
+                <p class="folio-text">Folio #HOSP-2023-8842</p>
+            </div>
+        </header>
+
+        <article class="receipt-card">
+            
+            <div class="card-header">
+                <div class="header-title">
+                    <div class="icon-box blue"><i class="ph-fill ph-first-aid-kit"></i></div>
+                    <div>
+                        <h2>COMPROBANTE DE CITA MÉDICA</h2>
+                        <p>Sistema de Gestión Hospitalaria General</p>
+                    </div>
+                </div>
+                <div class="header-folio">
+                    <span class="badge">FOLIO</span>
+                    <h3>HOSP-2023-8842</h3>
+                </div>
+            </div>
+
+            <div class="card-body">
+                
+                <div class="patient-section">
+                    <div class="info-block">
+                        <span class="label">PACIENTE</span>
+                        <p class="value">Juan Perz</p>
+                        <p class="sub-value">ID Paciente: P-99824021</p>
+                    </div>
+                    <div class="info-block align-right">
+                        <span class="label">FECHA Y HORARIO</span>
+                        <p class="value">Lunes, 24 Oct, 2026</p>
+                        <p class="sub-value text-blue">10:30 AM — 11:15 AM</p>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <div class="details-section">
+                    <div class="detail-item">
+                        <i class="ph-fill ph-identification-card text-light-blue"></i>
+                        <div>
+                            <span class="label">DOCTOR</span>
+                            <p class="value-sm">Dra. Sarah Jenkins</p>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="ph-fill ph-stethoscope text-light-blue"></i>
+                        <div>
+                            <span class="label">ESPECIALIDAD</span>
+                            <p class="value-sm">Departamento de Cardiología</p>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="ph-fill ph-door text-light-blue"></i>
+                        <div>
+                            <span class="label">CONSULTORIO</span>
+                            <p class="value-sm">Sala 402, 4to Piso</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-block">
+                    <div class="payment-info">
+                        <div class="icon-box light-gray"><i class="ph-fill ph-money"></i></div>
+                        <div>
+                            <p class="value">Línea de Pago</p>
+                            <p class="sub-value">Cuota por consulta de especialidad</p>
+                        </div>
+                    </div>
+                    <div class="payment-amount">
+                        <p class="price">$1,200.00 MXN</p>
+                        <p class="status-pending"><span class="dot"></span> PENDIENTE EN CAJA</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-header">
+                        <i class="ph-fill ph-info"></i>
+                        <h4>Información Importante</h4>
+                    </div>
+                    <div class="info-content">
+                        <p><i class="ph-fill ph-clock"></i> <strong>Límite de Pago (24 hrs):</strong> Para garantizar su lugar, el pago debe realizarse al menos 24 horas antes del horario programado de su cita.</p>
+                        <p><i class="ph-fill ph-arrows-left-right"></i> <strong>Política de Cancelación:</strong> Las cancelaciones con menos de 24 horas de antelación estarán sujetas a un cargo administrativo de $250.00 MXN.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card-footer">
+                <div class="footer-text">
+                    <p>DOCUMENTO GENERADO EL: 20 DE OCT, 2023 A LAS 09:12 AM</p>
+                    <p class="italic">Documento Digital Oficial del Sistema de Salud</p>
+                </div>
+                <div class="barcode">
+                    <div class="bar thick"></div><div class="bar thin"></div><div class="bar medium"></div>
+                    <div class="bar thin"></div><div class="bar thick"></div><div class="bar thin"></div>
+                    <div class="bar medium"></div><div class="bar thin"></div><div class="bar thick"></div>
+                </div>
+            </div>
+
+        </article>
+
+        <div class="bottom-action">
+            <button class="btn btn-outline large">
+                <i class="ph ph-arrow-left"></i> Volver al Tablero
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <p>© 2023 Sistema de Gestión Hospitalaria. Todos los derechos reservados.</p>
+    </footer>
+
+</body>
+</html>
