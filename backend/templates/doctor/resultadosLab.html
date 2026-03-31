@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro Médico R.A.S.A - Resultados de Lab</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="barra-navegacion">
+        <div class="marca">
+            <span class="icono-marca">🏥</span>
+            <strong>Centro Médico<br>R.A.S.A</strong>
+        </div>
+        
+        <ul class="menu-principal">
+            <li><a href="#">Panel Principal</a></li>
+            <li><a href="#">Consultas de Hoy</a></li>
+            <li><a href="#">Mis Pacientes</a></li>
+            <li class="activo"><a href="#">Resultados de Lab</a></li>
+        </ul>
+
+        <div class="perfil-usuario">
+            <div class="info-doctor">
+                <strong>Dr. Roberto Sánchez</strong>
+                <span>Cardiología | ID: #MED-092</span>
+            </div>
+            <button class="btn-salir" title="Cerrar Sesión">🚪</button>
+        </div>
+    </nav>
+
+    <main class="contenedor-principal">
+        
+        <header class="encabezado-pagina">
+            <div class="migas-pan">
+                Panel Principal > <strong>Resultados de Laboratorio</strong>
+            </div>
+        </header>
+
+        <div class="seccion-titulo">
+            <div>
+                <h1>Resultados de Laboratorio</h1>
+                <p>Busca a un paciente por nombre, ID o número de expediente para visualizar sus estudios médicos.</p>
+            </div>
+        </div>
+
+        <div class="tarjeta-fondo buscador-central">
+            <div class="grupo-busqueda-grande">
+                <span class="icono-busqueda-grande">🔍</span>
+                <input type="text" class="input-busqueda-grande" placeholder="Ingresa el nombre o ID del paciente..." value="Carlos Ruiz">
+                <button class="btn-primario btn-buscar">Buscar Expediente</button>
+            </div>
+        </div>
+
+        <div class="area-resultados">
+            <h3 class="titulo-resultados">Resultados para: "Carlos Ruiz"</h3>
+            
+            <div class="tarjeta-fondo info-paciente-lab">
+                <div class="celda-perfil">
+                    <div class="avatar fondo-verde">CR</div>
+                    <div>
+                        <h2>Carlos Ruiz</h2>
+                        <span class="texto-gris">ID: #PAC-1093 | 32 años | Masculino | Tipo de Sangre: O+</span>
+                    </div>
+                </div>
+                <button class="btn-secundario">Ir al Expediente Completo</button>
+            </div>
+
+            <div class="contenedor-tabla tarjeta-fondo">
+                <table class="tabla-pacientes">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo de Estudio</th>
+                            <th>Laboratorio / Clínica</th>
+                            <th>Estado</th>
+                            <th>Documento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>28 Mar, 2026</strong>
+                                <br><span class="texto-gris">08:30 AM</span>
+                            </td>
+                            <td>
+                                <strong>Biometría Hemática Completa</strong>
+                                <br><span class="texto-gris">Ordenado por: Dr. Roberto Sánchez</span>
+                            </td>
+                            <td class="texto-gris">Lab Central R.A.S.A</td>
+                            <td><span class="etiqueta-pill pill-estable">Listo</span></td>
+                            <td>
+                                <button class="btn-documento-lab">📄 Ver PDF</button>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong>28 Mar, 2026</strong>
+                                <br><span class="texto-gris">08:45 AM</span>
+                            </td>
+                            <td>
+                                <strong>Química Sanguínea (27 elementos)</strong>
+                                <br><span class="texto-gris">Ordenado por: Dr. Roberto Sánchez</span>
+                            </td>
+                            <td class="texto-gris">Lab Central R.A.S.A</td>
+                            <td><span class="etiqueta-pill pill-estable">Listo</span></td>
+                            <td>
+                                <button class="btn-documento-lab">📄 Ver PDF</button>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong>31 Mar, 2026</strong>
+                                <br><span class="texto-gris">09:00 AM</span>
+                            </td>
+                            <td>
+                                <strong>Examen General de Orina</strong>
+                                <br><span class="texto-gris">Ordenado por: Dra. Elena Gómez</span>
+                            </td>
+                            <td class="texto-gris">Lab Externo (Biolab)</td>
+                            <td><span class="etiqueta-pill pill-alerta">Pendiente</span></td>
+                            <td>
+                                <button class="btn-documento-lab deshabilitado" disabled>⏳ En proceso</button>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong>15 Nov, 2025</strong>
+                                <br><span class="texto-gris">11:20 AM</span>
+                            </td>
+                            <td>
+                                <strong>Electrocardiograma en Reposo</strong>
+                                <br><span class="texto-gris">Ordenado por: Dr. Roberto Sánchez</span>
+                            </td>
+                            <td class="texto-gris">Cardiología R.A.S.A</td>
+                            <td><span class="etiqueta-pill pill-estable">Listo</span></td>
+                            <td>
+                                <button class="btn-documento-lab">📄 Ver PDF</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</body>
+</html>

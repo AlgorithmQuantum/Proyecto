@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro Médico R.A.S.A - Emitir Receta</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="barra-navegacion">
+        <div class="marca">
+            <span class="icono-marca">🏥</span>
+            <strong>Centro Médico<br>R.A.S.A</strong>
+        </div>
+        
+        <ul class="menu-principal">
+            <li><a href="#">Panel Principal</a></li>
+            <li><a href="#">Consultas de Hoy</a></li>
+            <li><a href="#">Mis Pacientes</a></li>
+            <li class="activo"><a href="#">Recetas</a></li>
+            <li><a href="#">Resultados de Lab</a></li>
+        </ul>
+
+        <div class="perfil-usuario">
+            <div class="info-doctor">
+                <strong>Dr. Roberto Sánchez</strong>
+                <span>Cardiología | ID: #MED-092</span>
+            </div>
+            <button class="btn-salir" title="Cerrar Sesión">🚪</button>
+        </div>
+    </nav>
+
+    <main class="contenedor-principal">
+        
+        <header class="encabezado-pagina">
+            <div class="migas-pan">
+                Consultas de Hoy > María López > <strong>Nueva Receta Médica</strong>
+            </div>
+        </header>
+
+        <div class="cuadricula-receta">
+            
+            <section class="panel-constructor tarjeta-fondo">
+                <div class="encabezado-panel">
+                    <h3>Generar Receta Médica</h3>
+                    <span class="etiqueta-pill pill-estable">Paciente Actual: María López</span>
+                </div>
+
+                <div class="formulario-receta">
+                    
+                    <h4 class="subtitulo-form">1. Agregar Medicamento</h4>
+                    <div class="grupo-inputs-doble">
+                        <div class="input-grupo ancho-completo">
+                            <label>Nombre del Medicamento / Sustancia Activa</label>
+                            <input type="text" class="input-form" placeholder="Ej. Paracetamol 500mg...">
+                        </div>
+                    </div>
+
+                    <div class="grupo-inputs-triple">
+                        <div class="input-grupo">
+                            <label>Dosis</label>
+                            <input type="text" class="input-form" placeholder="Ej. 1 tableta">
+                        </div>
+                        <div class="input-grupo">
+                            <label>Frecuencia</label>
+                            <select class="input-form">
+                                <option>Cada 8 horas</option>
+                                <option>Cada 12 horas</option>
+                                <option>Cada 24 horas</option>
+                                <option>Dosis única</option>
+                            </select>
+                        </div>
+                        <div class="input-grupo">
+                            <label>Duración</label>
+                            <input type="text" class="input-form" placeholder="Ej. 5 días">
+                        </div>
+                    </div>
+
+                    <div class="grupo-inputs-doble">
+                        <div class="input-grupo ancho-completo">
+                            <label>Vía de Administración e Indicaciones Específicas</label>
+                            <input type="text" class="input-form" placeholder="Ej. Vía oral, tomar después de los alimentos.">
+                        </div>
+                    </div>
+
+                    <button class="btn-secundario btn-agregar-med">➕ Añadir a la receta</button>
+
+                    <hr class="divisor">
+
+                    <h4 class="subtitulo-form">2. Indicaciones Generales (Opcional)</h4>
+                    <div class="input-grupo">
+                        <textarea class="input-form textarea-form" placeholder="Reposo absoluto, hidratación abundante, evitar grasas..."></textarea>
+                    </div>
+
+                </div>
+            </section>
+
+            <aside class="panel-vista-previa">
+                
+                <div class="documento-receta">
+                    <div class="receta-header">
+                        <div class="receta-logo">
+                            <span class="icono-marca">🏥</span>
+                            <strong>R.A.S.A</strong>
+                        </div>
+                        <div class="receta-datos-doctor">
+                            <strong>Dr. Roberto Sánchez</strong>
+                            <span>Cardiólogo Clínico | Cédula: 8892314</span>
+                            <span>Universidad Nacional Autónoma</span>
+                        </div>
+                    </div>
+                    
+                    <div class="receta-datos-paciente">
+                        <div class="dato-inline"><strong>Paciente:</strong> María López</div>
+                        <div class="dato-inline"><strong>Edad:</strong> 45 años</div>
+                        <div class="dato-inline"><strong>Fecha:</strong> 3 de Marzo, 2026</div>
+                        <div class="dato-inline"><strong>Peso:</strong> 68 kg</div>
+                        <div class="dato-inline"><strong>Temp:</strong> 38.5 °C</div>
+                        <div class="dato-inline"><strong>T.A.:</strong> 120/80</div>
+                    </div>
+
+                    <div class="receta-cuerpo">
+                        <div class="marca-agua">R.A.S.A</div>
+                        <h4 class="simbolo-rx">Rx</h4>
+                        
+                        <ul class="lista-medicamentos-receta">
+                            <li>
+                                <strong>1. Ibuprofeno 400mg</strong> (Tabletas)
+                                <p>Tomar <strong>1 tableta</strong> por vía oral cada <strong>8 horas</strong> durante <strong>3 días</strong>.</p>
+                                <p class="nota-med"><em>* Tomar junto con los alimentos.</em></p>
+                            </li>
+                            <li>
+                                <strong>2. Amoxicilina / Ácido Clavulánico 500mg/125mg</strong> (Cápsulas)
+                                <p>Tomar <strong>1 cápsula</strong> por vía oral cada <strong>12 horas</strong> durante <strong>7 días</strong>.</p>
+                            </li>
+                        </ul>
+
+                        <div class="indicaciones-generales-receta">
+                            <strong>Indicaciones Generales:</strong>
+                            <p>Mantener reposo en casa por 3 días. Consumir abundantes líquidos (mínimo 2 litros diarios). Si la fiebre persiste por más de 48 horas, acudir nuevamente a consulta.</p>
+                        </div>
+                    </div>
+
+                    <div class="receta-footer">
+                        <div class="firma-espacio">
+                            <div class="linea-firma"></div>
+                            <span>Firma del Médico</span>
+                        </div>
+                        <div class="codigo-qr-simulado">
+                            <span class="texto-gris">ID: REC-2026-0382</span>
+                            <div class="cuadro-qr">📱</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="acciones-receta-final">
+                    <button class="btn-secundario"><span class="icono-btn">📧</span> Enviar por Correo</button>
+                    <button class="btn-primario ancho-completo"><span class="icono-btn">🖨️</span> Imprimir y Guardar</button>
+                </div>
+
+            </aside>
+
+        </div>
+    </main>
+</body>
+</html>
