@@ -2,152 +2,244 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Recepción - Centro Médico R.A.S.A</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recepción - Centro Médico R.A.S.A</title>
+    <!-- Importamos la fuente moderna desde el CSS, pero los iconos van aquí -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style_recepcion.css') }}">
 </head>
 <body>
 
     <div class="contenedor-app">
+        
+        <!-- BARRA LATERAL (Elegante y limpia) -->
         <aside class="barra-lateral">
             <div class="logo">
-                <i class="fa-solid fa-hospital"></i>
-                <span>RECEPCIÓN R.A.S.A</span>
+                <i class="fa-solid fa-hospital-user"></i> R.A.S.A
             </div>
             
             <nav class="navegacion-principal">
-                <a href="#" class="item-menu activo"><i class="fa-solid fa-table-columns"></i> Panel General</a>
-                <a href="#" class="item-menu"><i class="fa-solid fa-calendar-days"></i> Todas las Citas</a>
-                <a href="#" class="item-menu"><i class="fa-solid fa-address-book"></i> Directorio Pacientes</a>
-                <a href="#" class="item-menu"><i class="fa-solid fa-user-doctor"></i> Personal Médico</a>
-                <a href="#" class="item-menu"><i class="fa-solid fa-file-invoice-dollar"></i> Facturación</a>
+                <a href="#" class="item-menu activo"><i class="fa-solid fa-desktop"></i> Recepción</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-calendar-days"></i> Agenda General</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-users"></i> Pacientes</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-credit-card"></i> Pagos y Caja</a>
+                <a href="#" class="item-menu"><i class="fa-solid fa-user-doctor"></i> Médicos</a>
                 
                 <div class="separador"></div>
-                <a href="#" class="item-menu"><i class="fa-solid fa-gear"></i> Ajustes del Sistema</a>
+                
+                <a href="#" class="item-menu"><i class="fa-solid fa-gear"></i> Ajustes</a>
             </nav>
 
             <div class="perfil-usuario-inferior">
                 <div class="info-user">
-                    <strong>Bienvenido {{ session.nombre }}</strong>
-                    <span>Recepción Principal | Admin</span>
+                    <strong>Ana Martínez</strong>
+                    <span>Recepción Matutina</span>
                 </div>
-                <button class="btn-cerrar" type="button" onclick="cerrarSesion()">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
+                    <button class="btn-salir" title="Cerrar sesión">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
             </div>
         </aside>
 
+        <!-- CONTENIDO PRINCIPAL -->
         <main class="contenido-principal">
+            
             <header class="encabezado-admin">
                 <div class="fecha-actual">
-                    <i class="fa-solid fa-calendar-day"></i> Martes, 3 de Marzo
+                    <i class="fa-regular fa-calendar" style="margin-right: 8px;"></i> Miércoles, 1 de Abril
                 </div>
                 
                 <div class="barra-busqueda-global">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Buscar paciente, doctor, folio de cita...">
-                </div>
-
-                <div class="notificaciones">
-                    <i class="fa-solid fa-bell"></i>
+                    <i class="fa-solid fa-magnifying-glass" style="color: var(--texto-secundario);"></i>
+                    <input type="text" placeholder="Buscar paciente, médico o folio...">
                 </div>
             </header>
 
             <section class="seccion-bienvenida">
                 <div class="texto-saludo">
-                    <h1>Resumen de la Clínica</h1>
-                    <p>Monitoreo general de citas, médicos en turno y flujo de pacientes.</p>
+                    <h1>Panel de Recepción</h1>
+                    <p>Tienes 18 citas programadas para hoy. 5 pacientes en clínica.</p>
                 </div>
-                <div class="acciones-dobles">
-                    <button class="btn-secundario-admin"><i class="fa-solid fa-user-plus"></i> Registrar Paciente</button>
-                    <button class="btn-agendar-cita"><i class="fa-solid fa-calendar-plus"></i> Nueva Cita</button>
+                
+                <div style="display: flex; gap: 16px;">
+                    <button class="btn-secundario-admin"><i class="fa-solid fa-cash-register"></i> Registrar Pago</button>
+                    <button class="btn-accion-principal"><i class="fa-solid fa-user-check"></i> Nuevo Check-in</button>
                 </div>
             </section>
 
+            <!-- KPIs (Métricas Rápidas) -->
             <div class="fila-resumen">
                 <div class="tarjeta-contador">
-                    <i class="fa-solid fa-users azul"></i>
-                    <div><span>Pacientes Hoy</span> <strong>42</strong></div>
+                    <i class="fa-solid fa-calendar-check azul"></i>
+                    <div><span>Citas del Día</span><strong>18</strong></div>
                 </div>
                 <div class="tarjeta-contador">
-                    <i class="fa-solid fa-stethoscope verde"></i>
-                    <div><span>Médicos en Turno</span> <strong>8</strong></div>
+                    <i class="fa-solid fa-users naranja"></i>
+                    <div><span>En Sala</span><strong>5</strong></div>
                 </div>
                 <div class="tarjeta-contador">
-                    <i class="fa-solid fa-bed-pulse naranja"></i>
-                    <div><span>Consultorios Libres</span> <strong>3</strong></div>
+                    <i class="fa-solid fa-stopwatch verde"></i>
+                    <div><span>Espera Media</span><strong>12m</strong></div>
+                </div>
+                <div class="tarjeta-contador">
+                    <i class="fa-solid fa-calendar-xmark" style="color: #ef4444; background: #fee2e2;"></i>
+                    <div><span>Cancelaciones</span><strong>2</strong></div>
                 </div>
             </div>
 
+            <!-- CUADRÍCULA INFERIOR (2 Columnas) -->
             <div class="cuadricula-admin">
-                <div class="columna-principal">
-                    <div class="tarjeta-panel">
-                        <div class="cabecera-bloque">
-                            <h3>Citas en Curso y Próximas</h3>
-                            <a href="#">Ver calendario completo</a>
+                
+                <!-- Columna Izquierda: Citas del Día -->
+                <section class="tarjeta-panel">
+                    <div class="cabecera-bloque">
+                        <h3>Citas del Día</h3>
+                        <div class="filtros-rapidos">
+                            <button class="btn-filtro-mini activo">Todos</button>
+                            <button class="btn-filtro-mini">Pendientes</button>
+                            <button class="btn-filtro-mini">En Clínica</button>
+                        </div>
+                    </div>
+
+                    <div class="lista-citas">
+                        <!-- Cita 1 -->
+                        <div class="fila-cita-admin">
+                            <div class="hora-admin">10:00 AM</div>
+                            <div class="info-cruce">
+                                <strong>Ana García</strong>
+                                <span class="detalle-sub">Dra. Sarah Smith • Cardiología</span>
+                            </div>
+                            <span class="estado-admin en-espera">EN ESPERA</span>
+                            <button class="btn-opciones-mini"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        </div>
+
+                        <!-- Cita 2 -->
+                        <div class="fila-cita-admin">
+                            <div class="hora-admin">10:15 AM</div>
+                            <div class="info-cruce">
+                                <strong>Luis Torres</strong>
+                                <span class="detalle-sub">Lab Central • Resultados</span>
+                            </div>
+                            <span class="estado-admin pago-pendiente">PAGO PENDIENTE</span>
+                            <button class="btn-opciones-mini"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        </div>
+
+                        <!-- Cita 3 -->
+                        <div class="fila-cita-admin">
+                            <div class="hora-admin">10:30 AM</div>
+                            <div class="info-cruce">
+                                <strong>Juan Pérez</strong>
+                                <span class="detalle-sub">Dr. Roberto Sánchez • Seguimiento</span>
+                            </div>
+                            <span class="estado-admin por-llegar">POR LLEGAR</span>
+                            <button class="btn-opciones-mini"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        </div>
+
+                        <!-- Cita 4 -->
+                        <div class="fila-cita-admin">
+                            <div class="hora-admin">11:00 AM</div>
+                            <div class="info-cruce">
+                                <strong>María López</strong>
+                                <span class="detalle-sub">Dra. Elena Gómez • Consulta General</span>
+                            </div>
+                            <span class="estado-admin en-consulta">EN CONSULTA</span>
+                            <button class="btn-opciones-mini"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        </div>
+
+                        <!-- Cita 5 (Urgente) -->
+                        <div class="fila-cita-admin fila-urgente">
+                            <div class="hora-admin">11:15 AM</div>
+                            <div class="info-cruce">
+                                <strong>Carlos Ruiz</strong>
+                                <span class="detalle-sub">Dr. Roberto Sánchez • Chequeo</span>
+                                <span class="texto-alerta"><i class="fa-solid fa-triangle-exclamation"></i> Reporta dolor</span>
+                            </div>
+                            <span class="estado-admin por-llegar">POR LLEGAR</span>
+                            <button class="btn-opciones-mini"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                         </div>
                         
-                        <div class="lista-control-citas">
-                            <div class="fila-cita-admin">
-                                <div class="hora-admin">10:00 AM</div>
-                                <div class="info-cruce">
-                                    <strong>Paciente: María López</strong>
-                                    <span>Dr. Roberto Sánchez (Cardiología)</span>
-                                </div>
-                                <div class="estado-admin en-consulta">EN CONSULTA</div>
-                                <button class="btn-opciones"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        <!-- Cita 6 -->
+                        <div class="fila-cita-admin">
+                            <div class="hora-admin">11:45 AM</div>
+                            <div class="info-cruce">
+                                <strong>Sofía Vargas</strong>
+                                <span class="detalle-sub">Dra. Carmen Silva • Nutrición</span>
                             </div>
+                            <span class="estado-admin completada">COMPLETADA</span>
+                            <button class="btn-opciones-mini"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        </div>
+                    </div>
+                </section>
 
-                            <div class="fila-cita-admin">
-                                <div class="hora-admin">10:30 AM</div>
-                                <div class="info-cruce">
-                                    <strong>Paciente: Carlos Ruiz</strong>
-                                    <span>Dra. Sarah Smith (Dermatología)</span>
-                                </div>
-                                <div class="estado-admin en-espera">EN ESPERA</div>
-                                <button class="btn-opciones"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                <!-- Columna Derecha: Sala de Espera y Médicos -->
+                <aside style="display: flex; flex-direction: column; gap: 24px;">
+                    
+                    <!-- Sala de Espera -->
+                    <div class="tarjeta-sala-espera">
+                        <div class="cabecera-bloque" style="margin-bottom: 16px;">
+                            <h3><i class="fa-solid fa-couch" style="color: var(--texto-secundario); margin-right: 8px;"></i> En Sala</h3>
+                        </div>
+                        
+                        <div class="item-espera">
+                            <div class="tiempo-badge normal">15 min</div>
+                            <div class="info-espera">
+                                <strong>Ana García</strong>
+                                <span>Espera a Dra. Sarah S.</span>
                             </div>
+                        </div>
 
-                            <div class="fila-cita-admin">
-                                <div class="hora-admin">11:00 AM</div>
-                                <div class="info-cruce">
-                                    <strong>Paciente: Ana Torres</strong>
-                                    <span>Dr. Michael Chen (Pediatría)</span>
-                                </div>
-                                <div class="estado-admin por-llegar">POR LLEGAR</div>
-                                <button class="btn-opciones"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        <div class="item-espera">
+                            <div class="tiempo-badge alerta">25 min</div>
+                            <div class="info-espera">
+                                <strong>Luis Torres</strong>
+                                <span>Espera pago en caja</span>
+                            </div>
+                        </div>
+
+                        <div class="item-espera">
+                            <div class="tiempo-badge nuevo">5 min</div>
+                            <div class="info-espera">
+                                <strong>Sofía Vargas</strong>
+                                <span>Espera laboratorios</span>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <aside class="columna-secundaria">
-                    <div class="tarjeta-panel">
-                        <h3><i class="fa-solid fa-user-doctor"></i> Médicos Disponibles</h3>
+                    <!-- Estado de Médicos -->
+                    <div class="tarjeta-sala-espera">
+                        <div class="cabecera-bloque" style="margin-bottom: 16px;">
+                            <h3><i class="fa-solid fa-user-doctor" style="color: var(--texto-secundario); margin-right: 8px;"></i> Médicos</h3>
+                        </div>
                         
-                        <div class="item-medico-guardia">
-                            <img src="https://via.placeholder.com/35" alt="Doctor" class="avatar-pequeno">
-                            <div>
+                        <div class="item-medico">
+                            <img src="https://ui-avatars.com/api/?name=Sarah+Smith&background=f1f5f9&color=0f172a" alt="Doc">
+                            <div class="info-medico">
+                                <strong>Dra. Sarah Smith</strong>
+                                <span class="punto-estado ocupado"><i class="fa-solid fa-circle"></i> En Consulta</span>
+                            </div>
+                        </div>
+
+                        <div class="item-medico">
+                            <img src="https://ui-avatars.com/api/?name=Roberto+Sanchez&background=f1f5f9&color=0f172a" alt="Doc">
+                            <div class="info-medico">
+                                <strong>Dr. Roberto Sánchez</strong>
+                                <span class="punto-estado libre"><i class="fa-solid fa-circle"></i> Disponible</span>
+                            </div>
+                        </div>
+
+                        <div class="item-medico">
+                            <img src="https://ui-avatars.com/api/?name=Elena+Gomez&background=f1f5f9&color=0f172a" alt="Doc">
+                            <div class="info-medico">
                                 <strong>Dra. Elena Gómez</strong>
-                                <span>Medicina General - Cons. 2</span>
+                                <span class="punto-estado descanso"><i class="fa-solid fa-circle"></i> En Descanso</span>
                             </div>
-                            <div class="punto-verde"></div>
-                        </div>
-
-                        <div class="item-medico-guardia">
-                            <img src="https://via.placeholder.com/35" alt="Doctor" class="avatar-pequeno">
-                            <div>
-                                <strong>Dr. Luis Vargas</strong>
-                                <span>Traumatología - Cons. 5</span>
-                            </div>
-                            <div class="punto-verde"></div>
                         </div>
                     </div>
+
                 </aside>
             </div>
         </main>
     </div>
-    <script src="{{ url_for('static', filename='main.js') }}"></script>
+
 </body>
 </html>
