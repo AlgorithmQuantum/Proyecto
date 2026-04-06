@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validación de Recetas - Farmacia R.A.S.A</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="barra-navegacion minimalista">
+        
+        <div class="marca">
+            <i class="fa-solid fa-pills icono-marca"></i>
+            <strong>Control Farmacia<br>R.A.S.A</strong>
+        </div>
+        
+        <ul class="menu-principal">
+            <li><a href="inicioFarmacia.html">Inicio</a></li>
+            <li class="activo"><a href="validacion.html">Validar Receta</a></li>
+            <li><a href="#">Historial Entregas</a></li>
+        </ul>
+
+        <div class="perfil-usuario">
+            <div class="info-usuario-texto flat">
+                <span><strong>Lic. Elena Rivas</strong> | ID: #FAR-204</span>
+            </div>
+        </div>
+        
+    </nav>
+
+    <main class="layout-centrado">
+        
+        <header class="header-dashboard">
+            <h1>Validación de Receta Médica</h1>
+            <p>Escaneo y autorización de surtido de medicamentos</p>
+        </header>
+
+        <div class="tarjeta-panel" style="margin-bottom: 30px; display: flex; gap: 15px;">
+            <div class="buscador-farmacia" style="flex-grow: 1;">
+                <i class="fa-solid fa-barcode"></i>
+                <input type="text" value="FOL-2026-0921" placeholder="Escanea el código de barras o ingresa el Folio...">
+            </div>
+            <button class="btn-primario">Buscar Folio</button>
+        </div>
+
+        <div class="dashboard-layout">
+            
+            <section class="hoja-receta">
+                
+                <div class="receta-header">
+                    <div class="logo-receta">
+                        <i class="fa-solid fa-user-doctor"></i> Centro Médico R.A.S.A
+                    </div>
+                    <div class="datos-medico">
+                        <strong>Dr. Roberto Sánchez</strong>
+                        <span>Cardiología y Medicina General</span>
+                        <span>Cédula Prof: 8892314 | UNAM</span>
+                    </div>
+                </div>
+
+                <div class="receta-paciente">
+                    <div class="fila-paciente principal">
+                        <span><strong>Paciente:</strong> María López</span>
+                        <span><strong>Fecha:</strong> 02 de Abril, 2026</span>
+                        <span><strong>Folio:</strong> FOL-2026-0921</span>
+                    </div>
+                    <div class="fila-paciente vitales">
+                        <span><strong>Edad:</strong> 45 años</span>
+                        <span><strong>Peso:</strong> 68 kg</span>
+                        <span><strong>Temp:</strong> 38.5 °C</span>
+                        <span><strong>T.A:</strong> 120/80 mmHg</span>
+                        <span class="alergias"><strong>Alergias:</strong> Ninguna conocida</span>
+                    </div>
+                </div>
+
+                <div class="receta-cuerpo">
+                    <div class="diagnostico">
+                        <strong>Diagnóstico:</strong> Faringoamigdalitis Aguda (J03.9)
+                    </div>
+
+                    <div class="simbolo-rx">Rx</div>
+
+                    <div class="lista-medicamentos-rx">
+                        
+                        <div class="item-med-rx">
+                            <div class="med-titulo">
+                                <strong>1. Ibuprofeno 400mg</strong>
+                                <span class="med-presentacion">Presentación: Tabletas | Surtir: 1 Caja (10 tabs)</span>
+                            </div>
+                            <div class="med-indicaciones">
+                                <i class="fa-solid fa-hand-holding-medical"></i>
+                                <p>Tomar 1 tableta por vía oral cada 8 horas durante 3 días. Administrar junto con los alimentos para evitar irritación gástrica.</p>
+                            </div>
+                        </div>
+
+                        <div class="item-med-rx controlado">
+                            <div class="med-titulo">
+                                <strong>2. Amoxicilina / Ácido Clavulánico 500mg/125mg</strong>
+                                <span class="med-presentacion">Presentación: Cápsulas | Surtir: 1 Caja (15 cáps)</span>
+                            </div>
+                            <div class="med-indicaciones">
+                                <i class="fa-solid fa-hand-holding-medical"></i>
+                                <p>Tomar 1 cápsula por vía oral cada 12 horas durante 7 días. Terminar el tratamiento completo aunque desaparezcan los síntomas.</p>
+                            </div>
+                            <div class="sello-retencion">
+                                <i class="fa-solid fa-triangle-exclamation"></i> ANTIBIÓTICO - REQUIERE RETENCIÓN DE RECETA
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="receta-footer">
+                    <div class="firma-caja">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Firma_de_Andr%C3%A9s_Manuel_L%C3%B3pez_Obrador.svg" alt="Firma Médico" class="imagen-firma">
+                        <div class="linea-firma"></div>
+                        <span>Firma Digital del Médico</span>
+                    </div>
+                    <div class="qr-receta">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </div>
+                </div>
+
+            </section>
+
+            <aside class="col-lateral">
+                <div class="tarjeta-panel" style="position: sticky; top: 100px;">
+                    <h3>Validación de Inventario</h3>
+                    <p style="font-size: 13px; color: var(--texto-secundario); margin-bottom: 20px;">Disponibilidad en almacén para las cantidades solicitadas.</p>
+                    
+                    <div class="grid-insumos">
+                        <div class="item-insumo validado">
+                            <div>
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>Ibuprofeno 400mg</span>
+                            </div>
+                            <strong>1 Caja en Stock</strong>
+                        </div>
+                        
+                        <div class="item-insumo validado">
+                            <div>
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>Amoxicilina 500/125mg</span>
+                            </div>
+                            <strong>1 Caja en Stock</strong>
+                        </div>
+                    </div>
+
+                    <div class="resumen-surtido">
+                        <div class="estado-surtido listo">
+                            <i class="fa-solid fa-check-double"></i> Aprobado para surtir
+                        </div>
+                        <p>Stock suficiente. Se retendrá folio en sistema por antibiótico.</p>
+                    </div>
+
+                    <div class="acciones-surtido">
+                        <button class="btn-surtir"><i class="fa-solid fa-box-open"></i> Surtir y Descontar (2)</button>
+                        <button class="btn-rechazar">Reportar Faltante</button>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+        
+    </main>
+
+</body>
+</html>
