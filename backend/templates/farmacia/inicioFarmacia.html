@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Farmacia - R.A.S.A</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <aside class="barra-lateral">
+        <div class="logo">
+            <i class="fa-solid fa-pills"></i> 
+            <div>
+                Control Farmacia<br>R.A.S.A
+            </div>
+        </div>
+        
+        <nav class="navegacion-principal">
+    
+
+            <a href="validacionReceta.html">
+                <div class="item-menu">
+                    <i class="fa-solid fa-file-prescription"></i> Validación Recetas
+                </div>
+            </a>
+
+            <a href="proveedores.html">
+                <div class="item-menu">
+                    <i class="fa-solid fa-truck-ramp-box"></i> Proveedores
+                </div>
+            </a>
+
+            <a href="historial.html">
+                <div class="item-menu">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Historial Ventas
+                </div>
+            </a>
+        </nav>
+            
+            <div class="separador"></div>
+            
+            <div class="item-menu">
+                <i class="fa-solid fa-kit-medical"></i> Kits de Emergencia
+            </div>
+            <div class="item-menu">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </div>
+        </nav>
+
+        <div class="perfil-usuario-inferior">
+            <div class="info-user">
+                <strong>Lic. Elena Rivas</strong>
+                <span>Jefa de Farmacia </span>
+            </div>
+            <button class="btn-cerrar">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </aside>
+
+    <main class="contenido-principal">
+        <div class="area-trabajo">
+            
+            <header class="header-dashboard">
+                <h1>Gestión de Inventario</h1>
+                <p>Suministros Médicos y Medicamentos Controlados</p>
+            </header>
+
+            <div class="tarjeta-panel" style="margin-bottom: 25px;">
+                <div class="buscador-farmacia">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar por nombre, sustancia activa o código de barras...">
+                </div>
+            </div>
+
+            <section class="tarjeta-panel">
+                <div class="cabecera-panel">
+                    <h3><i class="fa-solid fa-check-circle" style="color: var(--exito)"></i> Venta Libre</h3>
+                </div>
+                <table class="tabla-admin">
+                    <thead>
+                        <tr>
+                            <th>MEDICAMENTO</th>
+                            <th>DESCRIPCIÓN</th>
+                            <th>STOCK</th>
+                            <th>ESTADO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Paracetamol 500mg</td><td>Analgésico / Fiebre</td><td>120 u.</td><td><span class="badge badge-verde">LIBRE</span></td></tr>
+                        <tr><td>Ibuprofeno 400mg</td><td>Antiinflamatorio</td><td>85 u.</td><td><span class="badge badge-verde">LIBRE</span></td></tr>
+                        <tr><td>Loratadina</td><td>Antihistamínico</td><td>40 u.</td><td><span class="badge badge-verde">LIBRE</span></td></tr>
+                        <tr><td>Salbutamol</td><td>Inhalador Asma</td><td>12 u.</td><td><span class="badge badge-naranja">OPCIONAL</span></td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="tarjeta-panel" style="margin-top: 30px;">
+                <div class="cabecera-panel">
+                    <h3><i class="fa-solid fa-lock" style="color: var(--rojo)"></i> Controlados / Antibióticos</h3>
+                </div>
+                <table class="tabla-admin">
+                    <thead>
+                        <tr>
+                            <th>MEDICAMENTO</th>
+                            <th>USO</th>
+                            <th>STOCK</th>
+                            <th>RECETA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Amoxicilina 500mg</td><td>Antibiótico</td><td>30 u.</td><td><span class="badge badge-roja">REQUERIDA</span></td></tr>
+                        <tr><td>Tramadol 50mg</td><td>Analgésico Fuerte</td><td>15 u.</td><td><span class="badge badge-roja">REQUERIDA</span></td></tr>
+                        <tr><td>Clonazepam 2mg</td><td>Ansiolítico</td><td>8 u.</td><td><span class="badge badge-roja">CONTROLADO</span></td></tr>
+                        <tr><td>Insulina Glargina</td><td>Diabetes</td><td>22 u.</td><td><span class="badge badge-roja">REQUERIDA</span></td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div class="dashboard-layout" style="margin-top: 30px;">
+                <section class="tarjeta-panel">
+                    <h3>Insumos Médicos</h3>
+                    <div class="grid-insumos">
+                        <div class="item-insumo"><span>Jeringas (Caja 100u)</span><strong>4 cajas</strong></div>
+                        <div class="item-insumo"><span>Algodón (Paquete 500g)</span><strong>12 paquetes</strong></div>
+                        <div class="item-insumo"><span>Gasas 10x10cm</span><strong>En Stock</strong></div>
+                        <div class="item-insumo"><span>Botiquines Completos</span><strong>5 u.</strong></div>
+                    </div>
+                </section>
+
+                <section class="tarjeta-panel oscura">
+                    <h3>Higiene y Limpieza</h3>
+                    <div class="barras-ocupacion">
+                        <div class="item-barra">
+                            <div class="barra-header"><span>Gel Antibacterial</span><span>95%</span></div>
+                            <div class="barra-fondo"><div class="barra-progreso bg-azul" style="width: 95%"></div></div>
+                        </div>
+                        <div class="item-barra">
+                            <div class="barra-header"><span>Alcohol Etílico</span><span>60%</span></div>
+                            <div class="barra-fondo"><div class="barra-progreso bg-verde" style="width: 60%"></div></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

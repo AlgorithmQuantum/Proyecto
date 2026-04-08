@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Entregas - Farmacia R.A.S.A</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="barra-navegacion minimalista">
+        <div class="marca">
+            <i class="fa-solid fa-pills icono-marca"></i>
+            <strong>Control Farmacia<br>R.A.S.A</strong>
+        </div>
+        
+        <ul class="menu-principal">
+            <li><a href="farmacia.html">Inventario</a></li>
+            <li><a href="validacion.html">Validar Receta</a></li>
+            <li class="activo"><a href="historial.html">Historial Entregas</a></li>
+        </ul>
+
+        <div class="perfil-usuario">
+            <div class="info-usuario-texto flat">
+                <span><strong>Lic. Elena Rivas</strong> | ID: #FAR-204</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="layout-centrado">
+        
+        <header class="header-dashboard" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
+            <div>
+                <h1>Historial y Auditoría de Salidas</h1>
+                <p>Registro oficial de dispensación, controlados y mermas de inventario</p>
+            </div>
+        </header>
+
+        <div class="grid-kpis">
+            <div class="tarjeta-kpi">
+                <div class="info-kpi">
+                    <span>Recetas Surtidas (Hoy)</span>
+                    <strong>42</strong>
+                    <span class="tendencia positiva"><i class="fa-solid fa-arrow-trend-up"></i> +15% vs ayer</span>
+                </div>
+                <div class="icono-kpi azul"><i class="fa-solid fa-file-prescription"></i></div>
+            </div>
+            
+            <div class="tarjeta-kpi">
+                <div class="info-kpi">
+                    <span>Controlados Entregados</span>
+                    <strong>8</strong>
+                    <span class="tendencia neutra"><i class="fa-solid fa-lock"></i> Retención obligatoria</span>
+                </div>
+                <div class="icono-kpi naranja"><i class="fa-solid fa-pills"></i></div>
+            </div>
+
+            <div class="tarjeta-kpi">
+                <div class="info-kpi">
+                    <span>Mermas / Caducados</span>
+                    <strong>1</strong>
+                    <span class="tendencia negativa"><i class="fa-solid fa-triangle-exclamation"></i> Pérdida reportada</span>
+                </div>
+                <div class="icono-kpi" style="background: #fee2e2; color: var(--rojo);"><i class="fa-solid fa-trash-can"></i></div>
+            </div>
+        </div>
+
+        <div class="tarjeta-panel filtros-historial">
+            <div class="input-grupo">
+                <label>Fecha Inicial</label>
+                <input type="date" value="2026-04-01">
+            </div>
+            <div class="input-grupo">
+                <label>Fecha Final</label>
+                <input type="date" value="2026-04-06">
+            </div>
+            <div class="buscador-farmacia" style="flex-grow: 1; margin-top: 18px;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Buscar folio, medicamento, paciente o médico...">
+            </div>
+            <div class="input-grupo" style="margin-top: 18px;">
+                <select class="select-filtro">
+                    <option>Todos los Movimientos</option>
+                    <option>Surtido con Receta</option>
+                    <option>Venta Libre</option>
+                    <option>Mermas y Caducidades</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="tarjeta-panel">
+            <div class="cabecera-panel">
+                <h3>Registro Maestro de Salidas</h3>
+            </div>
+            
+            <table class="tabla-admin">
+                <thead>
+                    <tr>
+                        <th>FECHA Y HORA</th>
+                        <th>FOLIO / REF</th>
+                        <th>MEDICAMENTO(S) SURTIDO(S)</th>
+                        <th>PACIENTE / DESTINO</th>
+                        <th>TIPO MOVIMIENTO</th>
+                        <th>ESTADO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong style="color: var(--texto-principal);">Hoy, 10:45 AM</strong></td>
+                        <td><span style="font-family: monospace; color: var(--texto-secundario);">FOL-2026-0921</span></td>
+                        <td>
+                            <strong>Ibuprofeno 400mg</strong> (1 Caja)<br>
+                            <span style="color: var(--rojo); font-size: 12px; font-weight: 700;"><i class="fa-solid fa-triangle-exclamation"></i> Amoxicilina 500mg</span> (1 Caja)
+                        </td>
+                        <td><strong>María López</strong><br><span style="font-size: 11px; color: var(--texto-secundario);">Dr. Roberto Sánchez</span></td>
+                        <td><span class="badge badge-gris">RECETA MÉDICA</span></td>
+                        <td><span class="badge badge-verde">ENTREGADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--texto-principal);">Hoy, 09:15 AM</strong></td>
+                        <td><span style="font-family: monospace; color: var(--texto-secundario);">TKT-88492</span></td>
+                        <td><strong>Paracetamol 500mg</strong> (2 Cajas)<br><strong>Loratadina</strong> (1 Caja)</td>
+                        <td><strong>Mostrador (Público General)</strong><br><span style="font-size: 11px; color: var(--texto-secundario);">Sin médico</span></td>
+                        <td><span class="badge badge-verde">VENTA LIBRE</span></td>
+                        <td><span class="badge badge-verde">ENTREGADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--texto-principal);">Ayer, 04:30 PM</strong></td>
+                        <td><span style="font-family: monospace; color: var(--texto-secundario);">MER-1029</span></td>
+                        <td><strong>Jarabe Dextrometorfano</strong> (1 Frasco)</td>
+                        <td><strong>Ajuste de Inventario</strong><br><span style="font-size: 11px; color: var(--texto-secundario);">Frasco roto en almacén</span></td>
+                        <td><span class="badge badge-roja">MERMA INTERNA</span></td>
+                        <td><span class="badge badge-naranja">DESCONTADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--texto-principal);">Ayer, 11:00 AM</strong></td>
+                        <td><span style="font-family: monospace; color: var(--texto-secundario);">REQ-INT-04</span></td>
+                        <td><strong>Alcohol Isopropílico</strong> (2 Botellas)<br><strong>Gasas Estériles</strong> (5 Paquetes)</td>
+                        <td><strong>Enfermería - Ala B</strong><br><span style="font-size: 11px; color: var(--texto-secundario);">Reabastecimiento Botiquín</span></td>
+                        <td><span class="badge badge-gris">USO CLÍNICO</span></td>
+                        <td><span class="badge badge-verde">ENTREGADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--texto-principal);">Ayer, 09:30 AM</strong></td>
+                        <td><span style="font-family: monospace; color: var(--texto-secundario);">FOL-2026-0918</span></td>
+                        <td><strong>Losartán 50mg</strong> (2 Cajas)</td>
+                        <td><strong>Juan Carlos Ruiz</strong><br><span style="font-size: 11px; color: var(--texto-secundario);">Dra. Sarah Smith</span></td>
+                        <td><span class="badge badge-gris">RECETA MÉDICA</span></td>
+                        <td><span class="badge badge-verde">ENTREGADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--texto-principal);">Ayer, 08:15 AM</strong></td>
+                        <td><span style="font-family: monospace; color: var(--texto-secundario);">TKT-88490</span></td>
+                        <td><strong>Omeprazol 20mg</strong> (1 Caja)</td>
+                        <td><strong>Mostrador (Público General)</strong><br><span style="font-size: 11px; color: var(--texto-secundario);">Sin médico</span></td>
+                        <td><span class="badge badge-verde">VENTA LIBRE</span></td>
+                        <td><span class="badge badge-verde">ENTREGADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--texto-principal);">04/04/2026, 05:20 PM</strong></td>
+                        <td><span style="font-family: monospace; color: var(--texto-secundario);">FOL-2026-0915</span></td>
+                        <td><span style="color: var(--rojo); font-size: 12px; font-weight: 700;"><i class="fa-solid fa-lock"></i> Clonazepam 2mg</span> (1 Caja)</td>
+                        <td><strong>Teresa Mendoza</strong><br><span style="font-size: 11px; color: var(--texto-secundario);">Dr. Robert Chen</span></td>
+                        <td><span class="badge badge-gris">RECETA MÉDICA</span></td>
+                        <td><span class="badge badge-verde">ENTREGADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--texto-principal);">04/04/2026, 02:10 PM</strong></td>
+                        <td><span style="font-family: monospace; color: var(--texto-secundario);">REQ-INT-03</span></td>
+                        <td><strong>Jeringas 5ml</strong> (1 Caja 100u)</td>
+                        <td><strong>Consultorio 3</strong><br><span style="font-size: 11px; color: var(--texto-secundario);">Suministro General</span></td>
+                        <td><span class="badge badge-gris">USO CLÍNICO</span></td>
+                        <td><span class="badge badge-verde">ENTREGADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--texto-principal);">04/04/2026, 12:45 PM</strong></td>
+                        <td><span style="font-family: monospace; color: var(--texto-secundario);">MER-1028</span></td>
+                        <td><strong>Aspirina 500mg</strong> (3 Cajas)</td>
+                        <td><strong>Ajuste de Inventario</strong><br><span style="font-size: 11px; color: var(--texto-secundario);">Lote Caducado</span></td>
+                        <td><span class="badge badge-roja">MERMA INTERNA</span></td>
+                        <td><span class="badge badge-naranja">DESCONTADO</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: var(--texto-principal);">03/04/2026, 10:00 AM</strong></td>
+                        <td><span style="font-family: monospace; color: var(--texto-secundario);">TKT-88450</span></td>
+                        <td><strong>Suero Oral</strong> (4 Botellas)<br><strong>Gel Antibacterial</strong> (1 Bote)</td>
+                        <td><strong>Mostrador (Público General)</strong><br><span style="font-size: 11px; color: var(--texto-secundario);">Sin médico</span></td>
+                        <td><span class="badge badge-verde">VENTA LIBRE</span></td>
+                        <td><span class="badge badge-verde">ENTREGADO</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+</body>
+</html>
