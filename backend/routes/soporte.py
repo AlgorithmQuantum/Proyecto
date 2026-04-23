@@ -5,7 +5,7 @@ soporte_bp = Blueprint("soporte", __name__)
 
 @soporte_bp.route("/soporte")
 def soporte():
-    return redirect(url_for("index"))
+    return render_template("Soporte/soporte_index.html")
 
 @soporte_bp.route("/recuperar") #ruta para recuperar contraseña en proceso
 def recuperar_contrasena():
