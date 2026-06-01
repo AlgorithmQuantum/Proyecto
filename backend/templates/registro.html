@@ -11,7 +11,7 @@
 </head>
 <body>
 
-    <div class="contenedor-principal">
+    <div class="contenedor-principal contenedor-registro">
         <div class="tarjeta-login">
             
             <div class="icono-encabezado">
@@ -23,61 +23,92 @@
 
             <form method="POST" action="/auth/registro">
 
-                <!-- Campo oculto para mandar el rol al backend sin que el usuario lo vea -->
                 <input type="hidden" name="rol" value="Paciente">
 
-                <!-- Campo Nombre -->
-                <div class="grupo-entrada">
-                    <label>
-                        <i class="fa-solid fa-user"></i> Nombre completo
-                    </label>
-                    <input
-                        type="text"
-                        class="campo-texto"
-                        name="nombre"
-                        placeholder="ej. Juan Pérez"
-                        required>
-                </div>
-
-                <!-- Campo Correo -->
-                <div class="grupo-entrada">
-                    <label>
-                        <i class="fa-solid fa-envelope"></i> Correo electrónico
-                    </label>
-                    <input
-                        type="email"
-                        class="campo-texto"
-                        name="usuario"
-                        placeholder="ej. j.perez@gmail.com"
-                        required>
-                </div>
-
-                <!-- Campo Contraseña -->
-                <div class="grupo-entrada">
-                    <label>
-                        <i class="fa-solid fa-key"></i> Contraseña
-                    </label>
-                    <div class="contenedor-password">
-                        <input
-                            type="password"
-                            id="campoPassword"
-                            class="campo-texto"
-                            name="password"
-                            placeholder="********"
-                            required>
-                        <i class="fa-solid fa-eye icono-ojo" id="btnAlternarPassword"></i>
+                <div class="grid-formulario">
+                    
+                    <div class="grupo-entrada campo-completo">
+                        <label><i class="fa-solid fa-user"></i> Nombre(s)</label>
+                        <input type="text" class="campo-texto" name="nombre" placeholder="ej. Juan" required>
                     </div>
-                </div>
 
-                <br>
+                    <div class="grupo-entrada">
+                        <label><i class="fa-solid fa-user"></i> Apellido Paterno</label>
+                        <input type="text" class="campo-texto" name="apellido_paterno" placeholder="ej. Pérez" required>
+                    </div>
+                    <div class="grupo-entrada">
+                        <label><i class="fa-solid fa-user"></i> Apellido Materno</label>
+                        <input type="text" class="campo-texto" name="apellido_materno" placeholder="ej. López" required>
+                    </div>
+
+                    <div class="grupo-entrada">
+                        <label><i class="fa-solid fa-id-card"></i> CURP</label>
+                        <input type="text" class="campo-texto" name="curp" placeholder="18 caracteres" maxlength="18" style="text-transform: uppercase;" required>
+                    </div>
+                    <div class="grupo-entrada">
+                        <label><i class="fa-solid fa-calendar-days"></i> Fecha de nacimiento</label>
+                        <input type="date" class="campo-texto" name="fecha_nacimiento" required>
+                    </div>
+
+                    <div class="grupo-entrada">
+                        <label><i class="fa-solid fa-droplet"></i> Tipo de sangre</label>
+                        <div class="contenedor-select">
+                            <select name="tipo_sangre" class="selector-rol" required>
+                                <option value="" disabled selected>Selecciona tu tipo</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down flecha-select"></i>
+                        </div>
+                    </div>
+                    <div class="grupo-entrada">
+                        <label><i class="fa-solid fa-phone"></i> Teléfono</label>
+                        <input type="tel" class="campo-texto" name="telefono" placeholder="10 dígitos" maxlength="10" required>
+                    </div>
+
+                    <div class="grupo-entrada campo-completo">
+                        <label><i class="fa-solid fa-notes-medical"></i> Alergias (Si es el caso)</label>
+                        <textarea class="campo-texto" name="alergias" placeholder="Especifica si tienes alguna alergia a medicamentos o alimentos (opcional)"></textarea>
+                    </div>
+
+                    <div class="grupo-entrada">
+                        <label><i class="fa-solid fa-envelope"></i> Correo electrónico</label>
+                        <input type="email" class="campo-texto" name="correo" placeholder="ej. j.perez@gmail.com" required>
+                    </div>
+                    <div class="grupo-entrada">
+                        <label><i class="fa-solid fa-circle-user"></i> Nombre de usuario</label>
+                        <input type="text" class="campo-texto" name="usuario" placeholder="Crea un usuario" required>
+                    </div>
+
+                    <div class="grupo-entrada">
+                        <label><i class="fa-solid fa-key"></i> Contraseña</label>
+                        <div class="contenedor-password">
+                            <input type="password" id="campoPassword" class="campo-texto" name="password" placeholder="********" required>
+                            <i class="fa-solid fa-eye icono-ojo" id="btnAlternarPassword"></i>
+                        </div>
+                    </div>
+                    <div class="grupo-entrada">
+                        <label><i class="fa-solid fa-check-double"></i> Confirmar Contraseña</label>
+                        <div class="contenedor-password">
+                            <input type="password" id="campoConfirmarPassword" class="campo-texto" name="confirmar_password" placeholder="********" required>
+                            <i class="fa-solid fa-eye icono-ojo" id="btnAlternarConfirmar"></i>
+                        </div>
+                    </div>
+
+                </div> <br>
                 <button type="submit" class="boton-ingresar">
                     Registrarse <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
 
-            <!-- Mensaje de Error estandarizado -->
             {% if error %}
-                <p class="mensaje-error" style="color: #dc3545; font-size: 13px; font-weight: 500; margin-top: 15px;">
+                <p class="mensaje-error">
                     <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
                 </p>
             {% endif %}
@@ -87,31 +118,33 @@
             </p>
         </div>
 
-        <div class="pie-seguridad" style="text-align: center; margin-top: 20px; font-size: 11px; color: #6c757d; font-weight: 600; letter-spacing: 1px;">
+        <div class="pie-seguridad">
             <i class="fa-solid fa-shield-halved" style="color: #007bff; margin-right: 5px;"></i>
             ENCRIPTACIÓN SEGURA DE GRADO MÉDICO
         </div>
     </div>
 
-    <!-- Script para alternar la visibilidad de la contraseña -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const campoPassword = document.getElementById('campoPassword');
-            const btnAlternar = document.getElementById('btnAlternarPassword');
+            function configurarTogglePassword(idCampo, idBoton) {
+                const campo = document.getElementById(idCampo);
+                const btn = document.getElementById(idBoton);
 
-            if (btnAlternar && campoPassword) {
-                btnAlternar.addEventListener('click', function() {
-                    if (campoPassword.type === 'password') {
-                        campoPassword.type = 'text';
-                        btnAlternar.classList.remove('fa-eye');
-                        btnAlternar.classList.add('fa-eye-slash');
-                    } else {
-                        campoPassword.type = 'password';
-                        btnAlternar.classList.remove('fa-eye-slash');
-                        btnAlternar.classList.add('fa-eye');
-                    }
-                });
+                if (btn && campo) {
+                    btn.addEventListener('click', function() {
+                        if (campo.type === 'password') {
+                            campo.type = 'text';
+                            btn.classList.replace('fa-eye', 'fa-eye-slash');
+                        } else {
+                            campo.type = 'password';
+                            btn.classList.replace('fa-eye-slash', 'fa-eye');
+                        }
+                    });
+                }
             }
+
+            configurarTogglePassword('campoPassword', 'btnAlternarPassword');
+            configurarTogglePassword('campoConfirmarPassword', 'btnAlternarConfirmar');
         });
     </script>
 </body>
