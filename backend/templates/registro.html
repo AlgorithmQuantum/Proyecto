@@ -107,12 +107,6 @@
                 </button>
             </form>
 
-            {% if error %}
-                <p class="mensaje-error">
-                    <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
-                </p>
-            {% endif %}
-
             <p class="enlace-registro">
                 ¿Ya tienes cuenta? <a href="/auth/login">Iniciar sesión</a>
             </p>
@@ -124,28 +118,12 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            function configurarTogglePassword(idCampo, idBoton) {
-                const campo = document.getElementById(idCampo);
-                const btn = document.getElementById(idBoton);
+    <div id="registroData"
+        data-error="{{ error or '' }}"
+        data-success="{{ success or '' }}"
+        hidden>
+    </div>
 
-                if (btn && campo) {
-                    btn.addEventListener('click', function() {
-                        if (campo.type === 'password') {
-                            campo.type = 'text';
-                            btn.classList.replace('fa-eye', 'fa-eye-slash');
-                        } else {
-                            campo.type = 'password';
-                            btn.classList.replace('fa-eye-slash', 'fa-eye');
-                        }
-                    });
-                }
-            }
-
-            configurarTogglePassword('campoPassword', 'btnAlternarPassword');
-            configurarTogglePassword('campoConfirmarPassword', 'btnAlternarConfirmar');
-        });
-    </script>
+<script src="{{ url_for('static', filename='main.js') }}" defer></script>
 </body>
 </html>

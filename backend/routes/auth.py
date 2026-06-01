@@ -188,25 +188,25 @@ def logout():
 
 #ruta para registrarse
 # ── Registro de pacientes (público) ───────────────────────────────────────────
-@auth_bp.route("/registro", methods=["GET"])
+@auth_bp.route("/registro", methods=["GET", "POST"])
 def registro_form():
-    return render_template("registro.html")
-
-@auth_bp.route("/registro-paciente", methods=["POST"])
-def register_paciente():
+    if request.method == "GET":
+        return render_template("registro.html")
+    
     # Obtener datos del formulario
     nombre = request.form.get("nombre")
     apellido_paterno = request.form.get("apellido_paterno")
     apellido_materno = request.form.get("apellido_materno")
     curp = request.form.get("curp")
     telefono = request.form.get("telefono")
-    email = request.form.get("email")
+    correo = request.form.get("correo")
     usuario = request.form.get("usuario")
     password = request.form.get("password")
-    confirm_password = request.form.get("confirm_password")
+    confirm_password = request.form.get("confirmar_password")
     fecha_nacimiento = request.form.get("fecha_nacimiento")
     tipo_sangre = request.form.get("tipo_sangre")
     alergias = request.form.get("alergias")
+    rol = request.form.get("rol", "Paciente")
     
     # Validaciones
     if not all([nombre, apellido_paterno, curp, usuario, password, confirm_password]):
@@ -233,8 +233,8 @@ def register_paciente():
                 return render_template("registro.html", error="Ya existe un paciente con esa CURP")
             
             # Verificar si el correo ya existe
-            if email:
-                cursor.execute("SELECT 1 FROM PACIENTE WHERE Correo = ?", email)
+            if correo:
+                cursor.execute("SELECT 1 FROM PACIENTE WHERE Correo = ?", correo)
                 if cursor.fetchone():
                     return render_template("registro.html", error="El correo electrónico ya está registrado")
             
@@ -258,7 +258,7 @@ def register_paciente():
                     @Alergias = ?
                 """,
                 usuario, password_hash, nombre, apellido_paterno, apellido_materno,
-                curp, telefono, email, fecha_nacimiento, tipo_sangre, alergias
+                curp, telefono, correo, fecha_nacimiento, tipo_sangre, alergias
             )
             
             conn.commit()
@@ -268,12 +268,13 @@ def register_paciente():
             
     except pyodbc.Error as e:
         return render_template("registro.html", error=f"Error de base de datos: {str(e)}")
+    
 
 # ── Registro de empleados (solo administradores) ──────────────────────────────
 @auth_bp.route("/registro-empleado", methods=["GET", "POST"])
 def register_empleado():
     # Verificar que solo administradores puedan crear empleados
-    if session.get("rol") != "Administrador":
+    if session.get("rol") != "administrador" and session.get("rol") != "recepcion":
         return redirect("/auth/login")
     
     if request.method == "GET":
