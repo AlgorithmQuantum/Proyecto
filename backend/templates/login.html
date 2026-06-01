@@ -19,36 +19,24 @@
 
             <h1>Bienvenido</h1>
             <p class="subtitulo">
-                Por favor selecciona tu rol e ingresa tus datos para acceder
+                Ingresa tus datos para acceder al sistema
             </p>
 
-            <form method="POST" action="/auth/login">
+            <form id="loginForm" method="POST" action="/auth/login">
 
                 <div class="grupo-entrada">
                     <label>
-                        <i class="fa-solid fa-user-tag"></i> Selecciona tu Rol
-                    </label>
-                    <div class="contenedor-select">
-                        <select class="selector-rol" name="rol" required>
-                            <option value="" disabled selected>Selecciona un rol...</option>
-                            <option value="Paciente">Paciente</option>
-                            <option value="Doctor">Médico</option>
-                            <option value="Recepcionista">Recepcionista</option>
-                            <option value="Farmaceutico">Farmaceutico</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grupo-entrada">
-                    <label>
-                        <i class="fa-solid fa-envelope"></i> Correo Electrónico
+                        <i class="fa-solid fa-user"></i> Usuario o Correo Electrónico
                     </label>
                     <input
-                        type="email"
+                        type="text"
                         class="campo-texto"
+                        id="usuario"
                         name="usuario"
-                        placeholder="ej. j.perez@gmail.com"
+                        placeholder="ej. juan.perez o juan@email.com"
+                        autocomplete="username"
                         required>
+                    <span class="help-text" id="usuarioHelp">Ingresa tu nombre de usuario o correo electrónico</span>
                 </div>
 
                 <div class="grupo-entrada">
@@ -68,9 +56,11 @@
                             class="campo-texto"
                             name="password"
                             placeholder="********"
+                            autocomplete="current-password"
                             required>
                         <i class="fa-solid fa-eye icono-ojo" id="btnAlternarPassword"></i>
                     </div>
+                    <span class="help-text" id="passwordHelp">Ingresa tu contraseña</span>
                 </div>
 
                 <div class="grupo-checkbox">
@@ -78,18 +68,15 @@
                     <label for="recordar">Mantener sesión iniciada</label>
                 </div>
                 <br>
-                <button type="submit" class="boton-ingresar">
+                <button type="submit" class="boton-ingresar" id="btnIngresar">
                     Iniciar Sesión <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
-            {% if error %}
-                <p class="mensaje-error">
-                    <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
-                </p>
-            {% endif %}
+
+            <div id="mensajes"></div>
 
             <p class="enlace-registro">
-                ¿Eres nuevo? <a href="/auth/registro">Crear una cuenta</a>
+                ¿Eres nuevo paciente? <a href="/auth/registro">Crear una cuenta</a>
             </p>
         </div>
 
@@ -99,28 +86,12 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const campoPassword = document.getElementById('campoPassword');
-            const btnAlternar = document.getElementById('btnAlternarPassword');
+    <div id="loginData"
+        data-error="{{ error or '' }}"
+        data-success="{{ success or '' }}"
+        hidden>
+    </div>
 
-            if (btnAlternar && campoPassword) {
-                btnAlternar.addEventListener('click', function() {
-                    // Cambiar el tipo de input
-                    if (campoPassword.type === 'password') {
-                        campoPassword.type = 'text';
-                        // Cambiar el icono a ojo cerrado
-                        btnAlternar.classList.remove('fa-eye');
-                        btnAlternar.classList.add('fa-eye-slash');
-                    } else {
-                        campoPassword.type = 'password';
-                        // Cambiar el icono a ojo abierto
-                        btnAlternar.classList.remove('fa-eye-slash');
-                        btnAlternar.classList.add('fa-eye');
-                    }
-                });
-            }
-        });
-    </script>
+<script src="{{ url_for('static', filename='main.js') }}" defer></script>
 </body>
 </html>

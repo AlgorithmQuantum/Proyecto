@@ -1,6 +1,6 @@
 import pyodbc
 
-def get_connection():
+def get_coneccion():
     conn = pyodbc.connect(
         "DRIVER={ODBC Driver 17 for SQL Server};"
         "SERVER=(localdb)\\MSSQLLocalDB;"

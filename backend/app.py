@@ -1,6 +1,6 @@
 from flask import Flask, app, jsonify, render_template, redirect
 from datetime import timedelta
-from database.db import get_connection
+from database.db import get_coneccion
 from utils.decorador import login_requerido, rol_requerido
 from routes.auth import auth_bp
 from routes.citas import citas_bp
@@ -13,6 +13,7 @@ from routes.soporte import soporte_bp
 from routes.farmacia import farmacia_bp
 from routes.ajustes import ajuste_bp
 from routes.cancelacion import cancelacion_bp
+from routes.admin import admin_bp
 
 def create_app():
     app = Flask(__name__)
@@ -30,7 +31,8 @@ def create_app():
     app.register_blueprint(farmacia_bp)
     app.register_blueprint(ajuste_bp)
     app.register_blueprint(cancelacion_bp)
-
+    app.register_blueprint(admin_bp)
+    
     @app.route("/")
     def index():
         return render_template("RASA/index.html")
@@ -59,16 +61,16 @@ def create_app():
     @app.route('/ping')
     def ping():
         try:
-            conn = get_connection()
+            conn = get_coneccion()
             conn.close()
-            return jsonify({"status": "ok", "mensaje": "Conexión exitosa a RASA_DB"})
+            return jsonify({"status": "ok", "mensaje": "Conexión exitosa a CentroMedicoRASA"})
         except Exception as e:
             return jsonify({"status": "error", "detalle": str(e)}), 500
 
     # ── ESPECIALIDADES ────────────────────────────────────────
     @app.route('/especialidades')
     def get_especialidades():
-        conn = get_connection()
+        conn = get_coneccion()
         cursor = conn.cursor()
         cursor.execute("SELECT id_especialidad, nombre, costo FROM Especialidades")
         rows = cursor.fetchall()
@@ -80,7 +82,7 @@ def create_app():
     # ── DOCTORES ──────────────────────────────────────────────
     @app.route('/doctores')
     def get_doctores():
-        conn = get_connection()
+        conn = get_coneccion()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT u.nombre_completo, e.nombre AS especialidad,
@@ -101,7 +103,7 @@ def create_app():
     # ── CITAS ─────────────────────────────────────────────────
     @app.route('/citas')
     def get_citas():
-        conn = get_connection()
+        conn = get_coneccion()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT c.folio_cita, p_u.nombre_completo AS paciente,
@@ -128,7 +130,7 @@ def create_app():
     # ── INVENTARIO FARMACIA ───────────────────────────────────
     @app.route('/farmacia')
     def get_farmacia():
-        conn = get_connection()
+        conn = get_coneccion()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT nombre, categoria, stock, precio_unitario
