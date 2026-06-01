@@ -280,6 +280,36 @@ h1 {
     font-size: 14px;
 }
 
+/* --- Sistema de Grid para el Formulario de Registro --- */
+.contenedor-registro {
+    max-width: 700px; /* Aumentamos el ancho para acomodar la información */
+}
+
+.grid-formulario {
+    display: grid;
+    grid-template-columns: 1fr; /* 1 columna en móviles */
+    gap: 0 15px; /* Espaciado entre columnas */
+}
+
+/* Campos que siempre abarcan todo el ancho */
+.campo-completo {
+    grid-column: 1 / -1;
+}
+
+/* Textarea para alergias */
+textarea.campo-texto {
+    resize: vertical;
+    min-height: 80px;
+    font-family: var(--fuente-principal);
+}
+
+/* Pantallas grandes: pasa a 2 columnas */
+@media (min-width: 600px) {
+    .grid-formulario {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 /* Error 404 */
 
 .body-404 {
