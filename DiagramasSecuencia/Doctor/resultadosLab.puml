@@ -1,0 +1,42 @@
+@startuml impresion_laboratorio
+skinparam style strictuml
+autonumber
+
+actor Doctor
+participant "Frontend\n(Laboratorio UI)" as UI
+participant "Backend\n(Flask)" as Flask
+database "Base de Datos\n(SQL)" as BD
+
+Doctor -> UI: Navega a la vista de Laboratorio
+activate UI
+UI -> Flask: GET /api/laboratorios/recientes
+Flask -> BD: SELECT * FROM laboratorios ORDER BY fecha DESC
+BD --> Flask: Retorna lista de estudios
+Flask --> UI: 200 OK (Renderiza tabla con estados Listo/Pendiente)
+deactivate UI
+
+Doctor -> UI: Clic en "Imprimir PDF" en un estudio "Listo"
+activate UI
+
+UI -> UI: Muestra alerta: "Conectando con el servidor..."
+
+UI -> Flask: GET /api/laboratorio/{id_estudio}/pdf
+activate Flask
+
+' Seguridad del expediente
+Flask -> BD: SELECT paciente_id, ruta_archivo FROM laboratorios WHERE id = ?
+activate BD
+BD --> Flask: Retorna ruta del PDF
+deactivate BD
+
+Flask -> Flask: Verifica permisos del Doctor sobre el Paciente
+Flask -> Flask: Lee archivo PDF desde el sistema de almacenamiento
+
+Flask --> UI: 200 OK (Retorna el Blob/Archivo binario del PDF)
+deactivate Flask
+
+UI -> UI: Crea objeto URL Blob temporal
+UI --> Doctor: Envía el documento a la cola de impresión del navegador
+deactivate UI
+
+@enduml

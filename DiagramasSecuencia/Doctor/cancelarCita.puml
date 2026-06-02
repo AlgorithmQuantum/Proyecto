@@ -1,0 +1,40 @@
+@startuml solicitud_cancelacion
+skinparam style strictuml
+autonumber
+
+actor Doctor
+participant "Frontend\n(Agenda UI)" as UI
+participant "Backend\n(Flask)" as Flask
+database "Base de Datos\n(SQL)" as BD
+
+Doctor -> UI: Clic en "Solicitar Cancelación" en una cita
+activate UI
+
+UI -> Flask: POST /api/solicitar_cancelacion_medico\n(JSON: cita_id, doctor_id)
+activate Flask
+
+' Validación de estado
+Flask -> BD: SELECT estado FROM citas WHERE id = ?
+activate BD
+BD --> Flask: Retorna estado actual ("Confirmada")
+
+' Actualización lógica
+note right of Flask
+  No se borra la cita ni se 
+  cancela definitivamente. 
+  Pasa a revisión administrativa.
+end note
+
+Flask -> BD: UPDATE citas SET estado = 'Pendiente Cancelacion'
+Flask -> BD: INSERT INTO notificaciones (rol_destino, mensaje) \nVALUES ('Recepcion', 'Dr. solicita cancelar cita')
+BD --> Flask: Transacción exitosa
+deactivate BD
+
+Flask --> UI: 200 OK
+deactivate Flask
+
+UI -> UI: Actualiza visualmente el estado del bloque en la agenda
+UI --> Doctor: Muestra alerta: "Tu solicitud ha sido enviada a Recepción."
+deactivate UI
+
+@enduml
