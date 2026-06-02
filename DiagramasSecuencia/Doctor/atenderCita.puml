@@ -1,0 +1,66 @@
+@startuml atender_cita_v2
+skinparam style strictuml
+autonumber
+
+actor Doctor
+participant "Frontend\n(Vistas R.A.S.A)" as UI
+participant "Backend\n(Flask)" as Flask
+database "Base de Datos\n(SQL)" as BD
+
+' 1. Inicio desde el Dashboard o Agenda
+note over Doctor, UI: El doctor inicia en inicioDoctor.html o agendaDoctor.html
+Doctor -> UI: Clic en "Ver Expediente" o "Iniciar Consulta"
+activate UI
+
+' 2. Carga del Expediente
+UI -> Flask: GET /api/pacientes/{id}/expediente
+activate Flask
+Flask -> BD: SELECT somatometria, antecedentes, consultas_previas...
+activate BD
+BD --> Flask: Retorna datos médicos del paciente
+deactivate BD
+Flask --> UI: Renderiza expediente.html
+deactivate Flask
+
+UI --> Doctor: Muestra historial clínico completo (alergias, signos vitales)
+
+' 3. Transición a Receta (Atención Médica)
+Doctor -> UI: Clic en el botón "Generar Nueva Receta"
+UI --> Doctor: Carga el formulario en recetasDoctor.html
+
+' 4. Llenado del formulario médico
+Doctor -> UI: Ingresa Diagnóstico, Tratamientos y Observaciones
+Doctor -> UI: Añade Medicamentos a la lista (dosis, frecuencia, duración)
+UI -> UI: Actualiza vista previa del documento en tiempo real
+
+' 5. Guardado y finalización
+Doctor -> UI: Clic en "Guardar e Imprimir"
+UI -> Flask: POST /api/guardar_consulta\n(JSON: diagnostico, lista_medicamentos, cita_id)
+activate Flask
+
+' 6. Transacción SQL
+note right of Flask
+  **Transacción SQL Unificada:**
+  1. Se crea la nota médica/consulta.
+  2. Se guardan los medicamentos.
+  3. Se marca la cita como "Completada".
+end note
+
+Flask -> BD: BEGIN TRANSACTION
+activate BD
+Flask -> BD: INSERT INTO consultas (cita_id, diagnostico, tratamiento...)
+Flask -> BD: INSERT INTO medicamentos_receta (consulta_id, nombre, dosis...)
+Flask -> BD: UPDATE citas SET estado = 'Completada' WHERE id = ?
+BD --> Flask: COMMIT exitoso
+deactivate BD
+
+' 7. Generación de Receta Final
+Flask -> Flask: Compila datos y genera archivo PDF de la receta
+Flask --> UI: 201 Created (Confirmación y URL del PDF)
+deactivate Flask
+
+UI -> UI: Abre PDF en nueva pestaña e invoca window.print()
+UI --> Doctor: Alerta: "Receta guardada e imprimiendo"
+deactivate UI
+
+@enduml

@@ -1,0 +1,47 @@
+@startuml Usuario
+actor Usuario
+participant "Frontend (Landing Page)" as Front
+participant "Backend (Flask)" as Flask
+database "Base de Datos (SQL)" as BD
+
+Usuario -> Front : 1. Ingresa a la Landing Page
+Usuario -> Front : 2. Da clic en "Crear cuenta"
+
+activate Front
+Front --> Usuario : 3. Muestra formulario de registro
+
+Usuario -> Front : 4. Ingresa datos personales y contraseña
+Front -> Flask : 5. POST /registro (JSON con datos)
+
+activate Flask
+
+Flask -> Flask : 6. Validación de campos obligatorios
+
+Flask -> BD : 7. Query: SELECT id FROM usuarios WHERE email = ?
+
+activate BD
+
+alt El usuario ya existe
+    BD --> Flask : Retorna ID existente
+    Flask --> Front : Error 409: "El correo ya está registrado"
+    Front --> Usuario : Muestra alerta:\n"Usa otro correo o inicia sesión"
+
+else El usuario es nuevo
+    BD --> Flask : Retorna Null
+
+    Flask -> Flask : 8. Cifra contraseña\n(generate_password_hash)
+
+    Flask -> BD : 9. INSERT INTO usuarios\n(datos, password_hash)
+    BD --> Flask : 10. Confirma inserción exitosa
+
+    Flask -> Flask : 11. Genera sesión de usuario\n(Cookie/Token)
+
+    Flask --> Front : 12. 201 Created + Redirección
+    Front --> Usuario : 13. Redirige al Panel Principal\n(Dashboard)
+end
+
+deactivate BD
+deactivate Flask
+deactivate Front
+
+@enduml

@@ -1,0 +1,47 @@
+@startuml Paciente
+skinparam style strictuml
+autonumber
+
+actor Paciente
+participant "Frontend\n(Vista Cancelación)" as UI
+participant "Backend\n(Flask)" as Flask
+database "Base de Datos\n(SQL)" as BD
+
+Paciente -> UI: Lee detalles de cita y política de reembolso
+Paciente -> UI: Escribe motivo de cancelación (Opcional)
+Paciente -> UI: Clic en "Confirmar Cancelación"
+
+activate UI
+UI -> UI: Cambia botón a "Procesando..." (spinner)
+
+UI -> Flask: POST /api/cancelar_cita\n(JSON: folio, motivo)
+activate Flask
+
+Flask -> Flask: Compara fecha actual vs fecha de cita
+
+note right of Flask
+  **Política de Reembolso:**
+  >= 48 hrs de anticipación: 100%
+  >= 24 hrs de anticipación: 50%
+  < 24 hrs de anticipación: 0%
+end note
+
+Flask -> Flask: Calcula el % de reembolso final
+
+Flask -> BD: UPDATE citas SET estado = 'Cancelada', \nmotivo = ? WHERE folio = ?
+activate BD
+BD --> Flask: Confirma actualización exitosa
+deactivate BD
+
+note over Flask: Envía instrucción a la pasarela\nde pagos para procesar reembolso
+Flask -> Flask: Procesa orden de reembolso
+
+Flask --> UI: 200 OK (Confirmación y monto)
+deactivate Flask
+
+UI -> UI: Oculta div "vista-cancelacion"
+UI -> UI: Muestra div "vista-exito" y sube scroll
+UI --> Paciente: Muestra pantalla verde de "Cita Cancelada Exitosamente"
+deactivate UI
+
+@enduml

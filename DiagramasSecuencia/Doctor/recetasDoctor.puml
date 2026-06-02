@@ -1,0 +1,41 @@
+@startuml receta_medica
+skinparam style strictuml
+autonumber
+
+actor Doctor
+participant "Frontend" as UI
+participant "Backend\n(Flask)" as Flask
+database "Base de Datos\n(SQL)" as BD
+
+' Interacción en la interfaz
+Doctor -> UI: Escribe Diagnóstico, Tratamiento y Observaciones
+UI -> UI: Actualiza vista previa de la receta en tiempo real
+Doctor -> UI: Llena campos del medicamento y clic en "Añadir a la lista"
+UI -> UI: Valida campos y renderiza el <li> en el documento
+
+' Guardado final
+Doctor -> UI: Clic en "Guardar e Imprimir"
+activate UI
+
+UI -> Flask: POST /api/guardar_receta\n(JSON: diagnostico, lista_medicamentos, cita_id)
+activate Flask
+
+' Transacción de Base de Datos
+Flask -> BD: BEGIN TRANSACTION
+activate BD
+Flask -> BD: INSERT INTO consultas (cita_id, diagnostico, tratamiento)
+Flask -> BD: INSERT INTO medicamentos_receta (consulta_id, nombre, dosis...)
+Flask -> BD: UPDATE citas SET estado = 'Completada' WHERE id = ?
+BD --> Flask: COMMIT exitoso
+deactivate BD
+
+' Generación del Documento
+Flask -> Flask: Compila datos y genera archivo PDF
+Flask --> UI: 201 Created + URL del PDF generado
+deactivate Flask
+
+UI -> UI: Muestra alerta de éxito
+UI -> Doctor: Abre el PDF en nueva pestaña y lanza window.print()
+deactivate UI
+
+@enduml

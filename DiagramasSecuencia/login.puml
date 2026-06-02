@@ -1,0 +1,45 @@
+@startuml usuario
+actor Usuario
+participant "Frontend (R.A.S.A. UI)" as Front
+participant "Backend (Flask)" as Flask
+database "Base de Datos (SQL)" as BD
+
+Usuario -> Front : 1. Ingresa usuario o correo electrónico
+Usuario -> Front : 2. Ingresa contraseña y da clic en "Entrar"
+
+activate Front
+
+Front -> Flask : 3. POST /login\n(usuario_o_correo, password)
+
+activate Flask
+
+Flask -> BD : 4. Query: SELECT id, password_hash\nFROM usuarios\nWHERE username = ? OR email = ?
+
+activate BD
+
+alt Usuario/Correo no encontrado
+    BD --> Flask : 5a. Retorna Null
+    Flask --> Front : 6a. Error 401:\nCredenciales inválidas
+    Front --> Usuario : 7a. Muestra alerta:\n"Verifica tus datos e intenta de nuevo"
+
+else Usuario/Correo encontrado
+    BD --> Flask : 5b. Retorna el password_hash
+
+    Flask -> Flask : 6b. Compara hashes\n(check_password_hash)
+
+    alt Contraseña incorrecta
+        Flask --> Front : 7b. Error 401:\nCredenciales inválidas
+        Front --> Usuario : 8b. Muestra alerta:\n"Verifica tus datos e intenta de nuevo"
+
+    else Contraseña correcta
+        Flask -> Flask : 7c. Genera sesión de usuario\n(Cookie/Token)
+        Flask --> Front : 8c. 200 OK + Confirmación de acceso
+        Front --> Usuario : 9c. Redirige al Panel Principal\n(Dashboard)
+    end
+end
+
+deactivate BD
+deactivate Flask
+deactivate Front
+
+@enduml

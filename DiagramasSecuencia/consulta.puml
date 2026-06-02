@@ -1,0 +1,38 @@
+@startuml consulta_generica
+skinparam style strictuml
+autonumber
+
+actor Doctor
+participant "Frontend\n(Vistas de Lectura)" as UI
+participant "Backend\n(Flask)" as Flask
+database "Base de Datos\n(SQL)" as BD
+
+note over Doctor, UI
+  **Diagrama Genérico:**
+  Aplica para Dashboard, Perfil, 
+  Lista de Pacientes y Agenda.
+end note
+
+Doctor -> UI: Navega a la vista (Ej. /doctor/pacientes)
+activate UI
+
+UI -> Flask: GET /api/pacientes_asignados
+activate Flask
+
+' Seguridad fundamental
+Flask -> Flask: Verifica sesión activa y permisos (Token/Cookie)
+
+Flask -> BD: SELECT * FROM tabla_correspondiente WHERE doctor_id = ?
+activate BD
+BD --> Flask: Retorna conjunto de resultados
+deactivate BD
+
+Flask -> Flask: Serializa la información a JSON
+Flask --> UI: 200 OK + Datos solicitados
+deactivate Flask
+
+UI -> UI: Renderiza los datos en el DOM (Tablas, Tarjetas, Listas)
+UI --> Doctor: Muestra la interfaz actualizada
+deactivate UI
+
+@enduml
