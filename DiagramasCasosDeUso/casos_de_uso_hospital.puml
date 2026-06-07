@@ -1,0 +1,376 @@
+
+' ============================================================
+'  DIAGRAMA 1: PACIENTE
+' ============================================================
+@startuml Paciente
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #EAF4FB
+  BorderColor #2E86C1
+  ArrowColor #1A5276
+}
+skinparam actor {
+  BackgroundColor #D5F5E3
+  BorderColor #1E8449
+}
+
+title Casos de Uso — Paciente\nSistema Gestor de Citas Hospitalarias
+
+actor "Paciente" as PAC
+actor "Sistema" as SIS #lightgray
+actor "Recepcionista" as REC #lightyellow
+
+rectangle "Sistema Gestor de Citas Hospitalarias" {
+
+  ' --- Registro y Sesión ---
+  usecase "UC01\nRegistrarse en el sistema" as UC01
+  usecase "UC02\nIniciar sesión" as UC02
+  usecase "UC03\nVisualizar datos personales" as UC03
+
+  ' --- Agendar Cita ---
+  usecase "UC04\nAgendar nueva cita" as UC04
+  usecase "UC05\nSeleccionar especialidad" as UC05
+  usecase "UC06\nSeleccionar doctor" as UC06
+  usecase "UC07\nSeleccionar fecha disponible" as UC07
+  usecase "UC08\nSeleccionar horario disponible" as UC08
+  usecase "UC09\nVerificar disponibilidad del doctor" as UC09
+  usecase "UC10\nVerificar cita pendiente\ncon el mismo doctor" as UC10
+  usecase "UC11\nValidar rango de fecha\n(48 hrs - 3 meses)" as UC11
+  usecase "UC12\nGenerar comprobante de cita\ny línea de pago" as UC12
+
+  ' --- Pago ---
+  usecase "UC13\nConfirmar pago\n(máx. 8 hrs)" as UC13
+
+  ' --- Gestión de Citas ---
+  usecase "UC14\nVisualizar historial de citas" as UC14
+  usecase "UC15\nFiltrar citas por fecha o estatus" as UC15
+  usecase "UC16\nCancelar cita" as UC16
+  usecase "UC17\nAplicar política de cancelación\ny calcular reembolso" as UC17
+}
+
+' --- Relaciones Paciente ---
+PAC --> UC01
+PAC --> UC02
+PAC --> UC03
+PAC --> UC04
+PAC --> UC14
+PAC --> UC16
+
+' --- include / extend ---
+UC04 ..> UC05 : <<include>>
+UC04 ..> UC06 : <<include>>
+UC04 ..> UC07 : <<include>>
+UC04 ..> UC08 : <<include>>
+UC04 ..> UC09 : <<include>>
+UC04 ..> UC10 : <<include>>
+UC04 ..> UC11 : <<include>>
+UC04 ..> UC12 : <<include>>
+
+UC14 ..> UC15 : <<extend>>
+
+UC16 ..> UC17 : <<include>>
+
+' --- Sistema como actor secundario ---
+SIS --> UC09
+SIS --> UC10
+SIS --> UC11
+SIS --> UC13
+SIS --> UC17
+
+' --- Actor compartido ---
+REC --> UC16 : aprueba cancelación\n(si aplica doctor)
+
+@enduml
+
+
+' ============================================================
+'  DIAGRAMA 2: DOCTOR
+' ============================================================
+@startuml Doctor
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #FEF9E7
+  BorderColor #D4AC0D
+  ArrowColor #7D6608
+}
+skinparam actor {
+  BackgroundColor #FDEBD0
+  BorderColor #CA6F1E
+}
+
+title Casos de Uso — Doctor\nSistema Gestor de Citas Hospitalarias
+
+actor "Doctor" as DOC
+actor "Sistema" as SIS #lightgray
+actor "Recepcionista" as REC #lightyellow
+
+rectangle "Sistema Gestor de Citas Hospitalarias" {
+
+  ' --- Sesión ---
+  usecase "UC18\nIniciar sesión" as UC18
+  usecase "UC19\nVisualizar datos personales\n(solo lectura datos sensibles)" as UC19
+
+  ' --- Citas del Doctor ---
+  usecase "UC20\nVisualizar citas agendadas" as UC20
+  usecase "UC21\nMarcar cita como Atendida\no No acudió" as UC21
+  usecase "UC22\nSolicitar cancelación de cita\n(requiere aprobación)" as UC22
+  usecase "UC23\nAprobación de cancelación\npor Recepcionista" as UC23
+
+  ' --- Recetas ---
+  usecase "UC24\nGenerar receta médica" as UC24
+  usecase "UC25\nAgregar medicamentos\ny tratamiento" as UC25
+  usecase "UC26\nAgregar diagnóstico\ny observaciones" as UC26
+
+  ' --- Paciente ---
+  usecase "UC27\nVisualizar datos del paciente" as UC27
+  usecase "UC28\nVisualizar historial médico\ndel paciente" as UC28
+
+  ' --- Horario ---
+  usecase "UC29\nVisualizar jornada laboral\nasignada" as UC29
+}
+
+' --- Relaciones Doctor ---
+DOC --> UC18
+DOC --> UC19
+DOC --> UC20
+DOC --> UC21
+DOC --> UC22
+DOC --> UC24
+DOC --> UC27
+DOC --> UC28
+DOC --> UC29
+
+' --- include / extend ---
+UC22 ..> UC23 : <<include>>
+UC24 ..> UC25 : <<include>>
+UC24 ..> UC26 : <<include>>
+UC21 ..> UC20 : <<include>>
+
+' --- Actores secundarios ---
+REC --> UC23 : aprueba/rechaza
+SIS --> UC21
+
+@enduml
+
+
+' ============================================================
+'  DIAGRAMA 3: RECEPCIONISTA
+' ============================================================
+@startuml Recepcionista
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #F4ECF7
+  BorderColor #7D3C98
+  ArrowColor #4A235A
+}
+skinparam actor {
+  BackgroundColor #E8DAEF
+  BorderColor #6C3483
+}
+
+title Casos de Uso — Recepcionista\nSistema Gestor de Citas Hospitalarias
+
+actor "Recepcionista" as REC
+actor "Sistema" as SIS #lightgray
+actor "Admin" as ADM #lightcyan
+
+rectangle "Sistema Gestor de Citas Hospitalarias" {
+
+  ' --- Sesión ---
+  usecase "UC30\nIniciar sesión" as UC30
+
+  ' --- Gestión de Usuarios ---
+  usecase "UC31\nDar de alta doctor" as UC31
+  usecase "UC32\nConsultar doctor" as UC32
+  usecase "UC33\nDar de alta paciente" as UC33
+  usecase "UC34\nConsultar paciente" as UC34
+  usecase "UC35\nDar de alta recepcionista" as UC35
+  usecase "UC36\nConsultar recepcionista" as UC36
+
+  ' --- Citas ---
+  usecase "UC37\nVisualizar citas del sistema" as UC37
+  usecase "UC38\nCancelar cita (por paciente\no por doctor)" as UC38
+  usecase "UC39\nAplicar política de cancelación\ny calcular reembolso" as UC39
+  usecase "UC40\nAprobar cancelación\nsolicitada por doctor" as UC40
+
+  ' --- Especialidades y Consultorios ---
+  usecase "UC41\nGestionar especialidades" as UC41
+  usecase "UC42\nGestionar consultorios" as UC42
+
+  ' --- Cobro (si aplica) ---
+  usecase "UC43\nRegistrar cobro de servicios\ny medicamentos" as UC43
+  usecase "UC44\nGenerar ticket de cobro" as UC44
+
+  ' --- Restricciones implícitas ---
+  usecase "UC45\nNO visualizar recetas médicas" as UC45
+  usecase "UC46\nNO visualizar historial\nmédico del paciente" as UC46
+}
+
+' --- Relaciones Recepcionista ---
+REC --> UC30
+REC --> UC31
+REC --> UC32
+REC --> UC33
+REC --> UC34
+REC --> UC35
+REC --> UC36
+REC --> UC37
+REC --> UC38
+REC --> UC40
+REC --> UC41
+REC --> UC42
+REC --> UC43
+
+' --- include / extend ---
+UC38 ..> UC39 : <<include>>
+UC43 ..> UC44 : <<include>>
+
+' --- Actor compartido ---
+ADM --> UC35 : también puede\ndar de alta
+SIS --> UC39
+SIS --> UC45 : restringe acceso
+SIS --> UC46 : restringe acceso
+
+@enduml
+
+
+' ============================================================
+'  DIAGRAMA 4: CAJERO / FARMACÉUTICO (OPCIONAL)
+' ============================================================
+@startuml Cajero_Farmaceutico
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #E8F8F5
+  BorderColor #1ABC9C
+  ArrowColor #0E6655
+}
+skinparam actor {
+  BackgroundColor #D1F2EB
+  BorderColor #148F77
+}
+
+title Casos de Uso — Cajero / Farmacéutico (Perfil Opcional)\nSistema Gestor de Citas Hospitalarias
+
+actor "Cajero /\nFarmacéutico" as CAJ
+actor "Sistema" as SIS #lightgray
+
+rectangle "Sistema Gestor de Citas Hospitalarias" {
+
+  ' --- Sesión ---
+  usecase "UC47\nIniciar sesión" as UC47
+
+  ' --- Farmacia / Inventario ---
+  usecase "UC48\nConsultar inventario\nde medicamentos" as UC48
+  usecase "UC49\nVender medicamento\n(cliente no requiere ser paciente)" as UC49
+  usecase "UC50\nVerificar stock disponible" as UC50
+  usecase "UC51\nActualizar inventario\ntras venta" as UC51
+
+  ' --- Servicios Extras ---
+  usecase "UC52\nRegistrar servicio extra\n(Inyección, Vacuna, Curación, etc.)" as UC52
+  usecase "UC53\nVender servicio extra\n(cliente no requiere ser paciente)" as UC53
+
+  ' --- Cobro ---
+  usecase "UC54\nGenerar cobro total\n(consulta + servicio + medicamento)" as UC54
+  usecase "UC55\nGenerar ticket de pago" as UC55
+
+}
+
+' --- Relaciones ---
+CAJ --> UC47
+CAJ --> UC48
+CAJ --> UC49
+CAJ --> UC52
+CAJ --> UC53
+CAJ --> UC54
+
+' --- include / extend ---
+UC49 ..> UC50 : <<include>>
+UC49 ..> UC51 : <<include>>
+UC54 ..> UC55 : <<include>>
+UC53 ..> UC54 : <<extend>>
+UC49 ..> UC54 : <<extend>>
+
+SIS --> UC50
+SIS --> UC51
+
+@enduml
+
+
+' ============================================================
+'  DIAGRAMA 5: ADMIN
+' ============================================================
+@startuml Admin
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #EBF5FB
+  BorderColor #1A5276
+  ArrowColor #154360
+}
+skinparam actor {
+  BackgroundColor #D6EAF8
+  BorderColor #21618C
+}
+
+title Casos de Uso — Admin\nSistema Gestor de Citas Hospitalarias
+
+actor "Admin" as ADM
+actor "Sistema" as SIS #lightgray
+
+rectangle "Sistema Gestor de Citas Hospitalarias" {
+
+  ' --- Sesión ---
+  usecase "UC56\nIniciar sesión" as UC56
+
+  ' --- Gestión de Usuarios ---
+  usecase "UC57\nDar de alta recepcionista" as UC57
+  usecase "UC58\nGestionar todos los usuarios\n(CRUD)" as UC58
+  usecase "UC59\nAsignar / cambiar perfiles\ny permisos" as UC59
+
+  ' --- Bitácoras ---
+  usecase "UC60\nConsultar bitácora\nestatus de citas" as UC60
+  usecase "UC61\nConsultar bitácora\nhistorial citas médico-paciente" as UC61
+  usecase "UC62\nInsertar registro en bitácora" as UC62
+  usecase "UC63\nNO puede actualizar\nni borrar bitácoras" as UC63
+
+  ' --- Configuración del sistema ---
+  usecase "UC64\nGestionar especialidades" as UC64
+  usecase "UC65\nGestionar consultorios" as UC65
+  usecase "UC66\nGestionar jornadas laborales\nde doctores" as UC66
+
+  ' --- Reportes ---
+  usecase "UC67\nGenerar reportes generales\ndel sistema" as UC67
+
+}
+
+' --- Relaciones Admin ---
+ADM --> UC56
+ADM --> UC57
+ADM --> UC58
+ADM --> UC59
+ADM --> UC60
+ADM --> UC61
+ADM --> UC62
+ADM --> UC64
+ADM --> UC65
+ADM --> UC66
+ADM --> UC67
+
+' --- include / extend ---
+UC58 ..> UC59 : <<extend>>
+UC60 ..> UC62 : <<include>>
+UC61 ..> UC62 : <<include>>
+
+' --- Sistema restringe borrado en bitácoras ---
+SIS --> UC63 : restringe UPDATE/DELETE
+
+@enduml

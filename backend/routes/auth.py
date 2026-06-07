@@ -8,7 +8,6 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 #ruta para logearse
-# ── Login unificado (usando tabla USUARIO) ───────────────────────────────────
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -165,11 +164,11 @@ def login():
             
             # Redirección automática según el rol detectado
             rutas_por_rol = {
-                "Doctor": "/dashboard/doctor",
-                "Recepcionista": "/dashboard/recepcion",
-                "Administrador": "/dashboard/admin",
-                "Paciente": "/dashboard/paciente",
-                "Farmaceutico": "/dashboard/farmaceutico"
+                "Doctor": "/dashboard",
+                "Recepcionista": "/dashboard",
+                "Administrador": "/dashboard",
+                "Paciente": "/dashboard",
+                "Farmaceutico": "/dashboard"
             }
             
             return redirect(rutas_por_rol.get(user.Rol, "/dashboard"))
@@ -243,22 +242,31 @@ def registro_form():
             
             # Usar el procedimiento almacenado para crear paciente
             cursor.execute(
-                """
-                EXEC sp_CrearPaciente
-                    @usuario = ?,
-                    @password_hash = ?,
-                    @Nombre = ?,
-                    @Apellido_Paterno = ?,
-                    @Apellido_Materno = ?,
-                    @Curp = ?,
-                    @Telefono = ?,
-                    @Correo = ?,
-                    @Fecha_nacimiento = ?,
-                    @Tipo_sangre = ?,
-                    @Alergias = ?
-                """,
-                usuario, password_hash, nombre, apellido_paterno, apellido_materno,
-                curp, telefono, correo, fecha_nacimiento, tipo_sangre, alergias
+                    """
+                    EXEC sp_CrearPaciente
+                        @usuario          = ?,
+                        @password_hash    = ?,
+                        @Nombre           = ?,
+                        @Apellido_Paterno = ?,
+                        @Apellido_Materno = ?,
+                        @Curp             = ?,
+                        @Telefono         = ?,
+                        @Correo           = ?,
+                        @Fecha_nacimiento = ?,
+                        @Tipo_sangre      = ?,
+                        @Alergias         = ?
+                    """,
+                    usuario,
+                    password_hash,
+                    nombre,
+                    apellido_paterno,
+                    apellido_materno,
+                    curp,
+                    telefono,
+                    correo,           
+                    fecha_nacimiento,
+                    tipo_sangre,
+                    alergias or None  
             )
             
             conn.commit()
@@ -274,7 +282,7 @@ def registro_form():
 @auth_bp.route("/registro-empleado", methods=["GET", "POST"])
 def register_empleado():
     # Verificar que solo administradores puedan crear empleados
-    if session.get("rol") != "administrador" and session.get("rol") != "recepcion":
+    if session.get("rol") not in ("Administrador", "Recepcionista"):
         return redirect("/auth/login")
     
     if request.method == "GET":

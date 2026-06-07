@@ -25,12 +25,12 @@ function marcarCampo(input, helpId, esValido, mensajeError = '') {
     if (esValido) {
         input.classList.remove('campo-invalido');
         input.classList.add('campo-valido');
-        helpEl.textContent = '✓ Válido';
+        helpEl.textContent = 'Válido';
         helpEl.style.color = '#28a745';
     } else {
         input.classList.remove('campo-valido');
         input.classList.add('campo-invalido');
-        helpEl.textContent = '❌ ' + mensajeError;
+        helpEl.textContent = mensajeError;
         helpEl.style.color = '#dc3545';
     }
 }
@@ -112,7 +112,7 @@ function validarFechaNacimiento(input, helpId) {
 
     marcarCampo(input, helpId, true);
     const helpEl = document.getElementById(helpId);
-    if (helpEl) helpEl.textContent = `✓ Edad: ${edad} años`;
+    if (helpEl) helpEl.textContent = ` Edad: ${edad} años`;
     return true;
 }
 
@@ -173,7 +173,7 @@ function validarPasswordRegistro(input, helpId) {
     input.classList.remove('campo-invalido');
     input.classList.add('campo-valido');
     if (helpEl) {
-        helpEl.textContent = `✓ Contraseña ${etiquetas[fortaleza]}`;
+        helpEl.textContent = ` Contraseña ${etiquetas[fortaleza]}`;
         helpEl.style.color = colores[fortaleza];
     }
     return true;

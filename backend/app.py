@@ -46,16 +46,8 @@ def create_app():
         return render_template("403.html"), 403
     
     @app.errorhandler(500)
-    def acceso_prohibido(error):
+    def error_servidor(error):
         return render_template("500.html"), 500
-
-    #ruta de prueba
-    app.route("/bitacora")
-    @login_requerido
-    @rol_requerido("Admin")
-    def ver_bitacora():
-        from utils.bitacora import BITACORA
-        return {"bitacora": BITACORA}
     
     # ── TEST DE CONEXIÓN ──────────────────────────────────────
     @app.route('/ping')
@@ -66,84 +58,6 @@ def create_app():
             return jsonify({"status": "ok", "mensaje": "Conexión exitosa a CentroMedicoRASA"})
         except Exception as e:
             return jsonify({"status": "error", "detalle": str(e)}), 500
-
-    # ── ESPECIALIDADES ────────────────────────────────────────
-    @app.route('/especialidades')
-    def get_especialidades():
-        conn = get_coneccion()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id_especialidad, nombre, costo FROM Especialidades")
-        rows = cursor.fetchall()
-        conn.close()
-        return jsonify([
-            {"id": r[0], "nombre": r[1], "costo": float(r[2])} for r in rows
-        ])
-
-    # ── DOCTORES ──────────────────────────────────────────────
-    @app.route('/doctores')
-    def get_doctores():
-        conn = get_coneccion()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT u.nombre_completo, e.nombre AS especialidad,
-                c.nombre_numero, d.turno
-            FROM Doctores d
-            JOIN Empleados em ON d.id_empleado = em.id_empleado
-            JOIN Usuarios u   ON em.id_usuario = u.id_usuario
-            JOIN Especialidades e ON d.id_especialidad = e.id_especialidad
-            JOIN Consultorios c   ON d.id_consultorio = c.id_consultorio
-        """)
-        rows = cursor.fetchall()
-        conn.close()
-        return jsonify([
-            {"doctor": r[0], "especialidad": r[1],
-            "consultorio": r[2], "turno": r[3]} for r in rows
-        ])
-
-    # ── CITAS ─────────────────────────────────────────────────
-    @app.route('/citas')
-    def get_citas():
-        conn = get_coneccion()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT c.folio_cita, p_u.nombre_completo AS paciente,
-                d_u.nombre_completo AS doctor,
-                c.fecha_cita, c.hora_cita,
-                c.estatus_cita, c.monto_pago
-            FROM Citas c
-            JOIN Pacientes p   ON c.id_paciente = p.id_paciente
-            JOIN Usuarios p_u  ON p.id_usuario = p_u.id_usuario
-            JOIN Doctores d    ON c.id_doctor = d.id_doctor
-            JOIN Empleados em  ON d.id_empleado = em.id_empleado
-            JOIN Usuarios d_u  ON em.id_usuario = d_u.id_usuario
-        """)
-        rows = cursor.fetchall()
-        conn.close()
-        return jsonify([
-            {
-                "folio": r[0], "paciente": r[1], "doctor": r[2],
-                "fecha": str(r[3]), "hora": str(r[4]),
-                "estatus": r[5], "monto": float(r[6])
-            } for r in rows
-        ])
-
-    # ── INVENTARIO FARMACIA ───────────────────────────────────
-    @app.route('/farmacia')
-    def get_farmacia():
-        conn = get_coneccion()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT nombre, categoria, stock, precio_unitario
-            FROM Inventario_Farmacia
-            ORDER BY categoria
-        """)
-        rows = cursor.fetchall()
-        conn.close()
-        return jsonify([
-            {"nombre": r[0], "categoria": r[1],
-            "stock": r[2], "precio": float(r[3])} for r in rows
-        ])
-    
     
     return app
 
