@@ -1,6 +1,5 @@
 -- ============================================
 -- BASE DE DATOS: CentroMedicoRASA
--- VERSIÓN COMPLETA CON AUTENTICACIÓN UNIFICADA
 -- ============================================
 
 -- Crear la base de datos

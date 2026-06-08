@@ -7,41 +7,44 @@
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='hospital.svg') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Libre+Barcode+39&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style.css"> <link rel="stylesheet" href="{{ url_for('static', filename='style_paciente.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_paciente.css') }}">
 </head>
 <body>
-    
+
     <nav class="barra-navegacion minimalista no-imprimir">
         <div class="marca">
             <i class="fa-solid fa-briefcase-medical icono-marca"></i>
             <strong>Centro Médico<br>R.A.S.A</strong>
         </div>
-        
         <ul class="menu-principal">
             <li><a href="/dashboard">Inicio</a></li>
             <li class="activo"><a href="/paciente/citas">Citas</a></li>
             <li><a href="/paciente/historial">Historial</a></li>
         </ul>
-
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Juan Pérez</strong> | Paciente</span>
+                <span><strong>{{ session.get('nombre', 'Paciente') }}</strong> | Paciente</span>
             </div>
         </div>
     </nav>
 
-    <main class="principal-comprobante">
-        
+    <!-- Skeleton de carga -->
+    <main class="principal-comprobante" id="skeleton-comprobante">
+        <div style="text-align:center;padding:80px 20px;color:#64748b;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size:2.5rem;margin-bottom:16px;display:block;"></i>
+            Cargando comprobante...
+        </div>
+    </main>
+
+    <!-- Contenido real (oculto hasta que cargue) -->
+    <main class="principal-comprobante oculto" id="contenido-comprobante">
+
         <div class="seccion-titulo-folio no-imprimir">
             <div>
                 <h1>Comprobante de Cita</h1>
                 <p class="texto-folio">Guarda este documento para tu referencia</p>
             </div>
             <div class="acciones-comprobante">
-                <button class="btn-exito btn-pagar no-imprimir" id="btn-hacer-pago" onclick="simularPago()">
-                    <i class="fa-solid fa-credit-card"></i> Hacer Pago
-                </button>
                 <button class="btn-primario btn-imprimir" onclick="window.print()">
                     <i class="fa-solid fa-print"></i> Imprimir Ticket
                 </button>
@@ -61,7 +64,7 @@
                 </div>
                 <div class="cabecera-derecha">
                     <span class="etiqueta-folio">FOLIO DE CITA</span>
-                    <p class="numero-folio-grande">HOSP-2026-8842</p>
+                    <p class="numero-folio-grande" id="comp-folio">—</p>
                 </div>
             </div>
 
@@ -69,13 +72,18 @@
                 <div class="fila-paciente-fecha">
                     <div class="info-paciente">
                         <p class="etiqueta-dato">PACIENTE</p>
-                        <p class="valor-dato">Juan Pérez</p>
-                        <p class="id-paciente"><i class="fa-solid fa-id-card"></i> ID: P-99824021</p>
+                        <p class="valor-dato" id="comp-paciente-nombre">—</p>
+                        <p class="id-paciente">
+                            <i class="fa-solid fa-id-card"></i> ID: <span id="comp-paciente-id">—</span>
+                        </p>
                     </div>
                     <div class="info-fecha-hora">
                         <p class="etiqueta-dato">FECHA Y HORARIO</p>
-                        <p class="valor-dato">Martes, 28 Abr, 2026</p>
-                        <p class="fecha-hora-detallada"><i class="fa-regular fa-clock"></i> 10:30 AM — 11:30 AM</p>
+                        <p class="valor-dato" id="comp-fecha">—</p>
+                        <p class="fecha-hora-detallada">
+                            <i class="fa-regular fa-clock"></i>
+                            <span id="comp-horario">—</span>
+                        </p>
                     </div>
                 </div>
 
@@ -84,21 +92,21 @@
                         <i class="fa-solid fa-user-doctor"></i>
                         <div>
                             <p class="etiqueta-dato">DOCTOR ASIGNADO</p>
-                            <p class="valor-dato">Por definir en recepción</p>
+                            <p class="valor-dato" id="comp-doctor">—</p>
                         </div>
                     </div>
                     <div class="item-detalle">
                         <i class="fa-solid fa-notes-medical"></i>
                         <div>
                             <p class="etiqueta-dato">ESPECIALIDAD</p>
-                            <p class="valor-dato">Cardiología</p>
+                            <p class="valor-dato" id="comp-especialidad">—</p>
                         </div>
                     </div>
                     <div class="item-detalle">
                         <i class="fa-solid fa-location-dot"></i>
                         <div>
                             <p class="etiqueta-dato">CONSULTORIO</p>
-                            <p class="valor-dato">Piso 2, Área B</p>
+                            <p class="valor-dato" id="comp-consultorio">—</p>
                         </div>
                     </div>
                 </div>
@@ -114,10 +122,9 @@
                         </div>
                     </div>
                     <div class="resumen-monto">
-                        <p class="monto-pago">$800.00 MXN</p>
-                        <p class="estado-pago-pendiente" id="estado-pago-contenedor">
-                            <span class="punto-pendiente" id="punto-estado"></span> 
-                            <span id="texto-estado">PENDIENTE EN CAJA</span>
+                        <p class="monto-pago" id="comp-monto">—</p>
+                        <p class="estado-pago-pendiente" id="comp-estado-pago">
+                            <span class="punto-pendiente"></span> PENDIENTE EN CAJA
                         </p>
                     </div>
                 </div>
@@ -131,13 +138,15 @@
                         <div class="item-punto">
                             <i class="fa-solid fa-clock-rotate-left"></i>
                             <div>
-                                <span class="titulo-punto">Límite de Pago (24 hrs):</span> Para garantizar su lugar, el pago debe realizarse dentro de las 24 horas despues de que se genero su cita.
+                                <span class="titulo-punto">Límite de Pago (24 hrs):</span>
+                                Para garantizar su lugar, el pago debe realizarse dentro de las 24 horas después de que se generó su cita.
                             </div>
                         </div>
                         <div class="item-punto">
                             <i class="fa-solid fa-ban"></i>
                             <div>
-                                <span class="titulo-punto">Política de Cancelación:</span> Las cancelaciones estan sujetas a un cargo administrativo del 50% del monto de su pago.
+                                <span class="titulo-punto">Política de Cancelación:</span>
+                                48h+ = 100% reembolso · 24-48h = 50% · menos de 24h = sin reembolso.
                             </div>
                         </div>
                     </div>
@@ -146,57 +155,92 @@
 
             <div class="pie-tarjeta">
                 <div>
-                    DOCUMENTO GENERADO EL: 28 DE ABRIL, 2026 A LAS 03:45 PM
-                    <p style="margin-top: 5px; font-style: italic;">Documento Digital Oficial del Centro Médico R.A.S.A.</p>
+                    DOCUMENTO GENERADO EL: <span id="comp-fecha-generacion">—</span>
+                    <p style="margin-top:5px;font-style:italic;">Documento Digital Oficial del Centro Médico R.A.S.A.</p>
                 </div>
                 <div class="codigo-barras-contenedor">
-                    <div class="codigo-barras">*HOSP20268842*</div>
+                    <div class="codigo-barras" id="comp-codigo-barras">*RASA*</div>
                 </div>
             </div>
         </div>
 
         <div class="contenedor-boton-volver no-imprimir">
-            <a href="/dashboard" class="btn-contorno"><i class="fa-solid fa-arrow-left"></i> Volver a Inicio</a>
+            <a href="/paciente/citas" class="btn-contorno">
+                <i class="fa-solid fa-arrow-left"></i> Ver mis citas
+            </a>
         </div>
     </main>
 
     <footer class="pie-pagina-comprobante no-imprimir">
         © 2026 Centro Médico R.A.S.A. Todos los derechos reservados.
     </footer>
-
+    <div id="paginaData" data-id-cita="{{ id_cita }}" hidden></div>
     <script>
-        function simularPago() {
-            const btnPago = document.getElementById('btn-hacer-pago');
-            
-            // 1. Cambiamos visualmente el botón a "Procesando"
-            btnPago.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
-            btnPago.style.cursor = 'not-allowed';
-            btnPago.style.opacity = '0.8';
+    // Flask inyecta el id_cita desde la URL /citas/comprobante/<id_cita>
+    const ID_CITA = parseInt(document.getElementById('paginaData').dataset.idCita);
 
-            // 2. Usamos setTimeout para simular 1 segundo de "conexión al banco"
-            setTimeout(() => {
-                // Elementos a actualizar
-                const contenedorEstado = document.getElementById('estado-pago-contenedor');
-                const textoEstado = document.getElementById('texto-estado');
-                const puntoEstado = document.getElementById('punto-estado');
-                
-                // Cambiamos las clases para que se ponga verde
-                contenedorEstado.className = 'estado-pago-completado';
-                
-                // Quitamos el círculo rojo animado y ponemos una palomita verde
-                puntoEstado.className = ''; 
-                puntoEstado.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-                puntoEstado.style.fontSize = '14px';
-                
-                // Cambiamos el texto
-                textoEstado.innerText = 'PAGO COMPLETADO';
-                
-                // Ocultamos el botón de pago y mandamos alerta
-                btnPago.style.display = 'none';
-                alert('¡Tu pago ha sido procesado con éxito!');
-                
-            }, 1000); // 1000 milisegundos = 1 segundo
+    function formatearFecha(isoStr) {
+        // "2026-05-12" → "Martes, 12 May, 2026"
+        const fecha = new Date(isoStr + 'T00:00:00');
+        return fecha.toLocaleDateString('es-MX', {
+            weekday: 'long', year: 'numeric', month: 'short', day: 'numeric'
+        });
+    }
+
+    function fmt12h(hhmm) {
+        if (!hhmm) return '—';
+        const parts = hhmm.split(':');
+        const h = parseInt(parts[0]);
+        const m = parts[1] || '00';
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12  = h > 12 ? h - 12 : h === 0 ? 12 : h;
+        return `${h12}:${m} ${ampm}`;
+    }
+
+    async function cargarComprobante() {
+        try {
+            const res  = await fetch(`/citas/comprobante/${ID_CITA}/datos`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            const d = await res.json();
+            if (!res.ok) throw new Error(d.error || 'Error al cargar comprobante');
+
+            // Rellenar todos los campos
+            document.getElementById('comp-folio').textContent          = d.folio;
+            document.getElementById('comp-paciente-nombre').textContent = d.paciente.nombre_completo;
+            document.getElementById('comp-paciente-id').textContent    = `P-${String(d.id_cita).padStart(8,'0')}`;
+            document.getElementById('comp-fecha').textContent          = formatearFecha(d.cita.fecha);
+            document.getElementById('comp-horario').textContent        = `${fmt12h(d.cita.hora_inicio)} — ${fmt12h(d.cita.hora_fin)}`;
+            document.getElementById('comp-doctor').textContent         = d.doctor.nombre_completo;
+            document.getElementById('comp-especialidad').textContent   = d.doctor.especialidad;
+            document.getElementById('comp-consultorio').textContent    = `Piso ${d.consultorio.piso}, Consultorio ${d.consultorio.numero}`;
+            document.getElementById('comp-monto').textContent          = `$${Number(d.doctor.costo_consulta).toLocaleString('es-MX')} MXN`;
+            document.getElementById('comp-fecha-generacion').textContent = d.fecha_generacion || new Date().toLocaleDateString('es-MX');
+            document.getElementById('comp-codigo-barras').textContent  = d.codigo_barras;
+
+            // Estado de pago
+            const estadoEl = document.getElementById('comp-estado-pago');
+            if (d.pago && d.pago.estatus === 'Pagado') {
+                estadoEl.className = 'estado-pago-completado';
+                estadoEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> PAGO COMPLETADO';
+            }
+
+            // Mostrar contenido y ocultar skeleton
+            document.getElementById('skeleton-comprobante').classList.add('oculto');
+            document.getElementById('contenido-comprobante').classList.remove('oculto');
+
+        } catch(err) {
+            document.getElementById('skeleton-comprobante').innerHTML = `
+                <div style="text-align:center;padding:80px 20px;color:#dc2626;">
+                    <i class="fa-solid fa-circle-exclamation" style="font-size:2rem;margin-bottom:12px;display:block;"></i>
+                    ${err.message}
+                    <br><br>
+                    <a href="/paciente/citas" class="btn-contorno">Volver a mis citas</a>
+                </div>`;
         }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarComprobante);
     </script>
 </body>
 </html>

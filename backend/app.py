@@ -3,7 +3,10 @@ from datetime import timedelta
 from database.db import get_coneccion
 from utils.decorador import login_requerido, rol_requerido
 from routes.auth import auth_bp
+from routes.ajustes import ajuste_bp
+from routes.admin import admin_bp
 from routes.citas import citas_bp
+from routes.cancelacion import cancelacion_bp
 from routes.dashboard import dashboard_bp
 from routes.index import index_bp
 from routes.paciente import paciente_bp
@@ -11,9 +14,7 @@ from routes.doctor import doctor_bp
 from routes.recepcionista import recepcion_bp
 from routes.soporte import soporte_bp
 from routes.farmacia import farmacia_bp
-from routes.ajustes import ajuste_bp
-from routes.cancelacion import cancelacion_bp
-from routes.admin import admin_bp
+
 
 def create_app():
     app = Flask(__name__)

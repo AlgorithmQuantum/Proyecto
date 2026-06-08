@@ -6,7 +6,6 @@
     <title>Detalles de la Cita - Centro Médico R.A.S.A</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='hospital.svg') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style_paciente.css') }}">
 </head>
 <body>
@@ -16,46 +15,59 @@
             <i class="fa-solid fa-briefcase-medical icono-marca"></i>
             <strong>Centro Médico<br>R.A.S.A</strong>
         </div>
-        
         <ul class="menu-principal">
             <li><a href="/dashboard">Panel</a></li>
             <li class="activo"><a href="/paciente/citas">Citas</a></li>
             <li><a href="/paciente/historial">Historial</a></li>
         </ul>
-
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Juan Pérez</strong> | Paciente</span>
+                <span><strong>{{ session.get('nombre', 'Paciente') }}</strong> | Paciente</span>
             </div>
         </div>
     </nav>
 
-    <main class="contenedor-principal">
-        
-        <div class="columna-izquierda" style="flex: 100%; max-width: 800px; margin: 0 auto;">
-            
+    <!-- Skeleton -->
+    <main class="contenedor-principal" id="skeleton-detalles">
+        <div style="text-align:center;padding:80px 20px;color:#64748b;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size:2.5rem;margin-bottom:16px;display:block;"></i>
+            Cargando detalles...
+        </div>
+    </main>
+
+    <!-- Contenido real -->
+    <main class="contenedor-principal oculto" id="contenido-detalles">
+        <div class="columna-izquierda" style="flex:100%;max-width:800px;margin:0 auto;">
+
             <div class="migas-pan">
-                Panel <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem; margin: 0 4px;"></i> Citas <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem; margin: 0 4px;"></i> <span class="actual">Detalles de la Cita</span>
+                Panel
+                <i class="fa-solid fa-chevron-right" style="font-size:.6rem;margin:0 4px;"></i>
+                Citas
+                <i class="fa-solid fa-chevron-right" style="font-size:.6rem;margin:0 4px;"></i>
+                <span class="actual">Detalles de la Cita</span>
             </div>
-            
-            <div class="seccion-titulo-detalle" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+
+            <div class="seccion-titulo-detalle"
+                 style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;">
                 <div>
-                    <h1 class="titulo-seccion" style="margin-bottom: 5px;">Detalles de la Cita</h1>
-                    <p class="subtitulo-seccion" style="margin-bottom: 0;">Folio: #HOSP-2023-8842</p>
+                    <h1 class="titulo-seccion" style="margin-bottom:5px;">Detalles de la Cita</h1>
+                    <p class="subtitulo-seccion" style="margin-bottom:0;">
+                        Folio: <span id="det-folio">—</span>
+                    </p>
                 </div>
-                <span class="badge-estado confirmada">CONFIRMADA</span>
+                <span class="badge-estado" id="det-badge-estatus">—</span>
             </div>
 
             <div class="tarjeta-comprobante">
                 <div class="cuerpo-tarjeta">
-                    
+
                     <div class="perfil-doctor-detalle">
                         <div class="avatar-doctor-grande">
                             <i class="fa-solid fa-user-doctor"></i>
                         </div>
                         <div class="info-doctor-texto">
-                            <h2>Dra. Sarah Smith</h2>
-                            <span class="especialidad-tag">CARDIOLOGÍA</span>
+                            <h2 id="det-doctor-nombre">—</h2>
+                            <span class="especialidad-tag" id="det-especialidad">—</span>
                         </div>
                     </div>
 
@@ -66,21 +78,21 @@
                             <i class="fa-regular fa-calendar"></i>
                             <div>
                                 <span class="etiqueta-dato">FECHA</span>
-                                <p class="valor-dato">12 de Octubre, 2023</p>
+                                <p class="valor-dato" id="det-fecha">—</p>
                             </div>
                         </div>
                         <div class="bloque-detalle">
                             <i class="fa-regular fa-clock"></i>
                             <div>
                                 <span class="etiqueta-dato">HORARIO</span>
-                                <p class="valor-dato">10:00 AM <span class="duracion-cita">(45 min)</span></p>
+                                <p class="valor-dato" id="det-horario">—</p>
                             </div>
                         </div>
                         <div class="bloque-detalle">
                             <i class="fa-solid fa-location-dot"></i>
                             <div>
                                 <span class="etiqueta-dato">CONSULTORIO</span>
-                                <p class="valor-dato">Piso 2, Área B</p>
+                                <p class="valor-dato" id="det-consultorio">—</p>
                             </div>
                         </div>
                     </div>
@@ -90,20 +102,28 @@
                     <div class="fila-paciente-pago">
                         <div>
                             <span class="etiqueta-dato">PACIENTE</span>
-                            <p class="valor-dato" style="font-size: 1rem;">Juan Pérez</p>
+                            <p class="valor-dato" style="font-size:1rem;" id="det-paciente">—</p>
                         </div>
-                        <div style="text-align: right;">
+                        <div style="text-align:right;">
                             <span class="etiqueta-dato">ESTADO DE PAGO</span>
-                            <p class="valor-dato" style="color: var(--verde-exito); font-size: 1rem;"><i class="fa-solid fa-circle-check"></i> Pagado ($800.00 MXN)</p>
+                            <p class="valor-dato" style="font-size:1rem;" id="det-pago">—</p>
                         </div>
                     </div>
 
-                    <div class="caja-instrucciones">
+                    <!-- Diagnóstico / Tratamiento (solo si existe) -->
+                    <div id="det-bloque-diagnostico" class="oculto" style="margin-top:20px;">
+                        <div class="caja-instrucciones">
+                            <strong><i class="fa-solid fa-notes-medical"></i> Diagnóstico:</strong>
+                            <p id="det-diagnostico" style="margin:8px 0 0;"></p>
+                        </div>
+                    </div>
+
+                    <div class="caja-instrucciones" style="margin-top:15px;">
                         <strong><i class="fa-solid fa-notes-medical"></i> Instrucciones previas a la consulta:</strong>
                         <ul>
                             <li>Por favor, preséntate 15 minutos antes de tu horario.</li>
-                            <li>Trae contigo cualquier estudio de laboratorio cardíaco reciente (electrocardiogramas, etc.).</li>
-                            <li>Identificación oficial vigente.</li>
+                            <li>Trae contigo identificación oficial vigente.</li>
+                            <li>Si tienes estudios previos relacionados, tráelos contigo.</li>
                         </ul>
                     </div>
 
@@ -111,16 +131,115 @@
             </div>
 
             <div class="acciones-detalle-cita">
-                <a href="/paciente/citas" class="btn-contorno"><i class="fa-solid fa-arrow-left"></i> Volver a Citas</a>
-                
-                <div class="botones-derecha">
-                    <a href="/paciente/comprobante" class="btn-contorno"><i class="fa-solid fa-file-pdf"></i> Ver Recibo</a>
-                    <a href="/cancelacion" class="btn-peligro-contorno">Cancelar Cita</a>
+                <a href="/paciente/citas" class="btn-contorno">
+                    <i class="fa-solid fa-arrow-left"></i> Volver a Citas
+                </a>
+                <div class="botones-derecha" id="det-botones-accion">
+                    <!-- Se rellenan dinámicamente -->
                 </div>
             </div>
 
         </div>
     </main>
+    <div id="paginaData" data-id-cita="{{ id_cita }}" hidden></div>
+    <script>
+    // Flask inyecta el id desde la URL /citas/detalles/<id_cita>
+    const ID_CITA = parseInt(document.getElementById('paginaData').dataset.idCita);
 
+    function fmt12h(hhmm) {
+        if (!hhmm) return '—';
+        const [h, m] = hhmm.split(':').map(Number);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12  = h > 12 ? h - 12 : h === 0 ? 12 : h;
+        return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+    }
+
+    function formatearFecha(isoStr) {
+        const f = new Date(isoStr + 'T00:00:00');
+        return f.toLocaleDateString('es-MX', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    }
+
+    async function cargarDetalles() {
+        try {
+            const res = await fetch(`/citas/${ID_CITA}`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            const d = await res.json();
+            if (!res.ok) throw new Error(d.error || 'Error al cargar los detalles');
+
+            // Folio y estatus
+            document.getElementById('det-folio').textContent = d.folio;
+
+            const badge = document.getElementById('det-badge-estatus');
+            badge.textContent = d.estatus;
+            badge.className   = `badge-estado ${d.estatus === 'Activa' ? 'confirmada' : 'cancelada'}`;
+
+            // Doctor
+            document.getElementById('det-doctor-nombre').textContent = d.doctor.nombre_completo;
+            document.getElementById('det-especialidad').textContent  = d.doctor.especialidad.toUpperCase();
+
+            // Fecha y horario
+            document.getElementById('det-fecha').textContent    = formatearFecha(d.fecha);
+            document.getElementById('det-horario').textContent  =
+                `${fmt12h(d.hora_inicio)} — ${fmt12h(d.hora_fin)}`;
+
+            // Consultorio
+            document.getElementById('det-consultorio').textContent =
+                `Piso ${d.consultorio.piso}, Consultorio ${d.consultorio.numero}`;
+
+            // Paciente
+            document.getElementById('det-paciente').textContent = d.paciente.nombre_completo;
+
+            // Pago
+            const pagoEl = document.getElementById('det-pago');
+            if (d.pago.estatus === 'Pagado') {
+                pagoEl.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--verde-exito);"></i>
+                    Pagado ($${Number(d.pago.monto).toLocaleString('es-MX')} MXN)`;
+                pagoEl.style.color = 'var(--verde-exito)';
+            } else {
+                pagoEl.innerHTML = `<i class="fa-solid fa-clock" style="color:#f59e0b;"></i> Pendiente en caja`;
+                pagoEl.style.color = '#f59e0b';
+            }
+
+            // Diagnóstico (solo si existe)
+            if (d.diagnostico) {
+                document.getElementById('det-diagnostico').textContent = d.diagnostico;
+                document.getElementById('det-bloque-diagnostico').classList.remove('oculto');
+            }
+
+            // Botones de acción según estatus
+            const botonesDiv = document.getElementById('det-botones-accion');
+            if (d.estatus === 'Activa') {
+                botonesDiv.innerHTML = `
+                    <a href="/citas/comprobante/${ID_CITA}" class="btn-contorno">
+                        <i class="fa-solid fa-file-pdf"></i> Ver Comprobante
+                    </a>
+                    <a href="/citas/cancelar/${ID_CITA}" class="btn-peligro-contorno">
+                        Cancelar Cita
+                    </a>`;
+            } else {
+                botonesDiv.innerHTML = `
+                    <span style="color:#64748b;font-size:.9rem;">
+                        <i class="fa-solid fa-ban"></i> Cita cancelada
+                    </span>`;
+            }
+
+            // Mostrar contenido
+            document.getElementById('skeleton-detalles').classList.add('oculto');
+            document.getElementById('contenido-detalles').classList.remove('oculto');
+
+        } catch(err) {
+            document.getElementById('skeleton-detalles').innerHTML = `
+                <div style="text-align:center;padding:80px 20px;color:#dc2626;">
+                    <i class="fa-solid fa-circle-exclamation" style="font-size:2rem;margin-bottom:12px;display:block;"></i>
+                    ${err.message}
+                    <br><br>
+                    <a href="/paciente/citas" class="btn-contorno">Volver a mis citas</a>
+                </div>`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarDetalles);
+    </script>
 </body>
 </html>

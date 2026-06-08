@@ -6,7 +6,6 @@
     <title>Cancelar Cita - Centro Médico R.A.S.A</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='hospital.svg') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css"> 
     <link rel="stylesheet" href="{{ url_for('static', filename='style_paciente.css') }}">
 </head>
 <body>
@@ -16,107 +15,144 @@
             <i class="fa-solid fa-briefcase-medical icono-marca"></i>
             <strong>Centro Médico<br>R.A.S.A</strong>
         </div>
-        
         <ul class="menu-principal">
             <li><a href="/dashboard">Inicio</a></li>
             <li class="activo"><a href="/paciente/citas">Citas</a></li>
             <li><a href="/paciente/historial">Historial</a></li>
         </ul>
-
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Juan Pérez</strong> | Paciente</span>
+                <span><strong>{{ session.get('nombre', 'Paciente') }}</strong> | Paciente</span>
             </div>
         </div>
     </nav>
 
-    <main class="contenedor-principal">
-        
-        <div class="columna-izquierda" style="flex: 100%; max-width: 700px; margin: 0 auto;">
-            <div class="migas-pan">
-                Panel <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem; margin: 0 4px;"></i> Citas <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem; margin: 0 4px;"></i> <span class="actual">Cancelar Cita</span>
-            </div>
-            
-            <h1 class="titulo-seccion">Cancelar Cita Médica</h1>
-            <p class="subtitulo-seccion">Folio de reservación: #HOSP-2026-8842</p>
+    <!-- Skeleton -->
+    <main class="contenedor-principal" id="skeleton-cancelar">
+        <div style="text-align:center;padding:80px 20px;color:#64748b;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size:2.5rem;margin-bottom:16px;display:block;"></i>
+            Calculando reembolso...
+        </div>
+    </main>
 
+    <!-- Contenido real -->
+    <main class="contenedor-principal oculto" id="contenido-cancelar">
+        <div class="columna-izquierda" style="flex:100%;max-width:700px;margin:0 auto;">
+
+            <div class="migas-pan">
+                Panel
+                <i class="fa-solid fa-chevron-right" style="font-size:.6rem;margin:0 4px;"></i>
+                Citas
+                <i class="fa-solid fa-chevron-right" style="font-size:.6rem;margin:0 4px;"></i>
+                <span class="actual">Cancelar Cita</span>
+            </div>
+
+            <h1 class="titulo-seccion">Cancelar Cita Médica</h1>
+            <p class="subtitulo-seccion">Folio: <span id="canc-folio">—</span></p>
+
+            <!-- Vista principal de cancelación -->
             <div id="vista-cancelacion">
-                
-                <!-- SECCIÓN ACTUALIZADA CON LA NUEVA POLÍTICA -->
-                <div class="alerta-peligro">
+
+                <div class="alerta-peligro" id="canc-alerta-politica">
                     <i class="fa-solid fa-circle-exclamation"></i>
                     <div>
-                        <strong>Política de Cancelación:</strong> Para cancelar una cita se deberá hacer con:
-                        <ul style="margin-top: 8px; margin-bottom: 8px; margin-left: 20px;">
-                            <li>48 hrs de anticipación -> Devolución del 100% de su pago</li>
-                            <li>24 hrs de anticipación -> Devolución del 50% de su pago</li>
-                            <li>Menos de 24 hrs -> 0% de su pago</li>
+                        <strong>Política de Cancelación:</strong>
+                        <ul style="margin:8px 0 8px 20px;">
+                            <li>48 hrs de anticipación → Devolución del 100%</li>
+                            <li>24 hrs de anticipación → Devolución del 50%</li>
+                            <li>Menos de 24 hrs → Sin devolución</li>
                         </ul>
-                        <p style="font-size: 0.9rem;"><em>(Su cancelación se está procesando con al menos 24 hrs de anticipación, por lo que aplica un reembolso del 50%).</em></p>
+                        <p style="font-size:.9rem;" id="canc-politica-aplicada">—</p>
                     </div>
                 </div>
 
-                <div class="tarjeta-comprobante" style="margin-top: 25px;">
+                <div class="tarjeta-comprobante" style="margin-top:25px;">
                     <div class="cuerpo-tarjeta">
-                        
-                        <h3 style="margin-bottom: 15px; font-size: 1.1rem; border-bottom: 1px solid var(--borde); padding-bottom: 10px;">Detalles de la Cita</h3>
-                        
+
+                        <h3 style="margin-bottom:15px;font-size:1.1rem;border-bottom:1px solid var(--borde);padding-bottom:10px;">
+                            Detalles de la Cita
+                        </h3>
+
                         <div class="detalle-resumen">
                             <span>Especialidad:</span>
-                            <strong>Cardiología</strong>
+                            <strong id="canc-especialidad">—</strong>
+                        </div>
+                        <div class="detalle-resumen">
+                            <span>Doctor:</span>
+                            <strong id="canc-doctor">—</strong>
                         </div>
                         <div class="detalle-resumen">
                             <span>Fecha programada:</span>
-                            <strong>Martes, 28 Abr, 2026</strong>
+                            <strong id="canc-fecha">—</strong>
                         </div>
                         <div class="detalle-resumen">
                             <span>Horario:</span>
-                            <strong>10:30 AM</strong>
+                            <strong id="canc-hora">—</strong>
+                        </div>
+                        <div class="detalle-resumen">
+                            <span>Horas restantes:</span>
+                            <strong id="canc-horas-restantes">—</strong>
                         </div>
 
-                        <div class="caja-reembolso">
-                            <h4 style="margin-bottom: 15px; color: var(--texto-oscuro);">Desglose del Reembolso</h4>
-                            
+                        <div class="caja-reembolso" style="margin-top:20px;">
+                            <h4 style="margin-bottom:15px;color:var(--texto-oscuro);">Desglose del Reembolso</h4>
+
                             <div class="detalle-resumen">
-                                <span>Costo original pagado:</span>
-                                <strong>$800.00 MXN</strong>
+                                <span>Costo original:</span>
+                                <strong id="canc-costo-original">—</strong>
                             </div>
-                            <div class="detalle-resumen" style="color: var(--rojo-alerta);">
-                                <span>Penalización por cancelación (50%):</span>
-                                <strong>-$400.00 MXN</strong>
+                            <div class="detalle-resumen" style="color:var(--rojo-alerta);">
+                                <span>Penalización (<span id="canc-penalizacion-pct">—</span>):</span>
+                                <strong id="canc-penalizacion">—</strong>
                             </div>
-                            
-                            <hr style="border: none; border-top: 1px dashed var(--borde); margin: 15px 0;">
-                            
-                            <div class="detalle-resumen" style="font-size: 1.2rem;">
-                                <span style="font-weight: 700; color: var(--verde-exito);">Total a reembolsar:</span>
-                                <strong style="color: var(--verde-exito); font-size: 1.5rem;">$400.00 MXN</strong>
+
+                            <hr style="border:none;border-top:1px dashed var(--borde);margin:15px 0;">
+
+                            <div class="detalle-resumen" style="font-size:1.2rem;">
+                                <span style="font-weight:700;color:var(--verde-exito);">Total a reembolsar:</span>
+                                <strong style="color:var(--verde-exito);font-size:1.5rem;" id="canc-reembolso">—</strong>
                             </div>
                         </div>
 
-                        <div class="motivo-cancelacion" style="margin-top: 25px;">
-                            <label for="motivo" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px;">Motivo de la cancelación (Opcional):</label>
-                            <textarea id="motivo" rows="3" placeholder="Ej. Problemas de transporte, enfermedad, etc." style="width: 100%; padding: 10px; border: 1px solid var(--borde); border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+                        <!-- Alerta si pago pendiente -->
+                        <div id="canc-aviso-sin-pago" class="oculto"
+                             style="margin-top:16px;padding:12px;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;font-size:.9rem;color:#92400e;">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <strong>Sin pago registrado:</strong> El reembolso aplica solo si realizó el pago en caja.
                         </div>
-                        
+
+                        <div class="motivo-cancelacion" style="margin-top:25px;">
+                            <label for="motivo"
+                                   style="display:block;font-weight:600;font-size:.9rem;margin-bottom:8px;">
+                                Motivo de la cancelación (Opcional):
+                            </label>
+                            <textarea id="motivo" rows="3"
+                                      placeholder="Ej. Problemas de transporte, enfermedad, etc."
+                                      style="width:100%;padding:10px;border:1px solid var(--borde);border-radius:8px;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+                        </div>
+
                     </div>
                 </div>
 
                 <div class="acciones-cancelacion">
-                    <a href="inicioPaciente.html" class="btn-contorno">Mantener mi cita</a>
-                    <button class="btn-peligro" id="btn-confirmar-cancelacion" onclick="procesarCancelacion()">
+                    <a href="/paciente/citas" class="btn-contorno">Mantener mi cita</a>
+                    <button class="btn-peligro" id="btn-confirmar-cancelacion">
                         <i class="fa-solid fa-calendar-xmark"></i> Confirmar Cancelación
                     </button>
                 </div>
             </div>
 
+            <!-- Vista de éxito -->
             <div id="vista-exito" class="oculto">
-                <div class="tarjeta-comprobante" style="text-align: center; padding: 50px 30px;">
-                    <i class="fa-solid fa-circle-check" style="font-size: 4rem; color: var(--verde-exito); margin-bottom: 20px;"></i>
-                    <h2 style="margin-bottom: 10px;">Cita Cancelada Exitosamente</h2>
-                    <p style="color: var(--texto-gris); margin-bottom: 25px; font-size: 1.05rem;">Tu cita ha sido eliminada del sistema. El reembolso del 50% (<strong>$400.00 MXN</strong>) ha sido procesado y se reflejará en tu método de pago original en un plazo de 3 a 5 días hábiles.</p>
-                    
-                    <a href="inicioPaciente.html" class="btn-primario" style="display: inline-block; text-decoration: none;">
+                <div class="tarjeta-comprobante" style="text-align:center;padding:50px 30px;">
+                    <i class="fa-solid fa-circle-check"
+                       style="font-size:4rem;color:var(--verde-exito);margin-bottom:20px;"></i>
+                    <h2 style="margin-bottom:10px;">Cita Cancelada Exitosamente</h2>
+                    <p style="color:var(--texto-gris);margin-bottom:25px;font-size:1.05rem;">
+                        Tu cita ha sido eliminada del sistema.
+                        <span id="exito-reembolso-msg">—</span>
+                    </p>
+                    <a href="/dashboard" class="btn-primario" style="display:inline-block;text-decoration:none;">
                         Volver a Inicio
                     </a>
                 </div>
@@ -124,25 +160,126 @@
 
         </div>
     </main>
-
+    <div id="paginaData" data-id-cita="{{ id_cita }}" hidden></div>
     <script>
-        function procesarCancelacion() {
-            const btnConfirmar = document.getElementById('btn-confirmar-cancelacion');
-            
-            // Simular carga
-            btnConfirmar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
-            btnConfirmar.disabled = true;
-            btnConfirmar.style.opacity = '0.7';
+    const ID_CITA = parseInt(document.getElementById('paginaData').dataset.idCita);
+    let datosReembolso = null;
 
-            // Esperar 1.5 segundos y mostrar la pantalla de éxito
-            setTimeout(() => {
-                document.getElementById('vista-cancelacion').classList.add('oculto');
-                document.getElementById('vista-exito').classList.remove('oculto');
-                
-                // Mover la pantalla hacia arriba
-                window.scrollTo(0, 0);
-            }, 1500);
+    function fmt12h(hhmm) {
+        if (!hhmm) return '—';
+        const [h, m] = hhmm.split(':').map(Number);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12  = h > 12 ? h - 12 : h === 0 ? 12 : h;
+        return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+    }
+
+    function formatearFecha(isoStr) {
+        const f = new Date(isoStr + 'T00:00:00');
+        return f.toLocaleDateString('es-MX', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    }
+
+    function moneda(num) {
+        return `$${Number(num).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN`;
+    }
+
+    async function cargarReembolso() {
+        try {
+            // Primero traemos los detalles de la cita para doctor/especialidad
+            const [resCita, resReem] = await Promise.all([
+                fetch(`/citas/${ID_CITA}`, { headers: { 'Accept': 'application/json' } }),
+                fetch(`/citas/${ID_CITA}/reembolso`)
+            ]);
+
+            const cita  = await resCita.json();
+            const reem  = await resReem.json();
+
+            if (!resCita.ok) throw new Error(cita.error);
+            if (!resReem.ok) throw new Error(reem.error);
+
+            datosReembolso = reem;
+
+            // Folio
+            document.getElementById('canc-folio').textContent = cita.folio;
+
+            // Detalles de la cita
+            document.getElementById('canc-especialidad').textContent = cita.doctor.especialidad;
+            document.getElementById('canc-doctor').textContent       = cita.doctor.nombre_completo;
+            document.getElementById('canc-fecha').textContent        = formatearFecha(cita.fecha);
+            document.getElementById('canc-hora').textContent         = fmt12h(cita.hora_inicio);
+            document.getElementById('canc-horas-restantes').textContent =
+                `${reem.horas_restantes} hrs`;
+
+            // Política aplicada
+            document.getElementById('canc-politica-aplicada').innerHTML =
+                `<em>Su cancelación aplica: <strong>${reem.descripcion}</strong></em>`;
+
+            // Desglose
+            const pct = reem.porcentaje;
+            document.getElementById('canc-costo-original').textContent    = moneda(reem.costo_original);
+            document.getElementById('canc-penalizacion-pct').textContent  = `${100 - pct}%`;
+            document.getElementById('canc-penalizacion').textContent      = `-${moneda(reem.penalizacion)}`;
+            document.getElementById('canc-reembolso').textContent         = moneda(reem.monto_reembolso);
+
+            // Si no hay pago registrado y el reembolso sería > 0, avisar
+            if (reem.estatus_pago === 'Pendiente' && reem.monto_reembolso > 0) {
+                document.getElementById('canc-aviso-sin-pago').classList.remove('oculto');
+            }
+
+            // Mostrar contenido
+            document.getElementById('skeleton-cancelar').classList.add('oculto');
+            document.getElementById('contenido-cancelar').classList.remove('oculto');
+
+        } catch(err) {
+            document.getElementById('skeleton-cancelar').innerHTML = `
+                <div style="text-align:center;padding:80px 20px;color:#dc2626;">
+                    <i class="fa-solid fa-circle-exclamation" style="font-size:2rem;margin-bottom:12px;display:block;"></i>
+                    ${err.message}
+                    <br><br>
+                    <a href="/paciente/citas" class="btn-contorno">Volver a mis citas</a>
+                </div>`;
         }
+    }
+
+    async function procesarCancelacion() {
+        const btn    = document.getElementById('btn-confirmar-cancelacion');
+        const motivo = document.getElementById('motivo').value.trim();
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
+
+        try {
+            const res = await fetch(`/citas/${ID_CITA}/cancelar`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ motivo }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+
+            // Mensaje de éxito personalizado según reembolso
+            let msgReembolso = 'No aplica reembolso.';
+            if (data.monto_reembolso > 0) {
+                msgReembolso = `El reembolso de <strong>$${Number(data.monto_reembolso).toLocaleString('es-MX')} MXN</strong>
+                    (${data.porcentaje}%) se procesará en 3 a 5 días hábiles.`;
+            }
+            document.getElementById('exito-reembolso-msg').innerHTML = msgReembolso;
+
+            document.getElementById('vista-cancelacion').classList.add('oculto');
+            document.getElementById('vista-exito').classList.remove('oculto');
+            window.scrollTo(0, 0);
+
+        } catch(err) {
+            alert('Error: ' + err.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-calendar-xmark"></i> Confirmar Cancelación';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        cargarReembolso();
+        document.getElementById('btn-confirmar-cancelacion')
+            .addEventListener('click', procesarCancelacion);
+    });
     </script>
 </body>
 </html>

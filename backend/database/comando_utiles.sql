@@ -1,1 +1,4 @@
 SELECT * FROM usuario;
+
+SELECT * FROM EMPLEADO;
+

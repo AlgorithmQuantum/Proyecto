@@ -3,6 +3,7 @@ from middleware.auth import login_required, role_required
 from database.db import get_coneccion
 from datetime import datetime, timedelta
 import pyodbc
+import re
 
 citas_bp = Blueprint("citas", __name__, url_prefix="/citas")
 
@@ -106,9 +107,8 @@ def get_especialidades():
                 FROM ESPECIALIDAD e
                 LEFT JOIN DOCTOR d ON d.Id_especialidad = e.Id_especialidad
                 GROUP BY e.Id_especialidad, e.Nombre, e.Descripcion, e.Costo_Consulta
-                HAVING COUNT(d.Id_doctor) > 0
                 ORDER BY e.Nombre
-            """)
+                """)
             rows = cursor.fetchall()
 
         return jsonify([{
@@ -292,14 +292,14 @@ def agendar_cita():
             fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
 
             cursor.execute("""
-                INSERT INTO CITA (
-                    Id_paciente, Id_doctor, Id_consultorio,
-                    Fecha_cita, hora_cita, Hora_Fin,
-                    Dia, Mes, Estatus
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
-            """, id_paciente, id_doctor, id_consultorio,
-                fecha, hora, hora_fin,
-                fecha_dt.day, fecha_dt.month)
+                EXEC sp_CrearCita
+                    @Id_paciente    = ?,
+                    @Id_doctor      = ?,
+                    @Id_consultorio = ?,
+                    @Fecha_cita     = ?,
+                    @Hora_cita      = ?,
+                    @Hora_Fin       = ?
+            """, id_paciente, id_doctor, id_consultorio, fecha, hora, hora_fin)
 
             conn.commit()
 
@@ -315,7 +315,12 @@ def agendar_cita():
         }), 201
 
     except pyodbc.Error as e:
-        return jsonify({"error": str(e)}), 500
+        # El mensaje del RAISERROR viene en e.args[1]
+        msg = str(e.args[1]) if len(e.args) > 1 else str(e)
+        # Limpiar el prefijo que agrega SQL Server
+        match = re.search(r"\[SQL Server\](.*?)(\(|$)", msg)
+        error_limpio = match.group(1).strip() if match else msg
+        return jsonify({"error": error_limpio}), 400
 
 
 # ── API: Mis citas (lista para citasPaciente.html) ────────────────────────────
@@ -334,28 +339,20 @@ def mis_citas():
 
             cursor.execute("""
                 SELECT
-                    c.Id_cita,
-                    c.Fecha_cita,
-                    c.hora_cita,
-                    c.Hora_Fin,
-                    c.Estatus,
-                    emp.Nombre           AS doc_nombre,
-                    emp.Apellido_Paterno AS doc_ap,
-                    esp.Nombre           AS especialidad,
-                    con.Numero           AS consultorio_num,
-                    con.Piso,
-                    -- Si existe ticket pagado
-                    ISNULL(
-                        (SELECT TOP 1 Estatus_pago
-                         FROM TICKET t WHERE t.Id_cita = c.Id_cita), 'Sin ticket'
-                    ) AS estatus_pago
-                FROM CITA c
-                JOIN DOCTOR       d   ON d.Id_doctor        = c.Id_doctor
-                JOIN EMPLEADO     emp ON emp.Id_empleado     = d.Id_empleado
-                JOIN ESPECIALIDAD esp ON esp.Id_especialidad = d.Id_especialidad
-                JOIN CONSULTORIO  con ON con.Id_consultorio  = c.Id_consultorio
-                WHERE c.Id_paciente = ?
-                ORDER BY c.Fecha_cita DESC, c.hora_cita DESC
+                    v.Id_cita,
+                    v.Paciente,
+                    v.Fecha_cita,
+                    v.hora_cita,
+                    v.Estatus,
+                    v.Doctor,
+                    v.Especialidad,
+                    v.Consultorio,
+                    v.Piso
+                FROM VW_Detalle_Cita_Paciente v
+                WHERE v.Id_cita IN (
+                    SELECT Id_cita FROM CITA WHERE Id_paciente = ?
+                )
+                ORDER BY v.Fecha_cita DESC
             """, id_paciente)
             rows = cursor.fetchall()
 
@@ -386,47 +383,25 @@ def mis_citas():
 def detalle_cita(id_cita):
     try:
         with get_coneccion() as conn:
+            id_paciente = get_id_paciente_desde_sesion(cursor)
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT
-                    c.Id_cita,
-                    c.Fecha_cita,
-                    c.hora_cita,
-                    c.Hora_Fin,
-                    c.Estatus,
-                    c.Diagnostico,
-                    c.Tratamiento,
-                    -- Paciente
-                    p.Nombre,
-                    p.Apellido_Paterno,
-                    p.Apellido_Materno,
-                    p.Id_paciente,
-                    -- Doctor
-                    emp.Nombre           AS doc_nombre,
-                    emp.Apellido_Paterno AS doc_ap,
-                    emp.Apellido_Materno AS doc_am,
-                    esp.Nombre           AS especialidad,
-                    esp.Costo_Consulta,
-                    -- Consultorio
-                    con.Numero,
-                    con.Piso,
-                    -- Pago
-                    ISNULL(
-                        (SELECT TOP 1 Estatus_pago
-                         FROM TICKET t WHERE t.Id_cita = c.Id_cita), 'Pendiente'
-                    ) AS estatus_pago,
-                    ISNULL(
-                        (SELECT TOP 1 Monto_total
-                         FROM TICKET t WHERE t.Id_cita = c.Id_cita), 0
-                    ) AS monto_pagado
-                FROM CITA c
-                JOIN PACIENTE     p   ON p.Id_paciente      = c.Id_paciente
-                JOIN DOCTOR       d   ON d.Id_doctor        = c.Id_doctor
-                JOIN EMPLEADO     emp ON emp.Id_empleado     = d.Id_empleado
-                JOIN ESPECIALIDAD esp ON esp.Id_especialidad = d.Id_especialidad
-                JOIN CONSULTORIO  con ON con.Id_consultorio  = c.Id_consultorio
-                WHERE c.Id_cita = ?
-            """, id_cita)
+                    v.Id_cita,
+                    v.Paciente,
+                    v.Fecha_cita,
+                    v.hora_cita,
+                    v.Estatus,
+                    v.Doctor,
+                    v.Especialidad,
+                    v.Consultorio,
+                    v.Piso
+                FROM VW_Detalle_Cita_Paciente v
+                WHERE v.Id_cita IN (
+                    SELECT Id_cita FROM CITA WHERE Id_paciente = ?
+                )
+                ORDER BY v.Fecha_cita DESC
+            """, id_paciente)
             r = cursor.fetchone()
 
         if not r:

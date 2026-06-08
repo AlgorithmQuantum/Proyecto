@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, redirect, session, jsonify
+from flask import Flask, Blueprint, request, render_template, redirect, session, jsonify, flash, url_for
 import pyodbc
 from database.db import get_coneccion
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -278,12 +278,12 @@ def registro_form():
         return render_template("registro.html", error=f"Error de base de datos: {str(e)}")
     
 
-# ── Registro de empleados (solo administradores) ──────────────────────────────
+# ── Registro de empleados ──────────────────────────────
 @auth_bp.route("/registro-empleado", methods=["GET", "POST"])
 def register_empleado():
     # Verificar que solo administradores puedan crear empleados
-    if session.get("rol") not in ("Administrador", "Recepcionista"):
-        return redirect("/auth/login")
+    #if session.get("rol") not in ("Administrador", "Recepcionista"):
+    #    return redirect("/auth/login")
     
     if request.method == "GET":
         # Obtener especialidades para el select (si es doctor)
@@ -294,7 +294,7 @@ def register_empleado():
                 especialidades = cursor.fetchall()
                 cursor.execute("SELECT Id_Horario, Dia, Hora_Inicio, Hora_Fin FROM HORARIO ORDER BY Dia, Hora_Inicio")
                 horarios = cursor.fetchall()
-            return render_template("registroEmpleado.html", especialidades=especialidades, horarios=horarios)
+            return render_template("nuevaRecepcion.html", especialidades=especialidades, horarios=horarios)
         except pyodbc.Error as e:
             return render_template("registroEmpleado.html", error=f"Error: {str(e)}")
     
@@ -371,3 +371,184 @@ def register_empleado():
             
     except pyodbc.Error as e:
         return render_template("registroEmpleado.html", error=f"Error de base de datos: {str(e)}")
+
+
+#ruta a desactivar 
+@auth_bp.route("/registro-empleado/recepcionista-admin", methods=["GET", "POST"])
+def register_recepcionista_admin():
+    if request.method == "GET":
+        try:
+            with get_coneccion() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT Id_especialidad, Nombre FROM ESPECIALIDAD ORDER BY Nombre")
+                especialidades = cursor.fetchall()
+                cursor.execute("SELECT Id_Horario, Dia, Hora_Inicio, Hora_Fin FROM HORARIO ORDER BY Dia, Hora_Inicio")
+                horarios = cursor.fetchall()
+            return render_template("registroEmpleado.html", 
+                                 especialidades=especialidades, 
+                                 horarios=horarios)
+        except pyodbc.Error as e:
+            return render_template("registroEmpleado.html", error=f"Error: {str(e)}")
+    
+    # Método POST - Procesar el registro
+    elif request.method == "POST":
+        try:
+            # Obtener datos del formulario
+            rol = request.form.get("tipo_empleado")  # 'Recepcionista' o 'Administrador' o 'Doctor'
+            nombre = request.form.get("nombre")
+            apellido_paterno = request.form.get("apellido_paterno")
+            apellido_materno = request.form.get("apellido_materno")
+            curp = request.form.get("curp")
+            correo = request.form.get("correo")
+            telefono = request.form.get("telefono")
+            fecha_contratacion = request.form.get("fecha_contratacion")
+            usuario = request.form.get("usuario")
+            password = request.form.get("password")  # Puede ser opcional
+            
+            # Validar campos obligatorios
+            if not all([usuario, nombre, apellido_paterno, curp, correo, rol]):
+                flash("❌ Los campos usuario, nombre, apellido paterno, CURP, correo y rol son obligatorios", "error")
+                return redirect(url_for("auth.register_recepcionista_admin"))
+            
+            # Validar contraseña solo si se proporcionó (mínimo 6 caracteres si no está vacía)
+            if password and len(password) < 6 and password.strip():
+                flash("❌ La contraseña debe tener al menos 6 caracteres", "error")
+                return redirect(url_for("auth.register_recepcionista_admin"))
+            
+            with get_coneccion() as conn:
+                cursor = conn.cursor()
+                
+                # Verificar si el usuario ya existe
+                cursor.execute("SELECT 1 FROM USUARIO WHERE usuario = ?", usuario)
+                if cursor.fetchone():
+                    flash("❌ El nombre de usuario ya existe", "error")
+                    return redirect(url_for("auth.register_recepcionista_admin"))
+                
+                # Verificar si el correo ya existe en EMPLEADO
+                cursor.execute("SELECT 1 FROM EMPLEADO WHERE Correo = ?", correo)
+                if cursor.fetchone():
+                    flash("❌ El correo electrónico ya está registrado para otro empleado", "error")
+                    return redirect(url_for("auth.register_recepcionista_admin"))
+                
+                # Verificar si la CURP ya existe en EMPLEADO
+                cursor.execute("SELECT 1 FROM EMPLEADO WHERE Curp = ?", curp)
+                if cursor.fetchone():
+                    flash("❌ La CURP ya está registrada para otro empleado", "error")
+                    return redirect(url_for("auth.register_recepcionista_admin"))
+                
+                # Generar hash de contraseña (si está vacía, usar un hash por defecto)
+                if password and password.strip():
+                    password_hash = generate_password_hash(password)
+                else:
+                    # Si no hay contraseña, generar un hash para "SIN_CONTRASENA"
+                    password_hash = generate_password_hash("SIN_CONTRASENA_TEMP_123")
+                
+                # Llamar al stored procedure según el rol
+                if rol == "Recepcionista":
+                    hora_inicio = request.form.get("hora_inicio")
+                    hora_fin = request.form.get("hora_fin")
+                    
+                    # Validar horarios para recepcionista
+                    if not hora_inicio or not hora_fin:
+                        flash("❌ Para Recepcionista son obligatorias las horas de inicio y fin", "error")
+                        return redirect(url_for("auth.register_recepcionista_admin"))
+                    
+                    cursor.execute("""
+                        EXEC sp_CrearEmpleado 
+                            @usuario = ?,
+                            @password_hash = ?,
+                            @Rol = ?,
+                            @Nombre = ?,
+                            @Apellido_Paterno = ?,
+                            @Apellido_Materno = ?,
+                            @Curp = ?,
+                            @Correo = ?,
+                            @Telefono = ?,
+                            @Tipo_empleo = ?,
+                            @Fecha_contratacion = ?,
+                            @Id_especialidad = NULL,
+                            @Id_Horario = NULL,
+                            @Hora_Inicio = ?,
+                            @Hora_Fin = ?
+                    """, (usuario, password_hash, rol, nombre, apellido_paterno, 
+                          apellido_materno, curp, correo, telefono, rol, 
+                          fecha_contratacion, hora_inicio, hora_fin))
+                    
+                elif rol == "Administrador":
+                    cursor.execute("""
+                        EXEC sp_CrearEmpleado 
+                            @usuario = ?,
+                            @password_hash = ?,
+                            @Rol = ?,
+                            @Nombre = ?,
+                            @Apellido_Paterno = ?,
+                            @Apellido_Materno = ?,
+                            @Curp = ?,
+                            @Correo = ?,
+                            @Telefono = ?,
+                            @Tipo_empleo = ?,
+                            @Fecha_contratacion = ?,
+                            @Id_especialidad = NULL,
+                            @Id_Horario = NULL,
+                            @Hora_Inicio = NULL,
+                            @Hora_Fin = NULL
+                    """, (usuario, password_hash, rol, nombre, apellido_paterno, 
+                          apellido_materno, curp, correo, telefono, rol, 
+                          fecha_contratacion))
+                    
+                elif rol == "Doctor":
+                    id_especialidad = request.form.get("id_especialidad")
+                    id_horario = request.form.get("id_horario")
+                    
+                    # Validar especialidad y horario para doctor
+                    if not id_especialidad or not id_horario:
+                        flash("❌ Para Doctor son obligatorios la especialidad y el horario", "error")
+                        return redirect(url_for("auth.register_recepcionista_admin"))
+                    
+                    cursor.execute("""
+                        EXEC sp_CrearEmpleado 
+                            @usuario = ?,
+                            @password_hash = ?,
+                            @Rol = ?,
+                            @Nombre = ?,
+                            @Apellido_Paterno = ?,
+                            @Apellido_Materno = ?,
+                            @Curp = ?,
+                            @Correo = ?,
+                            @Telefono = ?,
+                            @Tipo_empleo = ?,
+                            @Fecha_contratacion = ?,
+                            @Id_especialidad = ?,
+                            @Id_Horario = ?,
+                            @Hora_Inicio = NULL,
+                            @Hora_Fin = NULL
+                    """, (usuario, password_hash, rol, nombre, apellido_paterno, 
+                          apellido_materno, curp, correo, telefono, rol, 
+                          fecha_contratacion, id_especialidad, id_horario))
+                else:
+                    flash("❌ Tipo de empleado no válido", "error")
+                    return redirect(url_for("auth.register_recepcionista_admin"))
+                
+                # Obtener el resultado
+                resultado = cursor.fetchone()
+                conn.commit()
+                
+                if resultado:
+                    id_empleado = resultado[0]
+                    flash(f"✅ {rol} registrado exitosamente con ID: {id_empleado}", "success")
+                else:
+                    flash(f"✅ {rol} registrado exitosamente", "success")
+                
+                # Registrar el evento
+                registrar_evento(usuario, "REGISTRO_EMPLEADO", f"Nuevo {rol} registrado: {nombre} {apellido_paterno}")
+                
+                return redirect(url_for("auth.lista_empleados"))
+                
+        except pyodbc.Error as e:
+            error_msg = str(e)
+            flash(f"❌ Error al registrar: {error_msg}", "error")
+            return redirect(url_for("auth.register_recepcionista_admin"))
+        
+        except Exception as e:
+            flash(f"❌ Error inesperado: {str(e)}", "error")
+            return redirect(url_for("auth.register_recepcionista_admin"))
