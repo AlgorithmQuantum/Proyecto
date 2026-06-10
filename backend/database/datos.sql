@@ -29,3 +29,4 @@ INSERT INTO HORARIO (Hora_Inicio, Hora_Fin, Dia) VALUES
 
 ('08:00:00', '14:00:00', 'Sábado'),
 ('09:00:00', '13:00:00', 'Domingo');
+
