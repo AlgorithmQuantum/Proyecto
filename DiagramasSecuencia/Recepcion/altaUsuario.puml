@@ -1,51 +1,165 @@
 @startuml alta_usuarios
+
 skinparam style strictuml
+
 autonumber
 
 actor "Admin / Recepción" as Admin
-participant "Frontend\n(nuevoUsuario.html)" as UI
-participant "Backend\n(Flask)" as Flask
-database "Base de Datos\n(SQL)" as BD
+participant "Frontend" as UI
+participant "Backend (Flask)" as Flask
+database "Base de Datos (SQL)" as BD
 
-Admin -> UI: Llena formulario (Datos, Especialidad, Turno)
-Admin -> UI: Clic en "Generar Alta"
+Admin -> UI: Captura datos del usuario
+
+Admin -> UI: Selecciona rol
+
+Admin -> UI: Clic en Generar Alta
+
 activate UI
 
-UI -> Flask: POST /api/usuarios/alta\n(JSON: datos_completos, rol)
+UI -> Flask: Solicitar alta de usuario
+
 activate Flask
 
-' Validaciones de negocio
-Flask -> BD: SELECT id FROM usuarios WHERE correo_institucional = ? OR curp = ?
+alt Campos incompletos
+
+    Flask --> UI: Datos obligatorios faltantes
+
+    UI --> Admin: Completar formulario
+
+else Datos completos
+
+end
+
+Flask -> BD: Verificar correo y CURP
+
 activate BD
-BD --> Flask: Retorna Null (No existe duplicado)
+
+BD --> Flask: Resultado de búsqueda
+
 deactivate BD
 
-' Lógica de credenciales (Seguridad)
+alt Usuario ya existe
+
+    Flask --> UI: Usuario duplicado
+
+    UI --> Admin: Correo o CURP registrado
+
+else Usuario nuevo
+
+end
+
+alt Rol = Médico
+
+    alt Especialidad vacía
+
+        Flask --> UI: Especialidad requerida
+
+        UI --> Admin: Capturar especialidad
+
+    else Especialidad válida
+
+    end
+
+else Rol = Recepción
+
+else Rol = Farmacia
+
+else Rol = Administrador
+
+else Rol inválido
+
+    Flask --> UI: Rol no permitido
+
+    UI --> Admin: Seleccionar rol válido
+
+end
+
 note right of Flask
-  **Seguridad y Accesos:**
-  El sistema genera una contraseña
-  temporal, la cifra (Bcrypt) y asigna
-  el rol (Ej. 'doctor' o 'recepcion').
+
+  Seguridad y Accesos
+
+  1. Generar contraseña temporal.
+  2. Cifrar contraseña.
+  3. Asignar permisos según rol.
+  4. Registrar usuario creador.
+
 end note
 
-Flask -> Flask: Genera contraseña temporal (Ej. "RASA2026_temp")
-Flask -> Flask: Cifra contraseña (generate_password_hash)
+Flask -> Flask: Generar contraseña temporal
 
-' Inserción SQL
-Flask -> BD: BEGIN TRANSACTION
+Flask -> Flask: Cifrar contraseña con Bcrypt
+
+Flask -> BD: Iniciar transacción
+
 activate BD
-Flask -> BD: INSERT INTO usuarios (nombre, correo, password_hash, rol)
-Flask -> BD: INSERT INTO detalles_medicos/detalles_pacientes (usuario_id, especialidad, turno...)
-BD --> Flask: COMMIT exitoso
+
+Flask -> BD: Insertar usuario
+
+alt Rol = Médico
+
+    Flask -> BD: Insertar datos médicos
+
+else Rol = Recepción
+
+    Flask -> BD: Insertar datos recepción
+
+else Rol = Farmacia
+
+    Flask -> BD: Insertar datos farmacia
+
+end
+
+Flask -> BD: Registrar auditoría de alta
+
+alt Operación exitosa
+
+    Flask -> BD: Confirmar transacción
+
+    BD --> Flask: Usuario registrado
+
+else Error de base de datos
+
+    Flask -> BD: Cancelar transacción
+
+    BD --> Flask: Error
+
+    Flask --> UI: Error al registrar usuario
+
+    UI --> Admin: Intente nuevamente
+
+end
+
 deactivate BD
 
-' Envío de credenciales
-Flask -> Flask: Dispara evento de envío de correo (SMTP) con credenciales temporales
-Flask --> UI: 201 Created
+' ==========================
+' ENVÍO DE CREDENCIALES
+' ==========================
+
+Flask -> Flask: Enviar correo con credenciales
+
+alt Correo enviado
+
+    Flask --> UI: Usuario creado correctamente
+
+else Error de correo
+
+    Flask --> UI: Usuario creado pero correo no enviado
+
+    UI --> Admin: Entregar credenciales manualmente
+
+end
+
 deactivate Flask
 
-UI --> Admin: Alerta "Usuario registrado exitosamente. Credenciales enviadas."
-UI -> UI: Limpia el formulario
+' ==========================
+' RESPUESTA FINAL
+' ==========================
+
+UI --> Admin: Usuario registrado exitosamente
+
+UI -> UI: Limpiar formulario
+
 deactivate UI
 
 @enduml

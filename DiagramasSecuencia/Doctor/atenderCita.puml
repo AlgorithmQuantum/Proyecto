@@ -1,66 +1,179 @@
 @startuml atender_cita_v2
+
 skinparam style strictuml
+
 autonumber
 
 actor Doctor
-participant "Frontend\n(Vistas R.A.S.A)" as UI
-participant "Backend\n(Flask)" as Flask
-database "Base de Datos\n(SQL)" as BD
+participant "Frontend (Vistas R.A.S.A)" as UI
+participant "Backend (Flask)" as Flask
+database "Base de Datos (SQL)" as BD
 
-' 1. Inicio desde el Dashboard o Agenda
-note over Doctor, UI: El doctor inicia en inicioDoctor.html o agendaDoctor.html
-Doctor -> UI: Clic en "Ver Expediente" o "Iniciar Consulta"
-activate UI
-
-' 2. Carga del Expediente
-UI -> Flask: GET /api/pacientes/{id}/expediente
-activate Flask
-Flask -> BD: SELECT somatometria, antecedentes, consultas_previas...
-activate BD
-BD --> Flask: Retorna datos médicos del paciente
-deactivate BD
-Flask --> UI: Renderiza expediente.html
-deactivate Flask
-
-UI --> Doctor: Muestra historial clínico completo (alergias, signos vitales)
-
-' 3. Transición a Receta (Atención Médica)
-Doctor -> UI: Clic en el botón "Generar Nueva Receta"
-UI --> Doctor: Carga el formulario en recetasDoctor.html
-
-' 4. Llenado del formulario médico
-Doctor -> UI: Ingresa Diagnóstico, Tratamientos y Observaciones
-Doctor -> UI: Añade Medicamentos a la lista (dosis, frecuencia, duración)
-UI -> UI: Actualiza vista previa del documento en tiempo real
-
-' 5. Guardado y finalización
-Doctor -> UI: Clic en "Guardar e Imprimir"
-UI -> Flask: POST /api/guardar_consulta\n(JSON: diagnostico, lista_medicamentos, cita_id)
-activate Flask
-
-' 6. Transacción SQL
-note right of Flask
-  **Transacción SQL Unificada:**
-  1. Se crea la nota médica/consulta.
-  2. Se guardan los medicamentos.
-  3. Se marca la cita como "Completada".
+note over Doctor,UI
+El doctor accede desde
+Inicio o Agenda Médica
 end note
 
-Flask -> BD: BEGIN TRANSACTION
+Doctor -> UI: Selecciona paciente
+
+activate UI
+
+UI -> Flask: Consultar cita asignada
+
+activate Flask
+
+Flask -> BD: Buscar cita del paciente
+
 activate BD
-Flask -> BD: INSERT INTO consultas (cita_id, diagnostico, tratamiento...)
-Flask -> BD: INSERT INTO medicamentos_receta (consulta_id, nombre, dosis...)
-Flask -> BD: UPDATE citas SET estado = 'Completada' WHERE id = ?
-BD --> Flask: COMMIT exitoso
+
+BD --> Flask: Estado de la cita
+
 deactivate BD
 
-' 7. Generación de Receta Final
-Flask -> Flask: Compila datos y genera archivo PDF de la receta
-Flask --> UI: 201 Created (Confirmación y URL del PDF)
+alt No existe cita
+
+    Flask --> UI: Paciente sin cita registrada
+
+    UI --> Doctor: No es posible iniciar consulta
+
+else Estado = Programada
+
+    Flask --> UI: Check-in pendiente
+
+    UI --> Doctor: Esperar recepción
+
+else Estado = Pagada
+
+    Flask --> UI: Check-in pendiente
+
+    UI --> Doctor: Paciente aún no está en sala de espera
+
+else Estado = En Espera
+
+    Flask --> UI: Consulta autorizada
+
+    UI --> Doctor: Puede abrir expediente
+
+else Estado = En Consulta
+
+    Flask --> UI: Consulta ya iniciada
+
+    UI --> Doctor: Continuar consulta
+
+else Estado = Completada
+
+    Flask --> UI: Consulta finalizada
+
+    UI --> Doctor: Solo lectura
+
+else Estado = Cancelada
+
+    Flask --> UI: Cita cancelada
+
+    UI --> Doctor: No disponible
+
+end
+
+
+alt Estado = En Espera o En Consulta
+
+    UI -> Flask: Solicitar expediente
+
+    Flask -> BD: Obtener historial clínico
+
+    activate BD
+
+    BD --> Flask: Expediente completo
+
+    deactivate BD
+
+    Flask -> BD: Actualizar cita a En Consulta
+
+    activate BD
+
+    BD --> Flask: Actualización exitosa
+
+    deactivate BD
+
+    Flask --> UI: Mostrar expediente
+
+    UI --> Doctor: Visualiza historial clínico
+
+end
+
+Doctor -> UI: Generar Nueva Receta
+
+UI --> Doctor: Mostrar formulario médico
+
+Doctor -> UI: Capturar diagnóstico
+
+Doctor -> UI: Capturar tratamiento
+
+Doctor -> UI: Capturar observaciones
+
+Doctor -> UI: Agregar medicamentos
+
+UI -> UI: Actualizar vista previa
+
+Doctor -> UI: Guardar e Imprimir
+
+UI -> Flask: Registrar consulta
+
+note right of Flask
+
+  Consulta Médica
+
+  1. Guardar nota médica.
+  2. Guardar receta.
+  3. Asociar medicamentos.
+  4. Marcar cita como Completada.
+
+end note
+
+Flask -> BD: Iniciar transacción
+
+activate BD
+
+Flask -> BD: Insertar consulta
+
+Flask -> BD: Insertar medicamentos
+
+Flask -> BD: Registrar receta
+
+Flask -> BD: Actualizar cita a Completada
+
+alt Operación exitosa
+
+    Flask -> BD: Confirmar transacción
+
+    BD --> Flask: Consulta guardada
+
+else Error
+
+    Flask -> BD: Cancelar transacción
+
+    BD --> Flask: Error
+
+    Flask --> UI: Error al guardar consulta
+
+    UI --> Doctor: Intente nuevamente
+
+end
+
+deactivate BD
+
+Flask -> Flask: Generar PDF de receta
+
+Flask --> UI: URL del PDF
+
 deactivate Flask
 
-UI -> UI: Abre PDF en nueva pestaña e invoca window.print()
-UI --> Doctor: Alerta: "Receta guardada e imprimiendo"
+UI -> UI: Abrir PDF
+
+UI -> UI: Ejecutar impresión
+
+UI --> Doctor: Consulta finalizada
+
 deactivate UI
 
 @enduml

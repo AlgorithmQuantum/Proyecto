@@ -1,40 +1,130 @@
 @startuml solicitud_cancelacion
+
 skinparam style strictuml
+
 autonumber
 
 actor Doctor
-participant "Frontend\n(Agenda UI)" as UI
-participant "Backend\n(Flask)" as Flask
-database "Base de Datos\n(SQL)" as BD
+participant "Frontend (Agenda UI)" as UI
+participant "Backend (Flask)" as Flask
+database "Base de Datos (SQL)" as BD
 
-Doctor -> UI: Clic en "Solicitar Cancelación" en una cita
+Doctor -> UI: Clic en Solicitar Cancelación
+
 activate UI
 
-UI -> Flask: POST /api/solicitar_cancelacion_medico\n(JSON: cita_id, doctor_id)
+UI -> Flask: Solicitar cancelación(cita_id)
+
 activate Flask
 
-' Validación de estado
-Flask -> BD: SELECT estado FROM citas WHERE id = ?
+Flask -> BD: Buscar cita
+
 activate BD
-BD --> Flask: Retorna estado actual ("Confirmada")
 
-' Actualización lógica
-note right of Flask
-  No se borra la cita ni se 
-  cancela definitivamente. 
-  Pasa a revisión administrativa.
-end note
+BD --> Flask: Datos de la cita
 
-Flask -> BD: UPDATE citas SET estado = 'Pendiente Cancelacion'
-Flask -> BD: INSERT INTO notificaciones (rol_destino, mensaje) \nVALUES ('Recepcion', 'Dr. solicita cancelar cita')
-BD --> Flask: Transacción exitosa
 deactivate BD
 
-Flask --> UI: 200 OK
+alt La cita no existe
+
+    Flask --> UI: Cita no encontrada
+
+    UI --> Doctor: No es posible cancelar
+
+else La cita existe
+
+    alt La cita pertenece a otro médico
+
+        Flask --> UI: Acceso denegado
+
+        UI --> Doctor: Operación no permitida
+
+    else La cita pertenece al médico
+
+        alt Estado = Cancelada
+
+            Flask --> UI: Cita ya cancelada
+
+            UI --> Doctor: No requiere solicitud
+
+        else Estado = Completada
+
+            Flask --> UI: Consulta finalizada
+
+            UI --> Doctor: No puede cancelarse
+
+        else Estado = Pendiente Cancelación
+
+            Flask --> UI: Solicitud existente
+
+            UI --> Doctor: Ya existe una solicitud
+
+        else Estado = Programada
+
+        else Estado = Pagada
+
+        else Estado = En Espera
+
+        end
+
+    end
+
+end
+
+alt Estado válido para cancelación
+
+    note right of Flask
+
+      El médico no cancela
+      directamente la cita.
+
+      Recepción deberá:
+      - Aprobar o rechazar.
+      - Notificar al paciente.
+      - Actualizar la agenda.
+
+    end note
+
+    Flask -> BD: Iniciar transacción
+
+    activate BD
+
+    Flask -> BD: Registrar solicitud
+
+    Flask -> BD: Cambiar estado a Pendiente Cancelación
+
+    Flask -> BD: Crear notificación para Recepción
+
+    alt Operación exitosa
+
+        Flask -> BD: Confirmar transacción
+
+        BD --> Flask: Solicitud registrada
+
+    else Error
+
+        Flask -> BD: Cancelar transacción
+
+        BD --> Flask: Error
+
+        Flask --> UI: Error al registrar solicitud
+
+        UI --> Doctor: Intente nuevamente
+
+    end
+
+    deactivate BD
+
+    Flask --> UI: Solicitud enviada
+
+end
+
 deactivate Flask
 
-UI -> UI: Actualiza visualmente el estado del bloque en la agenda
-UI --> Doctor: Muestra alerta: "Tu solicitud ha sido enviada a Recepción."
+UI -> UI: Actualizar estado de la cita
+
+UI --> Doctor: Solicitud enviada a Recepción para revisión
+
 deactivate UI
 
 @enduml

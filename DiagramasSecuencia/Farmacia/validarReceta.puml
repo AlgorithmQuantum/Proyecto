@@ -1,55 +1,168 @@
 @startuml surtir_receta
+
 skinparam style strictuml
+
 autonumber
 
 actor Farmacéutico
-participant "Frontend\n(Validación UI)" as UI
-participant "Backend\n(Flask)" as Flask
-database "Base de Datos\n(SQL)" as BD
+participant "Frontend (Validación UI)" as UI
+participant "Backend (Flask)" as Flask
+database "Base de Datos (SQL)" as BD
 
-' Búsqueda de la receta
-Farmacéutico -> UI: Ingresa Folio (Ej. FOL-2026-0921) y da clic en "Buscar"
+Farmacéutico -> UI: Ingresa folio y pulsa Buscar
+
 activate UI
-UI -> Flask: GET /api/receta/{folio}
-activate Flask
-Flask -> BD: SELECT * FROM consultas c JOIN recetas r ON c.id = r.consulta_id WHERE folio = ?
-activate BD
-BD --> Flask: Retorna datos de paciente, médico y medicamentos
-deactivate BD
 
-' Verificación de Stock
-Flask -> BD: SELECT stock FROM inventario WHERE medicamento_id IN (...)
-activate BD
-BD --> Flask: Retorna disponibilidad de almacén
-deactivate BD
+UI -> Flask: Consultar receta por folio
 
-Flask --> UI: 200 OK (Datos de receta + Estado de inventario)
-deactivate Flask
-UI --> Farmacéutico: Muestra hoja de receta y panel lateral con stock validado
-
-' Surtido y descuento
-Farmacéutico -> UI: Clic en "Surtir y Descontar"
-UI -> Flask: POST /api/surtir_receta\n(JSON: folio, items_surtidos)
 activate Flask
 
-note right of Flask
-  **Transacción de Surtido:**
-  Se actualiza el inventario y se 
-  invalida el folio para evitar 
-  que la receta se surta dos veces.
-end note
+Flask -> BD: Buscar receta
 
-Flask -> BD: BEGIN TRANSACTION
 activate BD
-Flask -> BD: UPDATE inventario SET stock = stock - ? WHERE id = ?
-Flask -> BD: UPDATE recetas SET estado = 'Surtida' WHERE folio = ?
-Flask -> BD: INSERT INTO historial_movimientos (tipo, medicamento, cantidad)
-BD --> Flask: COMMIT exitoso
+
+BD --> Flask: Datos de receta
+
 deactivate BD
 
-Flask --> UI: 200 OK
+alt Receta no existe
+
+    Flask --> UI: Error receta no encontrada
+
+    UI --> Farmacéutico: Folio inválido
+
+else Receta encontrada
+
+    alt Receta ya surtida
+
+        Flask --> UI: Receta previamente surtida
+
+        UI --> Farmacéutico: No se puede surtir nuevamente
+
+    else Receta disponible
+
+        Flask -> BD: Consultar stock de medicamentos
+
+        activate BD
+
+        BD --> Flask: Existencias disponibles
+
+        deactivate BD
+
+        Flask --> UI: Mostrar receta y stock
+
+        UI --> Farmacéutico: Visualiza receta
+
+    end
+
+end
+
 deactivate Flask
-UI --> Farmacéutico: Alerta de éxito y limpia la pantalla
+
+Farmacéutico -> UI: Clic en Surtir y Descontar
+
+UI -> Flask: Solicitar surtido
+
+activate Flask
+
+loop Por cada medicamento de la receta
+
+    Flask -> BD: Consultar stock
+
+    activate BD
+
+    BD --> Flask: Stock disponible
+
+    deactivate BD
+
+    alt Stock suficiente
+
+        Flask -> Flask: Continuar validación
+
+    else Stock insuficiente
+
+        alt Hay algunas unidades disponibles
+
+            Flask --> UI: Stock parcial disponible
+
+            UI --> Farmacéutico: ¿Desea surtido parcial?
+
+            alt Acepta surtido parcial
+
+                Farmacéutico -> UI: Confirmar surtido parcial
+
+                UI -> Flask: Actualizar cantidad
+
+                Flask -> Flask: Ajustar cantidad surtida
+
+            else No acepta
+
+                Flask --> UI: Receta pendiente por inventario
+
+                UI --> Farmacéutico: Regresar cuando exista stock
+
+            end
+
+        else Sin existencias
+
+            Flask --> UI: Medicamento agotado
+
+            UI --> Farmacéutico: Receta pendiente
+
+        end
+
+    end
+
+end
+
+Flask -> BD: Iniciar transacción
+
+activate BD
+
+loop Por cada medicamento surtido
+
+    Flask -> BD: Descontar inventario
+
+    Flask -> BD: Registrar movimiento de salida
+
+end
+
+alt Todos los medicamentos fueron surtidos
+
+    Flask -> BD: Marcar receta como Surtida
+
+else Surtido parcial
+
+    Flask -> BD: Marcar receta como Pendiente
+
+end
+
+alt Operación exitosa
+
+    Flask -> BD: Confirmar transacción
+
+    BD --> Flask: Surtido registrado
+
+else Error de base de datos
+
+    Flask -> BD: Cancelar transacción
+
+    BD --> Flask: Error
+
+    Flask --> UI: Error al surtir receta
+
+    UI --> Farmacéutico: Intente nuevamente
+
+end
+
+deactivate BD
+
+Flask --> UI: Operación completada
+
+deactivate Flask
+
+UI --> Farmacéutico: Surtido registrado correctamente
+
 deactivate UI
 
 @enduml
