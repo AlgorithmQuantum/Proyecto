@@ -1,45 +1,135 @@
 @startuml proceso_checkin
+
 skinparam style strictuml
+
 autonumber
 
 actor Recepcionista
-participant "Frontend\n(checkIn.html)" as UI
-participant "Backend\n(Flask)" as Flask
-database "Base de Datos\n(SQL)" as BD
+participant "Frontend (checkIn.html)" as UI
+participant "Backend (Flask)" as Flask
+database "Base de Datos (SQL)" as BD
 
-' El usuario llega a la pantalla desde la Agenda
-Recepcionista -> UI: Ingresa Signos Vitales (Peso, T.A, Temp.) y Motivo
-Recepcionista -> UI: Clic en "Finalizar Check-in"
+Recepcionista -> UI: Buscar cita
+
 activate UI
 
-UI -> Flask: POST /api/citas/{id}/checkin\n(JSON: signos_vitales, motivo)
+UI -> Flask: Consultar cita
+
 activate Flask
 
-' Validación de seguridad
-Flask -> BD: SELECT estado FROM citas WHERE id = ?
+Flask -> BD: Obtener estado de la cita
+
 activate BD
-BD --> Flask: Confirma que estado es 'Programada' o 'Pagada'
 
-' Transacción de actualización
-note right of Flask
-  **Check-In Médico:**
-  1. Guarda somatometría inicial.
-  2. Pasa cita a "En Espera".
-  3. Ahora aparecerá en el dashboard
-     del doctor asignado.
-end note
+BD --> Flask: Estado actual
 
-Flask -> BD: BEGIN TRANSACTION
-Flask -> BD: INSERT INTO somatometria_previa (cita_id, peso, presion, temperatura...)
-Flask -> BD: UPDATE citas SET estado = 'En Espera', motivo_reportado = ? WHERE id = ?
-BD --> Flask: COMMIT exitoso
 deactivate BD
 
-Flask --> UI: 200 OK
+alt Estado = Pagada
+
+    Flask --> UI: Habilitar formulario de Check-in
+
+    UI --> Recepcionista: Puede registrar signos vitales
+
+else Estado = Programada
+
+    Flask --> UI: Pago pendiente
+
+    UI --> Recepcionista: Enviar paciente a Caja
+
+else Estado = Cancelada por Falta de Pago
+
+    Flask --> UI: Cita cancelada
+
+    UI --> Recepcionista: No se puede realizar Check-in
+
+else Estado = En Espera
+
+    Flask --> UI: Check-in previamente realizado
+
+    UI --> Recepcionista: Paciente ya está en sala de espera
+
+else Estado = En Consulta
+
+    Flask --> UI: Paciente siendo atendido
+
+    UI --> Recepcionista: Consulta en progreso
+
+else Estado = Atendida
+
+    Flask --> UI: Consulta finalizada
+
+    UI --> Recepcionista: Check-in no disponible
+
+else Estado = Cancelada
+
+    Flask --> UI: Cita cancelada
+
+    UI --> Recepcionista: Check-in no disponible
+
+end
+
 deactivate Flask
 
-UI -> UI: Redirige a agendaCita.html (window.location.href)
-UI --> Recepcionista: Alerta "Paciente enviado a Sala de Espera"
+alt Estado válido para Check-in
+
+    Recepcionista -> UI: Captura peso, presión,\ntemperatura y motivo
+
+    Recepcionista -> UI: Clic en Finalizar Check-in
+
+    UI -> Flask: Registrar Check-in
+
+    activate Flask
+
+    note right of Flask
+
+      Check-In Médico
+
+      1. Guardar signos vitales.
+      2. Guardar motivo de consulta.
+      3. Cambiar estado a En Espera.
+      4. Mostrar paciente al médico.
+
+    end note
+
+    Flask -> BD: Iniciar transacción
+
+    activate BD
+
+    Flask -> BD: Registrar somatometría
+
+    Flask -> BD: Actualizar cita a En Espera
+
+    alt Operación exitosa
+
+        Flask -> BD: Confirmar transacción
+
+        BD --> Flask: Check-in registrado
+
+    else Error
+
+        Flask -> BD: Cancelar transacción
+
+        BD --> Flask: Error
+
+        Flask --> UI: Error al registrar Check-in
+
+        UI --> Recepcionista: Intente nuevamente
+
+    end
+
+    deactivate BD
+
+    Flask --> UI: Check-in completado
+
+    deactivate Flask
+
+    UI -> UI: Redirigir a Agenda
+
+    UI --> Recepcionista: Paciente enviado a Sala de Espera
+
+end
+
 deactivate UI
 
 @enduml
