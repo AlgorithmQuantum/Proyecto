@@ -1,50 +1,177 @@
 @startuml punto_de_venta
+
 skinparam style strictuml
+
 autonumber
 
 actor Farmacéutico
-participant "Frontend\n(Venta)" as UI
-participant "Backend\n(Flask)" as Flask
-database "Base de Datos\n(SQL)" as BD
+participant "Frontend (Venta)" as UI
+participant "Backend (Flask)" as Flask
+database "Base de Datos (SQL)" as BD
 
-' Lógica local del Carrito (Frontend)
-Farmacéutico -> UI: Busca producto y da clic en "Añadir"
+Farmacéutico -> UI: Busca producto y da clic en Añadir
+
 activate UI
-UI -> UI: agregarAlCarrito(nombre, precio, ocupaReceta)
-UI -> UI: Calcula subtotales y total
 
-alt Producto requiere receta (Ej. Antibiótico)
-    UI -> UI: Cambia bandera requiereReceta = true
-    UI --> Farmacéutico: Despliega input rojo exigiendo "Folio de Receta"
+UI -> UI: Agregar producto al carrito
+UI -> UI: Calcular subtotal y total
+
+alt Producto requiere receta
+
+    UI -> UI: Marcar requiereReceta = true
+
+    UI --> Farmacéutico: Solicitar folio de receta
+
 end
 
-' Procesamiento de Venta
-Farmacéutico -> UI: Clic en "Cobrar y Emitir Ticket"
-UI -> Flask: POST /api/procesar_venta\n(JSON: carrito, folio_receta, total)
+Farmacéutico -> UI: Clic en Cobrar y Emitir Ticket
+
+UI -> Flask: POST procesar_venta(carrito, receta, total)
+
 activate Flask
 
-' Validación en servidor
-alt Se envió un folio
-    Flask -> BD: SELECT estado FROM recetas WHERE folio = ?
+alt Se proporcionó receta
+
+    Flask -> BD: Consultar receta por folio
+
     activate BD
-    BD --> Flask: Retorna validación del folio
+
+    BD --> Flask: Estado de receta
+
     deactivate BD
+
+    alt Receta inválida
+
+        Flask --> UI: Error receta no válida
+
+        UI --> Farmacéutico: Venta cancelada
+
+    else Receta válida
+
+    end
+
 end
 
-' Transacción SQL de Venta
-Flask -> BD: BEGIN TRANSACTION
+loop Por cada producto del carrito
+
+    Flask -> BD: Consultar stock disponible
+
+    activate BD
+
+    BD --> Flask: Cantidad disponible
+
+    deactivate BD
+
+    alt Stock suficiente
+
+        Flask -> Flask: Continuar proceso
+
+    else Stock insuficiente
+
+        alt Hay unidades disponibles
+
+            Flask --> UI: Mostrar unidades disponibles
+
+            UI --> Farmacéutico: ¿Desea venta parcial?
+
+            alt Acepta venta parcial
+
+                Farmacéutico -> UI: Confirmar venta parcial
+
+                UI -> Flask: Actualizar cantidad
+
+                Flask -> Flask: Ajustar cantidad vendida
+
+            else No acepta venta parcial
+
+                Farmacéutico -> UI: Eliminar producto
+
+                UI -> UI: Eliminar producto del carrito
+
+                alt Carrito vacío
+
+                    UI --> Farmacéutico: Venta cancelada
+
+                else Existen más productos
+
+                end
+
+            end
+
+        else Producto agotado
+
+            Flask --> UI: Producto sin existencias
+
+            UI --> Farmacéutico: Producto agotado
+
+            alt Eliminar producto
+
+                UI -> UI: Eliminar producto del carrito
+
+                alt Carrito vacío
+
+                    UI --> Farmacéutico: Venta cancelada
+
+                else Existen más productos
+
+                end
+
+            else Cancelar venta
+
+                UI --> Farmacéutico: Venta cancelada
+
+            end
+
+        end
+
+    end
+
+end
+
+Flask -> BD: Iniciar transacción
+
 activate BD
-Flask -> BD: INSERT INTO ventas (total, fecha, cajero)
-Flask -> BD: UPDATE inventario SET stock = stock - cantidad
-Flask -> BD: INSERT INTO historial_movimientos (tipo = 'salida_sin_receta'/'salida_con_receta')
-BD --> Flask: COMMIT exitoso
+
+Flask -> BD: Registrar venta
+
+loop Por cada producto vendido
+
+    Flask -> BD: Descontar stock
+
+    Flask -> BD: Registrar movimiento de salida
+
+end
+
+alt Operación exitosa
+
+    Flask -> BD: Confirmar transacción
+
+    BD --> Flask: Venta registrada
+
+else Error en la base de datos
+
+    Flask -> BD: Cancelar transacción
+
+    BD --> Flask: Error de registro
+
+    Flask --> UI: Error al procesar venta
+
+    UI --> Farmacéutico: Intente nuevamente
+
+end
+
 deactivate BD
 
-Flask -> Flask: Genera Ticket PDF
-Flask --> UI: 201 Created + URL del Ticket
+Flask -> Flask: Generar Ticket PDF
+
+Flask --> UI: Venta exitosa y URL del ticket
+
 deactivate Flask
-UI -> UI: Vacía el arreglo carrito[]
-UI --> Farmacéutico: Alerta "Venta registrada" e imprime ticket
+
+UI -> UI: Vaciar carrito
+
+UI --> Farmacéutico: Venta registrada e inventario actualizado
+
 deactivate UI
 
 @enduml
