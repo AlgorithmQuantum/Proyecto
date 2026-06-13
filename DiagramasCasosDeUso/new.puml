@@ -1,0 +1,85 @@
+' ============================================================
+'  DIAGRAMA 5: ADMIN (CORREGIDO - CON DEPENDENCIA DE SESIÓN)
+' ============================================================
+@startuml Admin
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #EBF5FB
+  BorderColor #1A5276
+  ArrowColor #154360
+}
+skinparam actor {
+  BackgroundColor #D6EAF8
+  BorderColor #21618C
+}
+
+title Casos de Uso — Admin\nSistema Gestor de Citas Hospitalarias
+
+actor "Admin" as ADM
+actor "Sistema" as SIS #lightgray
+
+rectangle "Sistema Gestor de Citas Hospitalarias" {
+
+  ' --- Sesión (UC base) ---
+  usecase "A-UC01\nIniciar sesión" as UC01
+  usecase "A-UC02\nCerrar sesión" as UC02
+  usecase "A-UC03\nRecuperar contraseña" as UC03
+
+  ' --- Gestión de Usuarios ---
+  usecase "A-UC04\nDar de alta recepcionista" as UC04
+  usecase "A-UC05\nGestionar todos los usuarios\n(CRUD completo)" as UC05
+  usecase "A-UC06\nAsignar / cambiar perfiles\ny permisos" as UC06
+
+  ' --- Bitácoras ---
+  usecase "A-UC07\nConsultar bitácora\nestatus de citas" as UC07
+  usecase "A-UC08\nConsultar bitácora\nhistorial citas médico-paciente" as UC08
+  usecase "A-UC09\nInsertar registro en bitácora\nautomático del sistema" as UC09
+  usecase "A-UC10\nNO puede actualizar\nni borrar bitácoras" as UC10
+
+  ' --- Configuración del sistema ---
+  usecase "A-UC11\nGestionar especialidades\n(CRUD)" as UC11
+  usecase "A-UC12\nGestionar consultorios\n(CRUD)" as UC12
+  usecase "A-UC13\nGestionar jornadas laborales\nde doctores" as UC13
+  usecase "A-UC14\nConfigurar parámetros globales\n(horarios, políticas)" as UC14
+
+  ' --- Reportes ---
+  usecase "A-UC15\nGenerar reportes generales\ndel sistema" as UC15
+  usecase "A-UC16\nExportar reportes a PDF/Excel" as UC16
+}
+
+' --- Relaciones Admin ---
+ADM --> UC01
+ADM --> UC02
+ADM --> UC03
+
+' --- TODOS los casos de uso EXTEND de Iniciar sesión ---
+UC01 ..> UC04 : <<extend>>
+UC01 ..> UC05 : <<extend>>
+UC01 ..> UC06 : <<extend>>
+UC01 ..> UC07 : <<extend>>
+UC01 ..> UC08 : <<extend>>
+UC01 ..> UC10 : <<extend>>
+UC01 ..> UC11 : <<extend>>
+UC01 ..> UC12 : <<extend>>
+UC01 ..> UC13 : <<extend>>
+UC01 ..> UC14 : <<extend>>
+UC01 ..> UC15 : <<extend>>
+UC01 ..> UC16 : <<extend>>
+
+' --- include / extend ---
+UC05 ..> UC06 : <<extend>>
+UC15 ..> UC16 : <<extend>>
+UC07 ..> UC09 : <<include>>
+UC08 ..> UC09 : <<include>>
+
+' --- Sistema como actor secundario ---
+SIS --> UC09 : inserta automáticamente\ncuando ocurre un evento
+SIS --> UC10 : restringe UPDATE/DELETE\nen tablas de bitácora
+SIS --> UC13 : valida horarios no solapados
+SIS --> UC05 : valida unicidad de datos
+SIS --> UC03 : envía correo de recuperación
+SIS --> UC14 : valida reglas de negocio
+
+@enduml

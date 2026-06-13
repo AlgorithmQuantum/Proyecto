@@ -17,7 +17,7 @@ GO
 CREATE TABLE USUARIO ( 
     Id_usuario      INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
     usuario         VARCHAR(50)  NOT NULL UNIQUE,
-    password_hash   VARCHAR(255) NOT NULL,
+    contraseña   VARCHAR(255) NOT NULL,
     Rol             VARCHAR(20)  NOT NULL,  -- 'Paciente','Recepcionista','Administrador','Farmaceutico'
     Activo          BIT          NOT NULL DEFAULT 1,
     Ultimo_acceso   DATETIME     NULL
@@ -40,6 +40,8 @@ CREATE TABLE PACIENTE (
     Tipo_sangre        VARCHAR(5),
     Alergias           VARCHAR(200)
 );
+
+
 
 -- Tabla: HISTORIA_MEDICO
 CREATE TABLE HISTORIA_MEDICO (
@@ -85,12 +87,12 @@ CREATE TABLE EMPLEADO (
 );
 
 -- Tabla: DOCTOR
+--Elimine consultorio ya que es esta conectado con indirectamente con id_doctor por lo que no es necesario.
 CREATE TABLE DOCTOR (
-    Id_doctor          INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    Id_empleado        INT NOT NULL,
-    Id_especialidad    INT NOT NULL,
-    Id_Horario         INT NOT NULL,
-    Consultorio_asignado INT NULL
+    Id_doctor       INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    Id_empleado     INT NOT NULL,
+    Id_especialidad INT NOT NULL,
+    Id_Horario      INT NOT NULL
 );
 
 -- Tabla: Horario Empleado
@@ -104,10 +106,10 @@ CREATE TABLE EMPLEADO_HORARIO (
 
 -- Tabla: RECEPCIONISTA
 CREATE TABLE RECEPCIONISTA (
-    Id_Recepcionista   INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    Id_empleado        INT NOT NULL,
-    Hora_Inicio        TIME NOT NULL,
-    Hora_Fin           TIME NOT NULL
+    Id_Recepcionista INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    Id_empleado      INT NOT NULL,
+    Hora_Inicio      TIME NULL,
+    Hora_Fin         TIME NULL
 );
 
 -- Tabla: CONSULTORIO
@@ -169,6 +171,7 @@ CREATE TABLE RECETA_MEDICINA (
 
 
 -- Tabla: CITA
+--Elimine tratamiento y diagnostico ya que no campos de receta, por lo que hay duplicidad.
 CREATE TABLE CITA (
     Id_cita            INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
     Id_paciente        INT NOT NULL,
@@ -180,8 +183,6 @@ CREATE TABLE CITA (
     Dia                INT,
     Mes                INT,
     Estatus            BIT NOT NULL DEFAULT 1, -- 1 = Activa, 0 = Cancelada
-    Diagnostico        VARCHAR(200),
-    Tratamiento        VARCHAR(200),
     Hora_Fin           TIME NULL
 );
 
@@ -205,10 +206,10 @@ CREATE TABLE TICKET (
 );
 
 -- Tabla: PAGO
+--Elimine id_doctor ya que esta relacionado atraves de la cita.
 CREATE TABLE PAGO (
     Id_pago            INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
     Id_cita            INT NOT NULL,
-    Id_Doctor          INT NOT NULL,
     Id_ticket          INT NULL,
     Monto              DECIMAL(10,2) NOT NULL,
     Fecha_pago         DATE NOT NULL,
@@ -230,13 +231,12 @@ CREATE TABLE BITACORA_CITA (
 
 -- Tabla: FARMACEUTICO
 CREATE TABLE FARMACEUTICO (
-    Id_farmaceutico    INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    Nombre             VARCHAR(50) NOT NULL,
-    Apellido_Paterno   VARCHAR(50),
-    Apellido_Materno   VARCHAR(50),
-    Telefono           VARCHAR(15),
-    Correo             VARCHAR(100)
+    Id_farmaceutico     INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    Id_Empleado         INT NOT NULL,
+    Id_receta_medicina  INT, 
+    Id_almacen          INT
 );
+
 
 -- ============================================
 -- 2. LLAVES FORÁNEAS
@@ -305,9 +305,6 @@ ALTER TABLE TICKET ADD FOREIGN KEY (Id_cita) REFERENCES CITA(Id_cita);
 -- PAGO → CITA
 ALTER TABLE PAGO ADD FOREIGN KEY (Id_cita) REFERENCES CITA(Id_cita);
 
--- PAGO → DOCTOR
-ALTER TABLE PAGO ADD FOREIGN KEY (Id_Doctor) REFERENCES DOCTOR(Id_doctor);
-
 -- PAGO → TICKET
 ALTER TABLE PAGO ADD FOREIGN KEY (Id_ticket) REFERENCES TICKET(Id_ticket);
 
@@ -316,3 +313,12 @@ ALTER TABLE BITACORA_CITA ADD FOREIGN KEY (Id_cita) REFERENCES CITA(Id_cita);
 
 -- BITACORA_CITA → RECEPCIONISTA
 ALTER TABLE BITACORA_CITA ADD FOREIGN KEY (Id_Recepcionista) REFERENCES RECEPCIONISTA(Id_Recepcionista);
+
+-- FARMACEUTICO → EMPLEADO
+ALTER TABLE FARMACEUTICO ADD FOREIGN KEY (Id_empleado) REFERENCES EMPLEADO(Id_empleado);
+
+-- FARMACEUTICO → RECETA_MEDICA
+ALTER TABLE FARMACEUTICO ADD FOREIGN KEY (Id_receta_medicina) REFERENCES RECETA_MEDICINA(Id_receta_medicina);
+
+-- FARMACEUTICO → ALMACEN
+ALTER TABLE FARMACEUTICO ADD FOREIGN KEY (Id_almacen) REFERENCES ALMACEN(Id_almacen);

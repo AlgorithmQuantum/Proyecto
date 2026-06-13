@@ -4,7 +4,7 @@ GO
 
 CREATE PROCEDURE sp_CrearPaciente
     @usuario          VARCHAR(50),
-    @password_hash    VARCHAR(255),
+    @contrasena       VARCHAR(255),
     @Nombre           VARCHAR(50),
     @Apellido_Paterno VARCHAR(50),
     @Apellido_Materno VARCHAR(50)  = NULL,
@@ -22,7 +22,7 @@ BEGIN
 
     -- Insertar en USUARIO
     INSERT INTO USUARIO (usuario, password_hash, Rol)
-    VALUES (@usuario, @password_hash, 'Paciente');
+    VALUES (@usuario, @contrasena, 'Paciente');
 
     SET @id_usuario = SCOPE_IDENTITY();
 
@@ -61,7 +61,7 @@ GO
 
 CREATE PROCEDURE sp_CrearEmpleado
     @usuario            VARCHAR(50),
-    @password_hash      VARCHAR(255),
+    @contrasena         VARCHAR(255),
     @Rol                VARCHAR(20),
     @Nombre             VARCHAR(50),
     @Apellido_Paterno   VARCHAR(50),
@@ -87,7 +87,7 @@ BEGIN
 
         -- Validar que la contraseña no sea NULL (si es NULL, poner un valor por defecto)
         DECLARE @final_password VARCHAR(255);
-        SET @final_password = ISNULL(@password_hash, 'SIN_CONTRASENA');
+        SET @final_password = ISNULL(@contrasena, 'SIN_CONTRASENA');
 
         -- ── 1. Crear usuario ─────────────────────────────────────────
         INSERT INTO USUARIO (usuario, password_hash, Rol, Activo, Ultimo_acceso)
