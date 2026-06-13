@@ -466,11 +466,14 @@ INSERT INTO BITACORA_CITA (Id_cita, Id_Recepcionista, Estatus_cita, Monto_devuel
 GO
 
 -- ============================================================
--- FARMACEUTICO (Usando Id_empleado 61)
+-- FARMACEUTICO (Búsqueda dinámica para evitar error de llave foránea)
 -- ============================================================
-INSERT INTO FARMACEUTICO (Id_Empleado, Id_receta_medicina, Id_almacen) VALUES
-(61, 1, 4), (61, 2, 10), (61, 3, 5),
-(61, 4, 3), (61, 5, 1),  (61, 6, 2);
+INSERT INTO FARMACEUTICO (Id_Empleado, Id_receta_medicina, Id_almacen) 
+SELECT Id_empleado, receta.Id_receta, alm.Id_almacen
+FROM EMPLEADO e
+CROSS JOIN (SELECT TOP 1 Id_receta FROM RECETA) receta
+CROSS JOIN (SELECT TOP 1 Id_almacen FROM ALMACEN) alm
+WHERE e.Tipo_empleo = 'Farmaceutico';
 GO
 
 -- ============================================================
