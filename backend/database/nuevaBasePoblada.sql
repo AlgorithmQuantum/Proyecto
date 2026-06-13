@@ -154,7 +154,7 @@ INSERT INTO EMPLEADO (Id_usuario, Nombre, Apellido_Paterno, Apellido_Materno, Ti
 (43, 'Fernando',     'Soto',    'Blanco', 'Doctor', 'SOFF790525HDFXXXXX', 'f.soto@centrorasa.mx',    '5551000133', '2015-07-20'),
 (44, 'Julio',        'Blanco',  'Cota',   'Doctor', 'BLJJ830808HDFXXXXX', 'j.blanco@centrorasa.mx',  '5551000134', '2016-12-12'),
 (45, 'Teresa',       'Cota',    'Parra',  'Doctor', 'COTT880110MDFXXXXX', 't.cota@centrorasa.mx',    '5551000135', '2014-05-27'),
-(46, 'Raúl',         'Parra',   'Casos',  'Doctor', 'PARR850420HDFXXXXX', 'r.parra@centrorasa.mx',   '5551000136', '2018-02-29'),
+(46, 'Raúl',         'Parra',   'Casos',  'Doctor', 'PARR850420HDFXXXXX', 'r.parra@centrorasa.mx',   '5551000136', '2018-02-28'),
 (47, 'Mariana',      'Casos',   'Peña',   'Doctor', 'CAMM910214MDFXXXXX', 'm.casos@centrorasa.mx',   '5551000137', '2017-10-31'),
 (48, 'Javier',       'Peña',    'Flores', 'Doctor', 'PEJJ800616HDFXXXXX', 'j.pena@centrorasa.mx',    '5551000138', '2020-06-24'),
 (49, 'Lourdes',      'Ruiz',    'Lara',   'Doctor', 'RULL840921MDFXXXXX', 'l.ruiz@centrorasa.mx',    '5551000139', '2013-03-19'),
@@ -238,64 +238,64 @@ INSERT INTO EMPLEADO_HORARIO (Id_empleado, Id_Horario) VALUES
 (39,6),(39,7),(39,8),(39,9),(39,10), (40,6),(40,7),(40,8),(40,9),(40,10),
 (43,6),(43,7),(43,8),(43,9),(43,10), (44,6),(44,7),(44,8),(44,9),(44,10),
 
--- Horarios Recepcionistas (IDs 55 a 60)
-(55,1),(55,2),(55,3),(55,4),(55,5),
-(56,6),(56,7),(56,8),(56,9),(56,10),
-(57,1),(57,2),(57,3),(57,4),(57,5),
-(58,6),(58,7),(58,8),(58,9),(58,10),
-(59,1),(59,2),(59,3),(59,4),(59,5),
-(60,6),(60,7),(60,8),(60,9),(60,10),
+-- Horarios Recepcionistas (IDs reales 45 a 50)
+(45,1),(45,2),(45,3),(45,4),(45,5),
+(46,6),(46,7),(46,8),(46,9),(46,10),
+(47,1),(47,2),(47,3),(47,4),(47,5),
+(48,6),(48,7),(48,8),(48,9),(48,10),
+(49,1),(49,2),(49,3),(49,4),(49,5),
+(50,6),(50,7),(50,8),(50,9),(50,10),
 
--- Horarios Farmacéuticos (IDs 61 a 62)
-(61,1),(61,2),(61,3),(61,4),(61,5),
-(62,6),(62,7),(62,8),(62,9),(62,10),
+-- Horarios Farmacéuticos (IDs reales 51 a 52)
+(51,1),(51,2),(51,3),(51,4),(51,5),
+(52,6),(52,7),(52,8),(52,9),(52,10),
 
--- Horario Admin (ID 63)
-(63,1),(63,2),(63,3),(63,4),(63,5);
+-- Horario Admin (ID real 53)
+(53,1),(53,2),(53,3),(53,4),(53,5);
 GO
 
 -- ============================================================
--- RECEPCIONISTA (Usando Id_empleado 55 a 60)
+-- RECEPCIONISTA (Usando Id_empleado real 45 a 50)
 -- ============================================================
 INSERT INTO RECEPCIONISTA (Id_empleado, Hora_Inicio, Hora_Fin) VALUES
-(55, '07:00:00', '15:00:00'),
-(56, '13:00:00', '21:00:00'),
-(57, '07:00:00', '15:00:00'),
-(58, '13:00:00', '21:00:00'),
-(59, '07:00:00', '15:00:00'),
-(60, '13:00:00', '21:00:00');
+(45, '07:00:00', '15:00:00'),
+(46, '13:00:00', '21:00:00'),
+(47, '07:00:00', '15:00:00'),
+(48, '13:00:00', '21:00:00'),
+(49, '07:00:00', '15:00:00'),
+(50, '13:00:00', '21:00:00');
 GO
 
 -- ============================================================
--- CONSULTORIO  (Mapeo real de los 44 Consultorios y Doctores)
+-- CONSULTORIO  (Mapeo real y convertido a números enteros)
 -- ============================================================
 INSERT INTO CONSULTORIO (Id_Doctor, Numero, Piso, Descripcion) VALUES
-(1,  '101',   1, 'Cardiología - Sánchez'), (2,  '102',   1, 'Cardiología - Valdez'),
-(3,  '103',   1, 'Cardiología - Torres'),  (4,  '104',   1, 'Cardiología - Ríos'),
-(5,  '201',   2, 'Dermatología - Gómez'),  (6,  '202',   2, 'Dermatología - Ruiz'),
-(7,  '203',   2, 'Dermatología - Paz'),    (8,  '204',   2, 'Dermatología - Silva'),
-(9,  '301',   3, 'Ginecología - Luna'),    (10, '302',   3, 'Ginecología - Castro'),
-(11, '303',   3, 'Ginecología - Pinal'),   (12, '304',   3, 'Ginecología - Díaz'),
-(13, 'PB-1',  0, 'MedGen - Rivera'),       (14, 'PB-2',  0, 'MedGen - Montes'),
-(15, 'PB-3',  0, 'MedGen - Lima'),         (16, 'PB-4',  0, 'MedGen - Herrera'),
-(17, '401',   4, 'Nefrología - Peña'),     (18, '402',   4, 'Nefrología - Cruz'),
-(19, '403',   4, 'Nefrología - Rey'),      (20, '404',   4, 'Nefrología - Cano'),
-(21, '501',   5, 'Nutriología - Solís'),   (22, '502',   5, 'Nutriología - Vaca'),
-(23, '503',   5, 'Nutriología - Gil'),     (24, '504',   5, 'Nutriología - Ortiz'),
-(25, '601',   6, 'Oftalmología - Rey'),    (26, '602',   6, 'Oftalmología - Pinto'),
-(27, '603',   6, 'Oftalmología - Ríos'),   (28, '604',   6, 'Oftalmología - Mora'),
-(29, '701',   7, 'Oncología - Torres'),    (30, '702',   7, 'Oncología - Vega'),
-(31, '703',   7, 'Oncología - Sol'),       (32, '704',   7, 'Oncología - Rivas'),
-(33, '801',   8, 'Ortopedia - Soto'),      (34, '802',   8, 'Ortopedia - Blanco'),
-(35, '803',   8, 'Ortopedia - Cota'),      (36, '804',   8, 'Ortopedia - Parra'),
-(37, 'P-01',  2, 'Pediatría - Casos'),     (38, 'P-02',  2, 'Pediatría - Peña'),
-(39, 'P-03',  2, 'Pediatría - Ruiz'),      (40, 'P-04',  2, 'Pediatría - Flores'),
-(41, 'EXT-A', 0, 'Laboratorio - Lara'),    (42, 'EXT-B', 0, 'Laboratorio - Ruiz'),
-(43, 'EXT-C', 0, 'Laboratorio - Meza'),    (44, 'EXT-D', 0, 'Laboratorio - Cruz');
+(1,  101,   1, 'Cardiología - Sánchez'), (2,  102,   1, 'Cardiología - Valdez'),
+(3,  103,   1, 'Cardiología - Torres'),  (4,  104,   1, 'Cardiología - Ríos'),
+(5,  201,   2, 'Dermatología - Gómez'),  (6,  202,   2, 'Dermatología - Ruiz'),
+(7,  203,   2, 'Dermatología - Paz'),    (8,  204,   2, 'Dermatología - Silva'),
+(9,  301,   3, 'Ginecología - Luna'),    (10, 302,   3, 'Ginecología - Castro'),
+(11, 303,   3, 'Ginecología - Pinal'),   (12, 304,   3, 'Ginecología - Díaz'),
+(13, 901,   0, 'MedGen - Rivera'),       (14, 902,   0, 'MedGen - Montes'),
+(15, 903,   0, 'MedGen - Lima'),         (16, 904,   0, 'MedGen - Herrera'),
+(17, 401,   4, 'Nefrología - Peña'),     (18, 402,   4, 'Nefrología - Cruz'),
+(19, 403,   4, 'Nefrología - Rey'),      (20, 404,   4, 'Nefrología - Cano'),
+(21, 501,   5, 'Nutriología - Solís'),   (22, 502,   5, 'Nutriología - Vaca'),
+(23, 503,   5, 'Nutriología - Gil'),     (24, 504,   5, 'Nutriología - Ortiz'),
+(25, 601,   6, 'Oftalmología - Rey'),    (26, 602,   6, 'Oftalmología - Pinto'),
+(27, 603,   6, 'Oftalmología - Ríos'),   (28, 604,   6, 'Oftalmología - Mora'),
+(29, 701,   7, 'Oncología - Torres'),    (30, 702,   7, 'Oncología - Vega'),
+(31, 703,   7, 'Oncología - Sol'),       (32, 704,   7, 'Oncología - Rivas'),
+(33, 801,   8, 'Ortopedia - Soto'),      (34, 802,   8, 'Ortopedia - Blanco'),
+(35, 803,   8, 'Ortopedia - Cota'),      (36, 804,   8, 'Ortopedia - Parra'),
+(37, 211,   2, 'Pediatría - Casos'),     (38, 212,   2, 'Pediatría - Peña'),
+(39, 213,   2, 'Pediatría - Ruiz'),      (40, 214,   2, 'Pediatría - Flores'),
+(41, 991,   0, 'Laboratorio - Lara'),    (42, 992,   0, 'Laboratorio - Ruiz'),
+(43, 993,   0, 'Laboratorio - Meza'),    (44, 994,   0, 'Laboratorio - Cruz');
 GO
 
 -- ============================================================
--- PACIENTE  (Los 10 pacientes)
+-- PACIENTE  (IDs corregidos secuenciales del 1 al 10)
 -- ============================================================
 INSERT INTO PACIENTE (Id_usuario, Nombre, Apellido_Paterno, Apellido_Materno, Curp, Telefono, Correo, Fecha_nacimiento, Edad, Estatura, Peso, Tipo_sangre, Alergias) VALUES
 (1,  'Juan',    'López',    'García',  'LOGJ900415HMCPGR03', '5559001001', 'juan.lopez@email.com',    '1990-04-15', 35, 1.75, 78.00, 'O+',  'Ninguna'),
