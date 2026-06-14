@@ -5,41 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centro Médico R.A.S.A - Mi Perfil</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='hospital.svg') }}">
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style_doctor.css') }}">
 </head>
 <body>
     
-    <!-- BARRA DE NAVEGACIÓN UNIVERSAL -->
     <nav class="barra-navegacion minimalista">
         <div class="marca">
             <i class="fa-solid fa-briefcase-medical icono-marca"></i>
             <div class="texto-marca">
-                <strong>Centro Médico</strong>
-                <strong>R.A.S.A</strong>
+                <strong>Centro Médico</strong><strong>R.A.S.A</strong>
             </div>
         </div>
-        
         <ul class="menu-principal">
             <li><a href="/dashboard">Consultorio</a></li>
             <li><a href="/doctor/pacientes">Pacientes</a></li>
             <li><a href="/doctor/agenda">Agenda</a></li>
             <li><a href="/doctor/laboratorio">Laboratorio</a></li>
         </ul>
-
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Dr. Roberto Sánchez</strong> | Cardiología</span>
+                <span><strong>{{ nombre_completo }}</strong> | {{ medico.especialidad }}</span>
             </div>
         </div>
     </nav>
 
     <main class="contenedor-principal">
-        
-        <!-- Contenedor general al centro -->
         <div class="ancho-completo" style="width: 100%; max-width: 1100px; margin: 25px auto 0;">
-            
             <div class="migas-pan" style="color: var(--texto-gris); font-size: 0.9rem; margin-bottom: 15px;">
                 Panel Principal <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem; margin: 0 6px;"></i> <strong style="color: var(--texto-oscuro);">Mi Perfil</strong>
             </div>
@@ -49,155 +41,65 @@
                     <h1 class="titulo-seccion" style="font-size: 1.8rem; color: var(--texto-oscuro); margin-bottom: 5px;">Mi Perfil Profesional</h1>
                     <p class="subtitulo-seccion" style="color: var(--texto-gris); font-size: 1rem; margin-bottom: 30px;">Gestiona tu información personal, credenciales médicas y preferencias del consultorio.</p>
                 </div>
-                <button class="btn-guardar-ajustes"><i class="fa-solid fa-floppy-disk" style="margin-right: 8px;"></i> Guardar Cambios</button>
             </div>
 
-            <!-- CUADRÍCULA DEL PERFIL -->
             <div class="layout-perfil">
-                
-                <!-- COLUMNA IZQUIERDA: RESUMEN DEL DOCTOR -->
                 <aside class="tarjeta-base tarjeta-resumen-perfil">
                     <div class="avatar-perfil-contenedor">
-                        <div class="avatar-gigante">RS</div>
-                        <button class="btn-editar-foto"><i class="fa-solid fa-camera"></i> Cambiar Foto</button>
+                        <div class="avatar-gigante">{{ medico.Nombre[0] }}{{ medico.Apellido_Paterno[0] }}</div>
                     </div>
-                    
                     <div class="info-central-perfil">
-                        <h2>Dr. Roberto Sánchez</h2>
-                        <span class="etiqueta-estado-paciente estable" style="margin-top: 5px; font-size: 0.8rem;">Cardiología</span>
-                        <p class="texto-gris" style="margin-top: 15px; font-size: 0.85rem; font-weight: 600;">ID de Sistema: #MED-092</p>
+                        <h2>{{ medico.Nombre }} {{ medico.Apellido_Paterno }}</h2>
+                        <span class="etiqueta-estado-paciente estable" style="margin-top: 5px; font-size: 0.8rem;">{{ medico.especialidad }}</span>
+                        <p class="texto-gris" style="margin-top: 15px; font-size: 0.85rem; font-weight: 600;">ID de Sistema: #MED-{{ medico.Id_doctor }}</p>
                     </div>
-
                     <div class="divisor-ligero"></div>
-
                     <ul class="lista-contacto-perfil">
                         <li>
                             <i class="fa-solid fa-envelope"></i>
-                            <div>
-                                <span>Correo Institucional</span>
-                                <strong>r.sanchez@rasa-med.com</strong>
-                            </div>
+                            <div><span>Correo Institucional</span><strong>{{ medico.Correo }}</strong></div>
                         </li>
                         <li>
                             <i class="fa-solid fa-phone"></i>
-                            <div>
-                                <span>Teléfono Directo</span>
-                                <strong>+52 55 1234 5678</strong>
-                            </div>
+                            <div><span>Teléfono Directo</span><strong>{{ medico.Telefono or 'No registrado' }}</strong></div>
                         </li>
                         <li>
                             <i class="fa-solid fa-location-dot"></i>
-                            <div>
-                                <span>Ubicación Asignada</span>
-                                <strong>Consultorio 101, Ala Norte</strong>
-                            </div>
+                            <div><span>Ubicación Asignada</span><strong>Consultorio {{ medico.consultorio_num or 'S/N' }}, Piso {{ medico.Piso or 'PB' }}</strong></div>
                         </li>
                     </ul>
                 </aside>
 
-                <!-- COLUMNA DERECHA: FORMULARIO DE DATOS -->
                 <section class="tarjeta-base tarjeta-edicion-perfil">
-                    
-                    <div class="pestanas-perfil">
-                        <button class="pestana-activa">Datos Generales</button>
-                    </div>
-
+                    <div class="pestanas-perfil"><button class="pestana-activa">Datos Generales</button></div>
                     <div class="contenido-formulario-perfil">
-                        
-                        <!-- AVISO DE POLÍTICA DE DATOS SENSIBLES -->
                         <div class="alerta-politica-roja" style="background-color: #f8fafc; border-left-color: #64748b; margin-bottom: 25px; padding: 12px; display: flex; align-items: flex-start; gap: 12px;">
                             <i class="fa-solid fa-lock" style="color: #64748b; margin-top: 3px;"></i>
                             <div>
                                 <strong style="color: #334155; font-size: 0.95rem; display: block; margin-bottom: 4px;">Protección de Datos Sensibles</strong>
-                                <p style="color: #475569; font-size: 0.85rem; margin: 0; line-height: 1.4;">Por políticas de seguridad, no es posible editar su Número de empleado, Cédulas Profesionales, CURP, Nombre ni Especialidad. Para correcciones, contacte a Recursos Humanos.</p>
+                                <p style="color: #475569; font-size: 0.85rem; margin: 0; line-height: 1.4;">Por políticas de seguridad, no es posible editar campos base de tu credencial desde este panel.</p>
                             </div>
                         </div>
 
-                        <!-- SECCIÓN 1: PERSONAL -->
                         <h3 class="titulo-seccion-form"><i class="fa-regular fa-id-card"></i> Información Personal</h3>
                         <div class="grid-inputs-2">
-                            <!-- BLOQUEADO: Nombre -->
-                            <div class="grupo-input">
-                                <label>Nombre(s)</label>
-                                <input type="text" class="input-form" value="Roberto" readonly style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0;">
-                            </div>
-                            <!-- BLOQUEADO: Apellidos -->
-                            <div class="grupo-input">
-                                <label>Apellidos</label>
-                                <input type="text" class="input-form" value="Sánchez" readonly style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0;">
-                            </div>
-                            <!-- BLOQUEADO: CURP -->
-                            <div class="grupo-input">
-                                <label>CURP</label>
-                                <input type="text" class="input-form" value="SAMR800514HDFXXXXX" readonly style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0;">
-                            </div>
-                            <div class="grupo-input">
-                                <label>Fecha de Nacimiento</label>
-                                <input type="date" class="input-form" value="1980-05-14">
-                            </div>
-                            <div class="grupo-input">
-                                <label>Teléfono Móvil (Personal)</label>
-                                <input type="tel" class="input-form" value="55 9876 5432">
-                            </div>
+                            <div class="grupo-input"><label>Nombre(s)</label><input type="text" class="input-form" value="{{ medico.Nombre }}" readonly style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed;"></div>
+                            <div class="grupo-input"><label>Apellidos</label><input type="text" class="input-form" value="{{ medico.Apellido_Paterno }} {{ medico.Apellido_Materno or '' }}" readonly style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed;"></div>
+                            <div class="grupo-input"><label>CURP</label><input type="text" class="input-form" value="{{ medico.CURP }}" readonly style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed;"></div>
+                            <div class="grupo-input"><label>Fecha de Nacimiento</label><input type="text" class="input-form" value="{{ medico.Fecha_nacimiento }}" readonly style="background-color: #f1f5f9;"></div>
                         </div>
 
                         <div class="divisor-ligero"></div>
 
-                        <!-- SECCIÓN 2: CREDENCIALES -->
                         <h3 class="titulo-seccion-form"><i class="fa-solid fa-user-doctor"></i> Credenciales Médicas</h3>
                         <div class="grid-inputs-2">
-                            <!-- BLOQUEADO: Número de empleado -->
-                            <div class="grupo-input">
-                                <label>Número de Empleado</label>
-                                <input type="text" class="input-form" value="MED-092" readonly style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0;">
-                            </div>
-                            <!-- BLOQUEADO: Especialidad -->
-                            <div class="grupo-input">
-                                <label>Especialidad Asignada</label>
-                                <input type="text" class="input-form" value="Cardiología" readonly style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0;">
-                            </div>
-                            <!-- BLOQUEADO: Cédulas -->
-                            <div class="grupo-input">
-                                <label>Cédula Profesional (General)</label>
-                                <input type="text" class="input-form" value="8892314" readonly style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0;">
-                            </div>
-                            <div class="grupo-input">
-                                <label>Cédula de Especialidad</label>
-                                <input type="text" class="input-form" value="ESP-455612" readonly style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0;">
-                            </div>
-                            <div class="grupo-input ancho-completo">
-                                <label>Universidad de Egreso</label>
-                                <input type="text" class="input-form" value="Universidad Nacional Autónoma de México (UNAM)">
-                            </div>
+                            <div class="grupo-input"><label>Especialidad Asignada</label><input type="text" class="input-form" value="{{ medico.especialidad }}" readonly style="background-color: #f1f5f9; color: #94a3b8;"></div>
+                            <div class="grupo-input"><label>Cédula Profesional (General)</label><input type="text" class="input-form" value="{{ medico.Cedula_General or '—' }}" readonly style="background-color: #f1f5f9;"></div>
+                            <div class="grupo-input"><label>Cédula de Especialidad</label><input type="text" class="input-form" value="{{ medico.Cedula_Especialidad or '—' }}" readonly style="background-color: #f1f5f9;"></div>
+                            <div class="grupo-input ancho-completo"><label>Universidad de Egreso</label><input type="text" class="input-form" value="{{ medico.Universidad or '—' }}" readonly style="background-color: #f1f5f9;"></div>
                         </div>
-
-                        <div class="divisor-ligero"></div>
-
-                        <!-- SECCIÓN 3: CONSULTORIO -->
-                        <h3 class="titulo-seccion-form"><i class="fa-regular fa-clock"></i> Configuración de Consultorio</h3>
-                        <div class="grid-inputs-2">
-                            <div class="grupo-input">
-                                <label>Duración estándar de consulta</label>
-                                <select class="input-form">
-                                    <option value="15">15 minutos</option>
-                                    <option value="30" selected>30 minutos</option>
-                                    <option value="45">45 minutos</option>
-                                    <option value="60">1 hora</option>
-                                </select>
-                            </div>
-                            <div class="grupo-input">
-                                <label>Costo Consulta Privada (MXN)</label>
-                                <input type="number" class="input-form" value="800">
-                            </div>
-                            <div class="grupo-input ancho-completo">
-                                <label>Mensaje automatizado (Sala de Espera)</label>
-                                <textarea class="input-form" style="min-height: 60px; resize: vertical;">Hola, el Dr. Sánchez lo atenderá en breve. Por favor tenga su identificación a la mano.</textarea>
-                            </div>
-                        </div>
-
                     </div>
                 </section>
-
             </div>
         </div>
     </main>

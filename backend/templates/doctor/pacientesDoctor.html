@@ -5,207 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centro Médico R.A.S.A - Mis Pacientes</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='hospital.svg') }}">
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style_doctor.css') }}">
 </head>
 <body>
 
     <nav class="barra-navegacion minimalista">
-        
         <div class="marca">
             <i class="fa-solid fa-stethoscope icono-marca"></i>
             <div class="texto-marca">
-                <a href="/dashboard">
-                <strong>Centro Médico</strong>
-                <strong>R.A.S.A</strong>
-                </a>
+                <a href="/dashboard"><strong>Centro Médico</strong><strong>R.A.S.A</strong></a>
             </div>
         </div>
-        
         <ul class="menu-principal">
-            <!-- Recuerda mover la clase "activo" a la vista correspondiente -->
             <li><a href="/dashboard">Consultorio</a></li>
             <li class="activo"><a href="/doctor/pacientes">Pacientes</a></li>
             <li><a href="/doctor/agenda">Agenda</a></li>
             <li><a href="/doctor/laboratorio">Laboratorio</a></li>
         </ul>
-
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Dr. Roberto Sánchez</strong> | Cardiología</span>
+                <span><strong>{{ nombre_completo }}</strong></span>
             </div>
         </div>
-        
     </nav>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main class="contenedor-principal" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
-        
-        <header class="encabezado-pagina" style="margin-bottom: 25px;">
-            <div class="migas-pan" style="color: var(--texto-gris); font-size: 0.9rem;">
-                Portal <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem; margin: 0 5px;"></i> <strong style="color: var(--texto-oscuro);">Mis Pacientes</strong>
-            </div>
-        </header>
-
         <div class="seccion-titulo" style="margin-bottom: 30px;">
             <h1 style="font-size: 1.8rem; color: var(--texto-oscuro); margin-bottom: 5px;">Directorio de Pacientes</h1>
             <p style="color: var(--texto-gris);">Consulta los expedientes y el historial clínico de tus pacientes registrados.</p>
         </div>
 
-        <!-- BARRA DE HERRAMIENTAS Y FILTROS -->
-        <div class="barra-herramientas-tabla">
-            <div class="grupo-busqueda">
-                <i class="fa-solid fa-magnifying-glass icono-busqueda"></i>
-                <input type="text" class="input-busqueda" placeholder="Buscar por nombre, ID o correo...">
-            </div>
-            
-            <div class="grupo-filtros">
-                <select class="select-filtro">
-                    <option value="">Estado de Salud</option>
-                    <option value="estable">Estable</option>
-                    <option value="tratamiento">En Tratamiento</option> <!-- CORRECCIÓN AQUÍ -->
-                    <option value="critico">Prioritario</option>
-                </select>
-                
-                <select class="select-filtro">
-                    <option value="">Última Visita</option>
-                    <option value="30">Últimos 30 días</option>
-                    <option value="90">Últimos 3 meses</option>
-                    <option value="365">Último año</option>
-                </select>
-                
-                <button class="btn-secundario-descarga"><i class="fa-solid fa-download"></i> Exportar</button>
-            </div>
-        </div>
-
-        <!-- TABLA DE PACIENTES -->
         <div class="contenedor-tabla-pacientes">
             <table class="tabla-directorio">
                 <thead>
                     <tr>
                         <th>Paciente</th>
                         <th>ID Historial</th>
-                        <th>Edad / Sexo</th>
+                        <th>Edad</th>
                         <th>Última Consulta</th>
                         <th>Estado</th>
                         <th style="text-align: center;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Paciente 1 -->
+                    {% for p in pacientes %}
                     <tr>
                         <td>
                             <div class="celda-perfil">
-                                <div class="avatar-iniciales fondo-azul">ML</div>
+                                <div class="avatar-iniciales fondo-azul">{{ p.Nombre[0] }}{{ p.Apellido_Paterno[0] }}</div>
                                 <div class="info-texto-celda">
-                                    <strong>María López</strong>
-                                    <span>maria.l@email.com</span>
+                                    <strong>{{ p.Nombre }} {{ p.Apellido_Paterno }}</strong>
+                                    <span>{{ p.Correo or 'Sin correo' }}</span>
                                 </div>
                             </div>
                         </td>
-                        <td class="texto-secundario-tabla">HM-0842</td>
-                        <td class="texto-principal-tabla">45 años <br><span class="texto-secundario-tabla">Femenino</span></td>
-                        <td class="texto-principal-tabla">
-                            Hoy<br><span class="texto-secundario-tabla">Cardiología</span>
+                        <td class="texto-secundario-tabla">HM-{{ p.Id_paciente }}</td>
+                        <td class="texto-principal-tabla">{{ p.Edad }} años</td>
+                        <td class="texto-principal-tabla">{{ p.ultima_consulta }}</td>
+                        <td>
+                            <span class="etiqueta-estado-paciente {{ 'estable' if p.Estado == 'Estable' else 'tratamiento' }}">
+                                {{ p.Estado }}
+                            </span>
                         </td>
-                        <!-- CORRECCIÓN AQUÍ -->
-                        <td><span class="etiqueta-estado-paciente tratamiento">En Tratamiento</span></td>
                         <td class="celda-acciones">
-                            <a href="expediente.html" class="btn-accion-tabla" title="Abrir Expediente Médico">
+                            <a href="/doctor/expediente/{{ p.Id_paciente }}" class="btn-accion-tabla" title="Abrir Expediente Médico">
                                 <i class="fa-solid fa-folder-open"></i>
                             </a>
                         </td>
                     </tr>
-
-                    <!-- Paciente 2 -->
+                    {% else %}
                     <tr>
-                        <td>
-                            <div class="celda-perfil">
-                                <div class="avatar-iniciales fondo-verde">CR</div>
-                                <div class="info-texto-celda">
-                                    <strong>Carlos Ruiz Mendieta</strong>
-                                    <span>cruiz99@email.com</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="texto-secundario-tabla">HM-0582</td>
-                        <td class="texto-principal-tabla">34 años <br><span class="texto-secundario-tabla">Masculino</span></td>
-                        <td class="texto-principal-tabla">
-                            12 Feb, 2026<br><span class="texto-secundario-tabla">Chequeo General</span>
-                        </td>
-                        <td><span class="etiqueta-estado-paciente estable">Estable</span></td>
-                        <td class="celda-acciones">
-                            <a href="expediente.html" class="btn-accion-tabla" title="Abrir Expediente Médico">
-                                <i class="fa-solid fa-folder-open"></i>
-                            </a>
+                        <td colspan="6" style="text-align: center; color: var(--texto-gris); padding: 20px;">
+                            No tienes pacientes registrados en tu historial.
                         </td>
                     </tr>
-
-                    <!-- Paciente 3 -->
-                    <tr>
-                        <td>
-                            <div class="celda-perfil">
-                                <div class="avatar-iniciales fondo-naranja">AT</div>
-                                <div class="info-texto-celda">
-                                    <strong>Ana Torres</strong>
-                                    <span>ana.torres.m@email.com</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="texto-secundario-tabla">HM-0551</td>
-                        <td class="texto-principal-tabla">68 años <br><span class="texto-secundario-tabla">Femenino</span></td>
-                        <td class="texto-principal-tabla">
-                            05 Ene, 2026<br><span class="texto-secundario-tabla">Laboratorios</span>
-                        </td>
-                        <td><span class="etiqueta-estado-paciente critico">Prioritario</span></td>
-                        <td class="celda-acciones">
-                            <a href="expediente.html" class="btn-accion-tabla" title="Abrir Expediente Médico">
-                                <i class="fa-solid fa-folder-open"></i>
-                            </a>
-                        </td>
-                    </tr>
-
-                    <!-- Paciente 4 -->
-                    <tr>
-                        <td>
-                            <div class="celda-perfil">
-                                <div class="avatar-iniciales fondo-gris-avatar">LR</div>
-                                <div class="info-texto-celda">
-                                    <strong>Luis Ramírez</strong>
-                                    <span>luis_ram@email.com</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="texto-secundario-tabla">HM-2204</td>
-                        <td class="texto-principal-tabla">29 años <br><span class="texto-secundario-tabla">Masculino</span></td>
-                        <td class="texto-principal-tabla">
-                            28 Nov, 2025<br><span class="texto-secundario-tabla">Nutrición</span>
-                        </td>
-                        <td><span class="etiqueta-estado-paciente estable">Estable</span></td>
-                        <td class="celda-acciones">
-                            <a href="expediente.html" class="btn-accion-tabla" title="Abrir Expediente Médico">
-                                <i class="fa-solid fa-folder-open"></i>
-                            </a>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
-            
-            <!-- PAGINACIÓN -->
-            <div class="pie-tabla-paginacion">
-                <span class="texto-paginacion">Mostrando 1 a 4 de 1,240 pacientes</span>
-                <div class="controles-paginacion">
-                    <button class="btn-paginacion deshabilitado">Anterior</button>
-                    <button class="btn-paginacion activo">1</button>
-                    <button class="btn-paginacion">2</button>
-                    <button class="btn-paginacion">3</button>
-                    <span class="texto-paginacion">...</span>
-                    <button class="btn-paginacion">Siguiente</button>
-                </div>
-            </div>
         </div>
-
     </main>
 </body>
 </html>

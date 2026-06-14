@@ -105,64 +105,59 @@ def _dashboard_doctor():
     with get_coneccion() as conn:
         cursor = conn.cursor()
 
-        # Datos del turno
+        # 1. Datos del turno y especialidad
         cursor.execute("""
-            SELECT
+            SELECT TOP 1
                 esp.Nombre       AS especialidad,
                 con.Numero       AS consultorio,
                 con.Piso,
                 h.Hora_Inicio    AS turno_inicio,
-                h.Hora_Fin       AS turno_fin,
-                h.Dia
+                h.Hora_Fin       AS turno_fin
             FROM DOCTOR d
-            JOIN ESPECIALIDAD esp     ON d.Id_especialidad    = esp.Id_especialidad
-            LEFT JOIN CONSULTORIO con ON d.Id_doctor          = con.Id_Doctor
-            LEFT JOIN HORARIO h       ON d.Id_Horario         = h.Id_Horario
+            JOIN ESPECIALIDAD esp     ON d.Id_especialidad  = esp.Id_especialidad
+            LEFT JOIN CONSULTORIO con ON d.Id_doctor        = con.Id_Doctor
+            LEFT JOIN EMPLEADO_HORARIO eh ON d.Id_empleado  = eh.Id_empleado
+            LEFT JOIN HORARIO h       ON eh.Id_Horario      = h.Id_Horario
             WHERE d.Id_empleado = ?
         """, id_empleado)
         turno = cursor.fetchone()
 
-        # Id_doctor para las siguientes consultas
-        cursor.execute(
-            "SELECT Id_doctor FROM DOCTOR WHERE Id_empleado = ?", id_empleado
-        )
+        # Obtener el Id_doctor
+        cursor.execute("SELECT Id_doctor FROM DOCTOR WHERE Id_empleado = ?", id_empleado)
         row = cursor.fetchone()
-        id_doctor = row.Id_doctor if row else None
+        id_doctor = row[0] if row else None
 
-        # Contadores del día
-        # Estatus=1 activa, Diagnostico IS NOT NULL = atendida
+        # 2. Contadores del día (CORREGIDO: Usando Id_receta)
         cursor.execute("""
             SELECT
-                COUNT(*)                                                        AS total_hoy,
-                COUNT(CASE WHEN Diagnostico IS NULL AND Estatus = 1 THEN 1 END) AS pendientes,
-                COUNT(CASE WHEN Diagnostico IS NOT NULL             THEN 1 END) AS atendidos
+                COUNT(*)                                                      AS total_hoy,
+                COUNT(CASE WHEN Id_receta IS NULL AND Estatus = 1 THEN 1 END) AS pendientes,
+                COUNT(CASE WHEN Id_receta IS NOT NULL             THEN 1 END) AS atendidos
             FROM CITA
-            WHERE Id_doctor = ?
-              AND CAST(Fecha_cita AS DATE) = CAST(GETDATE() AS DATE)
+            WHERE Id_doctor = ? AND CAST(Fecha_cita AS DATE) = CAST(GETDATE() AS DATE)
         """, id_doctor)
         contadores = cursor.fetchone()
 
-        # Pacientes pendientes de hoy (sin diagnóstico = no atendidos aún)
+        # 3. Pacientes en Sala de Espera (CORREGIDO: Usando Id_receta)
         cursor.execute("""
             SELECT
                 c.Id_cita,
                 c.hora_cita,
-                c.Diagnostico,
+                p.Id_paciente,
                 p.Nombre + ' ' + p.Apellido_Paterno AS nombre_paciente,
                 p.Tipo_sangre,
-                ISNULL(p.Edad,
-                    DATEDIFF(YEAR, p.Fecha_nacimiento, GETDATE())
-                ) AS edad_paciente
+                ISNULL(p.Edad, DATEDIFF(YEAR, p.Fecha_nacimiento, GETDATE())) AS edad_paciente
             FROM CITA c
             JOIN PACIENTE p ON c.Id_paciente = p.Id_paciente
             WHERE c.Id_doctor = ?
               AND c.Estatus = 1
-              AND c.Diagnostico IS NULL
+              AND c.Id_receta IS NULL
               AND CAST(c.Fecha_cita AS DATE) = CAST(GETDATE() AS DATE)
             ORDER BY c.hora_cita
         """, id_doctor)
         sala_espera = cursor.fetchall()
 
+        # El paciente índice 0 es el que sigue, el resto se queda en espera
         siguiente = sala_espera[0] if sala_espera else None
 
     return render_template(

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emitir Receta - Centro Médico R.A.S.A</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='hospital.svg') }}">
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style_doctor.css') }}">
 </head>
@@ -31,7 +30,7 @@
 
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Dr. Roberto Sánchez</strong> | Cardiología</span>
+                <span><strong>{{ nombre_completo }}</strong> | {{ medico.especialidad }}</span>
             </div>
         </div>
         
@@ -118,28 +117,24 @@
             <aside class="panel-vista-previa">
                 
                 <div class="documento-receta-papel">
-                    <!-- Cabecera Receta -->
                     <div class="receta-header">
                         <div class="receta-logo">
-                            <i class="fa-solid fa-hospital-user"></i>
-                            <strong>R.A.S.A</strong>
+                            <i class="fa-solid fa-hospital-user"></i><strong>R.A.S.A</strong>
                         </div>
                         <div class="receta-datos-doctor">
-                            <strong>Dr. Roberto Sánchez</strong>
-                            <span>Cédula Profesional: 8849201</span>
-                            <span>Especialidad: Cardiología</span>
+                            <strong>Dr. {{ cita.Doctor }}</strong>
+                            <span>Cédula Profesional: {{ cita.Cedula_General or 'S/N' }}</span>
+                            <span>Especialidad: {{ cita.Especialidad }}</span>
                         </div>
                     </div>
                     
-                    <!-- Datos Paciente -->
                     <div class="receta-datos-paciente">
-                        <div class="dato-inline"><strong>Folio:</strong> FOL-2026-0921</div>
-                        <div class="dato-inline"><strong>Fecha:</strong> 29/04/2026</div>
-                        <div class="dato-inline"><strong>Paciente:</strong> María López</div>
-                        <div class="dato-inline"><strong>Edad:</strong> 45 años</div>
+                        <div class="dato-inline"><strong>Folio Cita:</strong> CIT-{{ cita.Id_cita }}</div>
+                        <div class="dato-inline"><strong>Fecha:</strong> {{ cita.Fecha_cita }}</div>
+                        <div class="dato-inline"><strong>Paciente:</strong> {{ cita.Paciente }}</div>
+                        <div class="dato-inline"><strong>Edad:</strong> {{ cita.Edad }} años</div>
                     </div>
 
-                    <!-- Cuerpo Médico -->
                     <div class="receta-cuerpo">
                         <div class="marca-agua-receta"><i class="fa-solid fa-briefcase-medical"></i></div>
                         
@@ -152,30 +147,9 @@
                         
                         <div class="bloque-impresion">
                             <strong>Medicamento(s):</strong>
-                            <!-- AQUÍ SE INYECTAN LOS MEDICAMENTOS CON JS -->
-                            <ul class="lista-impresion" id="preview-medicamentos">
-                                <!-- La lista empieza vacía -->
-                            </ul>
+                            <ul class="lista-impresion" id="preview-medicamentos"></ul>
                         </div>
-
-                        <div class="bloque-impresion mt-15">
-                            <strong>Tratamiento(s):</strong>
-                            <p id="preview-tratamiento"><em>Sin tratamientos adicionales...</em></p>
                         </div>
-
-                        <div class="bloque-impresion mt-15">
-                            <strong>Observaciones:</strong>
-                            <p id="preview-observaciones"><em>Sin observaciones...</em></p>
-                        </div>
-                    </div>
-
-                    <!-- Firma -->
-                    <div class="receta-footer">
-                        <div class="firma-espacio">
-                            <div class="linea-firma"></div>
-                            <span>Firma del Médico Tratante</span>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Botones de Acción Finales -->
