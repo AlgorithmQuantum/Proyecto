@@ -130,6 +130,7 @@ def get_doctores(id_especialidad):
     try:
         with get_coneccion() as conn:
             cursor = conn.cursor()
+            # Modificamos los JOINs para pasar por EMPLEADO_HORARIO (eh)
             cursor.execute("""
                 SELECT
                     d.Id_doctor,
@@ -145,27 +146,42 @@ def get_doctores(id_especialidad):
                     con.Numero          AS consultorio_num,
                     con.Piso
                 FROM DOCTOR d
-                JOIN EMPLEADO     emp ON emp.Id_empleado      = d.Id_empleado
-                JOIN ESPECIALIDAD esp ON esp.Id_especialidad  = d.Id_especialidad
-                JOIN HORARIO      h   ON h.Id_Horario         = d.Id_Horario
-                LEFT JOIN CONSULTORIO con ON con.Id_Doctor    = d.Id_doctor
+                JOIN EMPLEADO        emp ON emp.Id_empleado     = d.Id_empleado
+                JOIN ESPECIALIDAD    esp ON esp.Id_especialidad = d.Id_especialidad
+                JOIN EMPLEADO_HORARIO eh ON emp.Id_empleado     = eh.Id_empleado
+                JOIN HORARIO          h   ON h.Id_Horario       = eh.Id_Horario
+                LEFT JOIN CONSULTORIO con ON con.Id_Doctor      = d.Id_doctor
                 WHERE d.Id_especialidad = ?
                 ORDER BY emp.Apellido_Paterno
             """, id_especialidad)
             rows = cursor.fetchall()
 
-        return jsonify([{
-            "id_doctor":          r[0],
-            "nombre_completo":    f"Dr. {r[1]} {r[2]} {r[3] or ''}".strip(),
-            "especialidad":       r[4],
-            "costo_consulta":     float(r[5]) if r[5] else 0.0,
-            "dia_horario":        r[6],
-            "hora_inicio":        str(td_to_time(r[7])),
-            "hora_fin":           str(td_to_time(r[8])),
-            "id_consultorio":     r[9],
-            "consultorio_numero": r[10],
-            "piso":               r[11],
-        } for r in rows]), 200
+        # Agrupamos en un diccionario usando el Id_doctor como clave
+        doctores_dict = {}
+        for r in rows:
+            id_doc = r[0]
+            dia_texto = r[6].strip().lower() if r[6] else ""
+            
+            if id_doc not in doctores_dict:
+                doctores_dict[id_doc] = {
+                    "id_doctor":          id_doc,
+                    "nombre_completo":    f"Dr. {r[1]} {r[2]} {r[3] or ''}".strip(),
+                    "especialidad":       r[4],
+                    "costo_consulta":     float(r[5]) if r[5] else 0.0,
+                    "dias_trabajo":       [dia_texto] if dia_texto else [], # Lista de días
+                    "hora_inicio":        str(td_to_time(r[7])),
+                    "hora_fin":           str(td_to_time(r[8])),
+                    "id_consultorio":     r[9],
+                    "consultorio_numero": r[10],
+                    "piso":               r[11],
+                }
+            else:
+                # Si el doctor ya existe, solo añadimos el nuevo día a su lista
+                if dia_texto and dia_texto not in doctores_dict[id_doc]["dias_trabajo"]:
+                    doctores_dict[id_doc]["dias_trabajo"].append(dia_texto)
+
+        # Retornamos la lista de doctores únicos con sus días agrupados
+        return jsonify(list(doctores_dict.values())), 200
 
     except pyodbc.Error as e:
         return jsonify({"error": str(e)}), 500
@@ -185,27 +201,46 @@ def get_horas_disponibles():
         with get_coneccion() as conn:
             cursor = conn.cursor()
 
+            # 1. Modificamos la consulta para obtener TODOS los horarios del doctor
             cursor.execute("""
                 SELECT h.Hora_Inicio, h.Hora_Fin, h.Dia
                 FROM DOCTOR d
-                JOIN HORARIO h ON h.Id_Horario = d.Id_Horario
+                JOIN EMPLEADO e ON d.Id_empleado = e.Id_empleado
+                JOIN EMPLEADO_HORARIO eh ON e.Id_empleado = eh.Id_empleado
+                JOIN HORARIO h ON eh.Id_Horario = h.Id_Horario
                 WHERE d.Id_doctor = ?
             """, id_doctor)
-            horario = cursor.fetchone()
+            horarios_db = cursor.fetchall()
 
-            if not horario:
-                return jsonify({"error": "Doctor no encontrado"}), 404
+            if not horarios_db:
+                return jsonify({"error": "Doctor no encontrado o sin horario asignado"}), 404
 
             dias_es    = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"]
             fecha_dt   = datetime.strptime(fecha, "%Y-%m-%d")
-            dia_semana = dias_es[fecha_dt.weekday()]
+            dia_semana = dias_es[fecha_dt.weekday()].lower()
 
-            if dia_semana.lower() != horario[2].lower():
+            # 2. Buscar si el doctor atiende en el día específico que el usuario seleccionó
+            horario_del_dia = None
+            dias_que_atiende = []
+
+            for row in horarios_db:
+                dia_db = row[2].strip().lower()
+                dias_que_atiende.append(dia_db.capitalize())
+                
+                # Manejamos el acento en "miércoles" por seguridad
+                if dia_db == dia_semana or (dia_semana == "miércoles" and dia_db == "miercoles"):
+                    horario_del_dia = row
+                    break
+
+            # Si por alguna razón el usuario logra hacer clic en un día que el doc no trabaja
+            if not horario_del_dia:
+                dias_unicos = ", ".join(sorted(set(dias_que_atiende)))
                 return jsonify({
-                    "disponibles": [],
-                    "mensaje": f"El doctor solo atiende los {horario[2]}"
+                    "slots": [],
+                    "mensaje": f"El doctor solo atiende los días: {dias_unicos}"
                 }), 200
 
+            # 3. Si el día es correcto, buscamos qué horas ya están ocupadas
             cursor.execute("""
                 SELECT hora_cita, Hora_Fin
                 FROM CITA
@@ -213,9 +248,11 @@ def get_horas_disponibles():
             """, id_doctor, fecha)
             ocupadas = cursor.fetchall()
 
+        # 4. Calcular los bloques de media hora (slots)
         from datetime import time as dt_time
-        inicio = td_to_time(horario[0])
-        fin    = td_to_time(horario[1])
+        # Usamos las horas específicas de ESE día
+        inicio = td_to_time(horario_del_dia[0])
+        fin    = td_to_time(horario_del_dia[1])
 
         ocupados = [(td_to_time(c[0]), td_to_time(c[1]) if c[1] else None) for c in ocupadas]
 
@@ -375,7 +412,7 @@ def mis_citas():
         return jsonify({"error": str(e)}), 500
 
 
-# ── API: Detalle de una cita (detallesCita.html) ──────────────────────────────
+# ── API: Detalle de una cita (detallesCita.html y comprobanteCita.html) ─────────
 
 @citas_bp.route("/<int:id_cita>", methods=["GET"])
 @login_required
@@ -383,57 +420,76 @@ def mis_citas():
 def detalle_cita(id_cita):
     try:
         with get_coneccion() as conn:
-            id_paciente = get_id_paciente_desde_sesion(cursor)
+            # 1. PRIMERO creamos el cursor
             cursor = conn.cursor()
+            # 2. LUEGO lo usamos para obtener el paciente
+            id_paciente = get_id_paciente_desde_sesion(cursor)
+
+            # 3. Consulta ajustada para traer todo lo que requiere el comprobante
             cursor.execute("""
                 SELECT
-                    v.Id_cita,
-                    v.Paciente,
-                    v.Fecha_cita,
-                    v.hora_cita,
-                    v.Estatus,
-                    v.Doctor,
-                    v.Especialidad,
-                    v.Consultorio,
-                    v.Piso
-                FROM VW_Detalle_Cita_Paciente v
-                WHERE v.Id_cita IN (
-                    SELECT Id_cita FROM CITA WHERE Id_paciente = ?
-                )
-                ORDER BY v.Fecha_cita DESC
-            """, id_paciente)
+                    c.Id_cita,
+                    c.Fecha_cita,
+                    c.hora_cita,
+                    c.Hora_Fin,
+                    c.Estatus,
+                    p.Nombre + ' ' + p.Apellido_Paterno AS paciente_nombre,
+                    e.Nombre + ' ' + e.Apellido_Paterno AS doctor_nombre,
+                    esp.Nombre AS especialidad,
+                    esp.Costo_Consulta,
+                    con.Numero AS consultorio_num,
+                    con.Piso,
+                    ISNULL((SELECT TOP 1 Estatus_pago FROM TICKET t WHERE t.Id_cita = c.Id_cita), 'Pendiente') AS pago_estatus
+                FROM CITA c
+                JOIN PACIENTE p ON c.Id_paciente = p.Id_paciente
+                JOIN DOCTOR d ON c.Id_doctor = d.Id_doctor
+                JOIN EMPLEADO e ON d.Id_empleado = e.Id_empleado
+                JOIN ESPECIALIDAD esp ON d.Id_especialidad = esp.Id_especialidad
+                LEFT JOIN CONSULTORIO con ON c.Id_consultorio = con.Id_consultorio
+                WHERE c.Id_cita = ? AND c.Id_paciente = ?
+            """, (id_cita, id_paciente))
+            
             r = cursor.fetchone()
 
         if not r:
             return jsonify({"error": "Cita no encontrada"}), 404
 
-        return jsonify({
-            "folio":         f"RASA-{str(r[0]).zfill(6)}",
-            "id_cita":       r[0],
-            "fecha":         str(r[1]),
-            "hora_inicio":   str(td_to_time(r[2])),
-            "hora_fin":      str(td_to_time(r[3])) if r[3] else None,
-            "estatus":       "Activa" if r[4] else "Cancelada",
-            "diagnostico":   r[5],
-            "tratamiento":   r[6],
+        # Limpiamos las horas para quitar los segundos (ej. "13:00")
+        hora_ini_str = str(td_to_time(r[2]))[:5] if r[2] else "00:00"
+        hora_fin_str = str(td_to_time(r[3]))[:5] if r[3] else "00:00"
+
+        # 4. Armamos el diccionario EXACTO que esperan tus archivos HTML
+        datos = {
+            "id_cita": r[0],
+            "folio": f"CIT-{str(r[0]).zfill(4)}",
+            "estatus": "Activa" if r[4] == 1 else "Cancelada",
+            "fecha": str(r[1]),             # Para detallesCita.html
+            "hora_inicio": hora_ini_str,    # Para detallesCita.html
+            "hora_fin": hora_fin_str,       # Para detallesCita.html
+            "cita": {                       # Para comprobanteCita.html
+                "fecha": str(r[1]),
+                "hora_inicio": hora_ini_str,
+                "hora_fin": hora_fin_str
+            },
             "paciente": {
-                "id_paciente":    r[10],
-                "nombre_completo": f"{r[7]} {r[8]} {r[9] or ''}".strip()
+                "nombre_completo": r[5].strip()
             },
             "doctor": {
-                "nombre_completo": f"Dr. {r[11]} {r[12]} {r[13] or ''}".strip(),
-                "especialidad":    r[14],
-                "costo_consulta":  float(r[15]) if r[15] else 0.0,
+                "nombre_completo": f"Dr. {r[6].strip()}",
+                "especialidad": r[7],
+                "costo_consulta": float(r[8]) if r[8] else 0.0
             },
             "consultorio": {
-                "numero": r[16],
-                "piso":   r[17],
+                "numero": r[9] if r[9] else "S/N",
+                "piso": r[10] if r[10] else "PB"
             },
             "pago": {
-                "estatus": r[18],
-                "monto":   float(r[19])
+                "estatus": r[11],
+                "monto": float(r[8]) if r[8] else 0.0
             }
-        }), 200
+        }
+
+        return jsonify(datos), 200
 
     except pyodbc.Error as e:
         return jsonify({"error": str(e)}), 500

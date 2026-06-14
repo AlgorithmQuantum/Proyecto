@@ -53,17 +53,17 @@ def _dashboard_paciente():
 
         # Contadores de citas
         # Estatus BIT: 1=Activa, 0=Cancelada
-        # Para "completadas" usamos Diagnostico no nulo (ya tuvo consulta)
+        # Completadas = citas pasadas activas que tienen receta generada
         cursor.execute("""
             SELECT
-                COUNT(CASE WHEN Estatus = 1 AND Fecha_cita >= CAST(GETDATE() AS DATE)
+                COUNT(CASE WHEN c.Estatus = 1 AND c.Fecha_cita >= CAST(GETDATE() AS DATE)
                            THEN 1 END)                          AS confirmadas,
-                COUNT(CASE WHEN Estatus = 1 AND Fecha_cita < CAST(GETDATE() AS DATE)
-                            AND Diagnostico IS NOT NULL
+                COUNT(CASE WHEN c.Estatus = 1 AND c.Fecha_cita < CAST(GETDATE() AS DATE)
+                            AND c.Id_receta IS NOT NULL
                            THEN 1 END)                          AS completadas,
-                COUNT(CASE WHEN Estatus = 0 THEN 1 END)         AS canceladas
-            FROM CITA
-            WHERE Id_paciente = ?
+                COUNT(CASE WHEN c.Estatus = 0 THEN 1 END)       AS canceladas
+            FROM CITA c
+            WHERE c.Id_paciente = ?
         """, id_paciente)
         contadores = cursor.fetchone()
 
@@ -75,7 +75,6 @@ def _dashboard_paciente():
                 c.hora_cita,
                 c.Hora_Fin,
                 c.Estatus,
-                c.Diagnostico,
                 e.Nombre + ' ' + e.Apellido_Paterno          AS nombre_doctor,
                 esp.Nombre                                    AS especialidad,
                 con.Numero                                    AS consultorio
