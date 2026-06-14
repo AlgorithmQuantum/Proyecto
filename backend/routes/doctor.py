@@ -56,6 +56,12 @@ def pacientes():
 def expediente(id_paciente):
     with get_coneccion() as conn:
         cursor = conn.cursor()
+        
+        # USAMOS LA VISTA DE TU COMPAÑERO: Mucho más limpio que hacer JOINs manuales
+        cursor.execute("SELECT * FROM VW_Historial_Medico WHERE Id_paciente = ?", id_paciente)
+        paciente = cursor.fetchone()
+        
+        # Obtenemos las consultas...
         # Traer datos demográficos y somatometría del paciente
         cursor.execute("""
             SELECT 
@@ -79,7 +85,7 @@ def expediente(id_paciente):
         """, id_paciente)
         consultas = cursor.fetchall()
 
-    return render_template("doctor/expediente.html", paciente=paciente, consultas=consultas, nombre_completo=session.get("nombre_completo"))
+    return render_template("doctor/expediente.html", paciente=paciente)
 
 # ── 3. AGENDA Y CITAS ────────────────────────────────────────────────────────
 @doctor_bp.route("/agenda")

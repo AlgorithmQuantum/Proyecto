@@ -57,7 +57,27 @@ def get_id_paciente_desde_sesion(cursor):
 @login_required
 @role_required(["Paciente"])
 def pagina_citas():
-    return render_template("paciente/citasPaciente.html")
+    tiene_pendiente = False
+    try:
+        with get_coneccion() as conn:
+            cursor = conn.cursor()
+            id_paciente = get_id_paciente_desde_sesion(cursor)
+            
+            if id_paciente:
+                # Revisar si tiene una cita activa sin receta (pendiente de atención)
+                cursor.execute("""
+                    SELECT 1 FROM CITA 
+                    WHERE Id_paciente = ? AND Estatus = 1 AND Id_receta IS NULL
+                """, id_paciente)
+                
+                if cursor.fetchone():
+                    tiene_pendiente = True
+    except Exception as e:
+        print("Error al verificar citas pendientes:", e)
+        pass
+
+    # Le enviamos la variable "tiene_pendiente" a Jinja
+    return render_template("paciente/citasPaciente.html", tiene_pendiente=tiene_pendiente)
 
 
 @citas_bp.route("/agendar/pagina")
@@ -201,7 +221,7 @@ def get_horas_disponibles():
         with get_coneccion() as conn:
             cursor = conn.cursor()
 
-            # 1. Modificamos la consulta para obtener TODOS los horarios del doctor
+            # Obtener todos los horarios asignados al médico mediante la tabla intermedia
             cursor.execute("""
                 SELECT h.Hora_Inicio, h.Hora_Fin, h.Dia
                 FROM DOCTOR d
@@ -219,28 +239,18 @@ def get_horas_disponibles():
             fecha_dt   = datetime.strptime(fecha, "%Y-%m-%d")
             dia_semana = dias_es[fecha_dt.weekday()].lower()
 
-            # 2. Buscar si el doctor atiende en el día específico que el usuario seleccionó
+            # Buscar el horario específico correspondiente al día seleccionado
             horario_del_dia = None
-            dias_que_atiende = []
-
             for row in horarios_db:
                 dia_db = row[2].strip().lower()
-                dias_que_atiende.append(dia_db.capitalize())
-                
-                # Manejamos el acento en "miércoles" por seguridad
                 if dia_db == dia_semana or (dia_semana == "miércoles" and dia_db == "miercoles"):
                     horario_del_dia = row
                     break
 
-            # Si por alguna razón el usuario logra hacer clic en un día que el doc no trabaja
             if not horario_del_dia:
-                dias_unicos = ", ".join(sorted(set(dias_que_atiende)))
-                return jsonify({
-                    "slots": [],
-                    "mensaje": f"El doctor solo atiende los días: {dias_unicos}"
-                }), 200
+                return jsonify({"slots": [], "mensaje": "El doctor no atiende en el día seleccionado."}), 200
 
-            # 3. Si el día es correcto, buscamos qué horas ya están ocupadas
+            # Buscar horas ya ocupadas por citas activas
             cursor.execute("""
                 SELECT hora_cita, Hora_Fin
                 FROM CITA
@@ -248,12 +258,9 @@ def get_horas_disponibles():
             """, id_doctor, fecha)
             ocupadas = cursor.fetchall()
 
-        # 4. Calcular los bloques de media hora (slots)
-        from datetime import time as dt_time
-        # Usamos las horas específicas de ESE día
+        # Configuración de tiempos base
         inicio = td_to_time(horario_del_dia[0])
         fin    = td_to_time(horario_del_dia[1])
-
         ocupados = [(td_to_time(c[0]), td_to_time(c[1]) if c[1] else None) for c in ocupadas]
 
         slots        = []
@@ -261,20 +268,27 @@ def get_horas_disponibles():
         fin_dt       = datetime.combine(fecha_dt, fin)
         duracion     = timedelta(minutes=30)
 
+        # ── LÓGICA ESTRICTA DE 48 HORAS FUTURAS ──
+        limite_estricto_48h = datetime.now() + timedelta(hours=48)
+
         while cursor_time + duracion <= fin_dt:
             slot_ini = cursor_time.time()
             slot_fin = (cursor_time + duracion).time()
 
-            traslape = any(
+            # Verificar si se empalma con otra consulta en la base de datos
+            traslape_cita = any(
                 slot_ini < (oc_fin or (datetime.combine(fecha_dt, oc_ini) + duracion).time())
                 and slot_fin > oc_ini
                 for oc_ini, oc_fin in ocupados
             )
 
+            # Verificar si el bloque cumple individualmente con las 48 horas de anticipación futuras
+            cumple_48h = cursor_time >= limite_estricto_48h
+
             slots.append({
                 "hora":       slot_ini.strftime("%H:%M"),
                 "hora_fin":   slot_fin.strftime("%H:%M"),
-                "disponible": not traslape
+                "disponible": (not traslape_cita) and cumple_48h  # Ambos requisitos deben ser verdaderos
             })
             cursor_time += duracion
 
@@ -307,9 +321,12 @@ def agendar_cita():
                 return jsonify({"error": "Paciente no encontrado"}), 404
 
             # Consultorio del doctor
-            cursor.execute(
-                "SELECT Id_consultorio FROM CONSULTORIO WHERE Id_Doctor = ?", id_doctor
-            )
+            cursor.execute("""
+                SELECT 1 FROM CITA 
+                WHERE Id_paciente = ? AND Estatus = 1 AND Id_receta IS NULL
+            """, id_paciente)
+            if cursor.fetchone():
+                return jsonify({"error": "Ya tienes una cita agendada pendiente. Debes concluirla o cancelarla antes de reservar otra."}), 409
             con = cursor.fetchone()
             if not con:
                 return jsonify({"error": "El doctor no tiene consultorio asignado"}), 400
@@ -420,25 +437,27 @@ def mis_citas():
 def detalle_cita(id_cita):
     try:
         with get_coneccion() as conn:
-            # 1. PRIMERO creamos el cursor
             cursor = conn.cursor()
-            # 2. LUEGO lo usamos para obtener el paciente
             id_paciente = get_id_paciente_desde_sesion(cursor)
-
-            # 3. Consulta ajustada para traer todo lo que requiere el comprobante
+            
+            # Usamos un JOIN directo en lugar de la vista de tus compañeros
+            # Así tu código es 100% independiente y a prueba de errores
             cursor.execute("""
                 SELECT
                     c.Id_cita,
+                    c.Id_paciente,
+                    p.Nombre + ' ' + p.Apellido_Paterno AS paciente_nombre,
                     c.Fecha_cita,
                     c.hora_cita,
                     c.Hora_Fin,
                     c.Estatus,
-                    p.Nombre + ' ' + p.Apellido_Paterno AS paciente_nombre,
+                    d.Id_doctor,
                     e.Nombre + ' ' + e.Apellido_Paterno AS doctor_nombre,
                     esp.Nombre AS especialidad,
                     esp.Costo_Consulta,
                     con.Numero AS consultorio_num,
                     con.Piso,
+                    r.Diagnostico,
                     ISNULL((SELECT TOP 1 Estatus_pago FROM TICKET t WHERE t.Id_cita = c.Id_cita), 'Pendiente') AS pago_estatus
                 FROM CITA c
                 JOIN PACIENTE p ON c.Id_paciente = p.Id_paciente
@@ -446,50 +465,45 @@ def detalle_cita(id_cita):
                 JOIN EMPLEADO e ON d.Id_empleado = e.Id_empleado
                 JOIN ESPECIALIDAD esp ON d.Id_especialidad = esp.Id_especialidad
                 LEFT JOIN CONSULTORIO con ON c.Id_consultorio = con.Id_consultorio
+                LEFT JOIN RECETA r ON c.Id_receta = r.Id_receta
                 WHERE c.Id_cita = ? AND c.Id_paciente = ?
             """, (id_cita, id_paciente))
-            
+
             r = cursor.fetchone()
 
         if not r:
             return jsonify({"error": "Cita no encontrada"}), 404
 
-        # Limpiamos las horas para quitar los segundos (ej. "13:00")
-        hora_ini_str = str(td_to_time(r[2]))[:5] if r[2] else "00:00"
-        hora_fin_str = str(td_to_time(r[3]))[:5] if r[3] else "00:00"
-
-        # 4. Armamos el diccionario EXACTO que esperan tus archivos HTML
-        datos = {
-            "id_cita": r[0],
-            "folio": f"CIT-{str(r[0]).zfill(4)}",
-            "estatus": "Activa" if r[4] == 1 else "Cancelada",
-            "fecha": str(r[1]),             # Para detallesCita.html
-            "hora_inicio": hora_ini_str,    # Para detallesCita.html
-            "hora_fin": hora_fin_str,       # Para detallesCita.html
-            "cita": {                       # Para comprobanteCita.html
-                "fecha": str(r[1]),
-                "hora_inicio": hora_ini_str,
-                "hora_fin": hora_fin_str
-            },
+        # Construimos el JSON con los índices exactos de la consulta
+        return jsonify({
+            "id_cita":       r[0],
+            "folio":         f"RASA-{str(r[0]).zfill(6)}",
             "paciente": {
-                "nombre_completo": r[5].strip()
+                "id_paciente":     r[1],
+                "nombre_completo": r[2].strip()
             },
+            "cita": {
+                "fecha":       str(r[3]),
+                "hora_inicio": str(td_to_time(r[4]))[:5] if r[4] else "00:00",
+                "hora_fin":    str(td_to_time(r[5]))[:5] if r[5] else "00:00",
+            },
+            "estatus":       "Activa" if r[6] == 1 else "Cancelada",
             "doctor": {
-                "nombre_completo": f"Dr. {r[6].strip()}",
-                "especialidad": r[7],
-                "costo_consulta": float(r[8]) if r[8] else 0.0
+                "id_doctor":       r[7],
+                "nombre_completo": f"Dr. {r[8]}",
+                "especialidad":    r[9],
+                "costo_consulta":  float(r[10]) if r[10] else 0.0,
             },
             "consultorio": {
-                "numero": r[9] if r[9] else "S/N",
-                "piso": r[10] if r[10] else "PB"
+                "numero": r[11] if r[11] else "S/N",
+                "piso":   r[12] if r[12] else "PB",
             },
+            "diagnostico": r[13],
             "pago": {
-                "estatus": r[11],
-                "monto": float(r[8]) if r[8] else 0.0
+                "estatus": r[14],
+                "monto":   float(r[10]) if r[10] else 0.0
             }
-        }
-
-        return jsonify(datos), 200
+        }), 200
 
     except pyodbc.Error as e:
         return jsonify({"error": str(e)}), 500

@@ -15,7 +15,7 @@ AS
 BEGIN
     DECLARE @Disponible BIT;
 
-    -- Revisa si YA EXISTE una cita activa para ese doctor, ese día y a esa hora
+    -- Revisa si ya existe una cita activa para ese doctor, ese día y a esa hora
     IF EXISTS (
         SELECT 1
         FROM CITA
@@ -51,27 +51,44 @@ BEGIN
     DECLARE @Ahora      DATETIME = GETDATE();
     DECLARE @FechaHora  DATETIME = CAST(@Fecha_cita AS DATETIME) + CAST(@Hora_cita  AS DATETIME);
 
+    -- [VALIDACIÓN PREVIA EXISTENTE] Fechas pasadas
     IF @FechaHora <= @Ahora
     BEGIN
         RAISERROR('No se pueden agendar citas en una fecha y hora pasada.', 16, 1);
         RETURN;
     END
 
+    -- [VALIDACIÓN PREVIA EXISTENTE] Ventana de 48 horas
     IF DATEDIFF(HOUR, @Ahora, @FechaHora) < 48
     BEGIN
         RAISERROR('La cita debe agendarse con al menos 48 horas de anticipación.', 16, 2);
         RETURN;
     END
 
+    -- [VALIDACIÓN PREVIA EXISTENTE] Ventana de 3 meses
     IF @FechaHora > DATEADD(MONTH, 3, @Ahora)
     BEGIN
         RAISERROR('No se pueden agendar citas con más de 3 meses de anticipación.', 16, 3);
         RETURN;
     END
 
+    -- Existencia de entidades
     IF NOT EXISTS (SELECT 1 FROM PACIENTE WHERE Id_paciente = @Id_paciente)
     BEGIN
         RAISERROR('El paciente no existe.', 16, 4);
+        RETURN;
+    END
+
+    --  Bloqueo de múltiples citas activas/pendientes
+    IF EXISTS (
+        SELECT 1 
+        FROM CITA 
+        WHERE Id_paciente = @Id_paciente 
+          AND Estatus = 1 
+          AND Id_receta IS NULL
+    )
+    BEGIN
+        RAISERROR('Ya tienes una cita agendada pendiente de atención. Debes concluirla o cancelarla antes de poder agendar una nueva.', 16, 8);
         RETURN;
     END
 
@@ -87,18 +104,16 @@ BEGIN
         RETURN;
     END
 
-    -- Validación 1: Revisar empalmes con otras citas (Usa la función corregida)
+    -- Validación 1: Revisar empalmes con otras citas
     IF dbo.fn_DoctorDisponible(@Id_doctor, @Fecha_cita, @Hora_cita) = 0
     BEGIN
         RAISERROR('El doctor ya tiene una cita ocupada en ese horario exacto.', 16, 7);
         RETURN;
     END
 
-    -- Validación 2: Revisar turno y día de trabajo del doctor (MÉTODO DETERMINÍSTICO SEGURO)
+    -- Validación 2: Revisar turno y día de trabajo del doctor
     DECLARE @NumDia INT;
     DECLARE @DiaElegido NVARCHAR(20);
-    
-    -- '19000101' fue un Lunes. Obtenemos el residuo para saber qué día de la semana es de forma matemática.
     SET @NumDia = DATEDIFF(DAY, '19000101', @Fecha_cita) % 7;
 
     SET @DiaElegido = CASE @NumDia
@@ -126,7 +141,7 @@ BEGIN
         RETURN;
     END
 
-    -- Cita valida
+    -- Cita válida
     INSERT INTO CITA (
         Id_paciente, Id_doctor, Id_consultorio, Id_receta,
         Fecha_cita, hora_cita, Dia, Mes, Estatus, Hora_Fin
@@ -141,6 +156,82 @@ END;
 GO
 
 -- ============================================================
+-- FUNCIONES DEL SISTEMA
+-- ============================================================
+
+--========================================================
+--Funcion:Calcula el total usando la cantidad y el costo real del servicio.
+--========================================================
+CREATE FUNCTION FN_TotalServicios
+(
+    @IdCita INT
+)
+RETURNS DECIMAL(10,2)
+AS
+BEGIN
+    DECLARE @ResultVar DECIMAL(10,2);
+
+    SELECT @ResultVar =
+        SUM(CS.Cantidad * S.Costo)
+    FROM CITA_SERVICIO CS
+    INNER JOIN SERVICIO S
+        ON CS.Id_servicio = S.Id_servicio
+    WHERE CS.Id_cita = @IdCita;
+
+    RETURN ISNULL(@ResultVar,0);
+END;
+GO
+
+SELECT dbo.FN_TotalServicios(1) AS TotalServicios;
+
+--========================================================
+--Funcion: Obtiene la cantidad total de medicamentos prescritos en una receta.
+--========================================================
+CREATE FUNCTION FN_TotalMedicamentosReceta
+(
+    @IdReceta INT
+)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @ResultVar INT;
+
+    SELECT @ResultVar =
+        SUM(Cantidad)
+    FROM RECETA_MEDICINA
+    WHERE Id_receta = @IdReceta;
+
+    RETURN ISNULL(@ResultVar,0);
+END;
+GO
+
+SELECT dbo.FN_TotalMedicamentosReceta(1) AS TotalMedicamentos;
+
+--========================================================
+--Funcion: Cuenta cuántos pacientes diferentes ha atendido un doctor mediante las citas activas.
+--========================================================
+CREATE FUNCTION FN_PacientesAtendidosDoctor
+(
+    @IdDoctor INT
+)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @ResultVar INT;
+
+    SELECT @ResultVar =
+        COUNT(DISTINCT Id_paciente)
+    FROM CITA
+    WHERE Id_doctor = @IdDoctor
+      AND Estatus = 1;
+
+    RETURN ISNULL(@ResultVar,0);
+END;
+GO
+
+SELECT dbo.FN_PacientesAtendidosDoctor(2) AS PacientesAtendidos;
+
+-- ============================================================
 -- VISTAS DEL SISTEMA
 -- ============================================================
 
@@ -149,22 +240,27 @@ CREATE OR ALTER VIEW VW_Detalle_Cita_Paciente
 AS
 SELECT
     C.Id_cita,
+    C.Id_paciente,
     P.Nombre + ' ' + P.Apellido_Paterno + ' ' + ISNULL(P.Apellido_Materno, '') AS Paciente,
     C.Fecha_cita,
     C.hora_cita,
-    C.Dia,
-    C.Mes,
+    C.Hora_Fin,
     C.Estatus,
+    D.Id_doctor,
     E.Nombre + ' ' + E.Apellido_Paterno AS Doctor,
     ES.Nombre AS Especialidad,
+    ES.Costo_Consulta,
     CO.Numero AS Consultorio,
-    CO.Piso
+    CO.Piso,
+    R.Diagnostico,
+    ISNULL((SELECT TOP 1 Estatus_pago FROM TICKET T WHERE T.Id_cita = C.Id_cita), 'Pendiente') AS Estatus_Pago
 FROM CITA C
 INNER JOIN PACIENTE P ON C.Id_paciente = P.Id_paciente
 INNER JOIN DOCTOR D ON C.Id_doctor = D.Id_doctor
 INNER JOIN EMPLEADO E ON D.Id_empleado = E.Id_empleado
 INNER JOIN ESPECIALIDAD ES ON D.Id_especialidad = ES.Id_especialidad
-INNER JOIN CONSULTORIO CO ON C.Id_consultorio = CO.Id_consultorio;
+LEFT JOIN CONSULTORIO CO ON C.Id_consultorio = CO.Id_consultorio
+LEFT JOIN RECETA R ON C.Id_receta = R.Id_receta;
 GO
 
 -- Historial Médico del Paciente

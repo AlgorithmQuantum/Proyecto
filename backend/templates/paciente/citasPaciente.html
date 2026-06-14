@@ -40,6 +40,24 @@
             <div id="alerta-global" class="oculto"
                  style="padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:.9rem;"></div>
 
+
+            {% if tiene_pendiente %}
+            
+            <div class="tarjeta-comprobante" style="text-align:center;padding:60px 30px; margin-top: 20px;">
+                <i class="fa-solid fa-circle-exclamation" style="font-size:4.5rem;color:#f59e0b;margin-bottom:20px;"></i>
+                <h2 style="margin-bottom:10px; color: var(--texto-oscuro);">Tienes una cita en curso</h2>
+                <p style="color:var(--texto-gris);margin-bottom:30px;font-size:1.05rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    Por políticas de la clínica, solo puedes mantener <strong>una cita activa</strong> a la vez. 
+                    Por favor asiste a tu consulta programada o cancélala para poder liberar tu agenda.
+                </p>
+                <div style="display:flex; gap:15px; justify-content:center;">
+                    <a href="/dashboard" class="btn-contorno" style="text-decoration:none;">Volver al Inicio</a>
+                    <a href="/paciente/historial" class="btn-primario" style="text-decoration:none;">Ver Mis Citas</a>
+                </div>
+            </div>
+
+            {% else %}
+
             <!-- Indicadores de paso -->
             <div class="contenedor-pasos">
                 <div class="paso activo" id="ind-paso-1">
@@ -197,18 +215,17 @@
                     </div>
                 </div>
             </div>
-
+            {% endif %}
         </div>
     </main>
 
     <script>
     // ── Estado ────────────────────────────────────────────────────────────────
     const citaState = {
-    id_especialidad: null, especialidad: null, precio: null,
-    id_doctor: null,       doctor: null,        dia_horario: null,
-    dias_trabajo: [],      // <--- Agrega esta línea nueva
-    fechaISO: null,        fechaStr: null,
-    horaISO: null,         horaStr: null,
+        id_especialidad: null, especialidad: null, precio: null,
+        id_doctor: null,       doctor: null,        dia_horario: null,
+        fechaISO: null,        fechaStr: null,
+        horaISO: null,         horaStr: null,
     };
 
     const MESES  = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
@@ -217,7 +234,11 @@
 
     const hoy = new Date(); hoy.setHours(0,0,0,0);
     const fechaMinima = new Date(hoy);
-    fechaMinima.setDate(fechaMinima.getDate() + 3);
+
+    // SOLO DEBES CAMBIAR ESTA LÍNEA DE AQUÍ ABAJO:
+    // Cambia el + 3 por un + 2 para que sean exactamente 48 horas (2 días)
+    fechaMinima.setDate(fechaMinima.getDate() + 2); 
+
     let fechaCalendario = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
 
     // ── Helpers ───────────────────────────────────────────────────────────────
