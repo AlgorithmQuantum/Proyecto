@@ -23,7 +23,7 @@
         </ul>
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>{{ session.get('nombre', 'Paciente') }}</strong> | Paciente</span>
+                <span><strong>{{ session.get('nombre_completo', 'Paciente') }}</strong> | Paciente</span>
             </div>
         </div>
     </nav>
@@ -167,7 +167,7 @@
                     <div class="cuerpo-resumen-final">
                         <div class="info-paciente-ticket">
                             <div class="avatar-ticket"><i class="fa-solid fa-user"></i></div>
-                            <div><h4>{{ session.get('nombre', '') }}</h4></div>
+                            <div><h4>{{ session.get('nombre_completo', 'Paciente') }}</h4></div>
                         </div>
                         <hr class="linea-ticket">
                         <div class="detalle-resumen">
@@ -204,10 +204,11 @@
     <script>
     // ── Estado ────────────────────────────────────────────────────────────────
     const citaState = {
-        id_especialidad: null, especialidad: null, precio: null,
-        id_doctor: null,       doctor: null,        dia_horario: null,
-        fechaISO: null,        fechaStr: null,
-        horaISO: null,         horaStr: null,
+    id_especialidad: null, especialidad: null, precio: null,
+    id_doctor: null,       doctor: null,        dia_horario: null,
+    dias_trabajo: [],      // <--- Agrega esta línea nueva
+    fechaISO: null,        fechaStr: null,
+    horaISO: null,         horaStr: null,
     };
 
     const MESES  = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
@@ -315,9 +316,11 @@
             data.forEach(doc => {
                 const o = document.createElement('option');
                 o.value              = doc.id_doctor;
-                o.textContent        = `${doc.nombre_completo} — ${doc.dia_horario} ${doc.hora_inicio.slice(0,5)}-${doc.hora_fin.slice(0,5)}`;
+                // Texto limpio: Solo el nombre del doctor
+                o.textContent        = `${doc.nombre_completo}`; 
                 o.dataset.nombre     = doc.nombre_completo;
-                o.dataset.diaHorario = doc.dia_horario;
+                // Guardamos la lista de días como texto JSON
+                o.dataset.diasTrabajo = JSON.stringify(doc.dias_trabajo); 
                 select.appendChild(o);
             });
 
@@ -366,8 +369,8 @@
             // Índice para DIAS_ES: getDay() 1=Lun→0, 0=Dom→6
             const idxES     = diaNum === 0 ? 6 : diaNum - 1;
             const diaESIter = DIAS_ES[idxES];
-            const diaDoc    = citaState.dia_horario;
-            const fueraDia  = diaDoc && diaESIter.toLowerCase() !== diaDoc.toLowerCase();
+            const diasDoc   = citaState.dias_trabajo;
+            const fueraDia  = diasDoc && diasDoc.length > 0 && !diasDoc.includes(diaESIter.toLowerCase());
 
             if (fechaIter < fechaMinima || fechaIter > fechaLimite
                 || diaNum === 0 || diaNum === 6 || fueraDia) {
@@ -491,9 +494,10 @@
             const opt = this.options[this.selectedIndex];
             citaState.id_doctor   = parseInt(this.value);
             citaState.doctor      = opt.dataset.nombre;
-            citaState.dia_horario = opt.dataset.diaHorario;
+            // Recuperamos el arreglo de días del doctor seleccionado
+            citaState.dias_trabajo = JSON.parse(opt.dataset.diasTrabajo || "[]"); 
             document.getElementById('btn-continuar-1').classList.remove('oculto');
-            renderCalendario(); // refiltrar días según horario del doctor
+            renderCalendario(); // Volver a filtrar los días activos basándose en los días del doctor
         });
 
         document.getElementById('btn-continuar-1').addEventListener('click', () => irAPaso(2));

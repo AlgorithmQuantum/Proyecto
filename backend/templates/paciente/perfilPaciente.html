@@ -24,7 +24,7 @@
 
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Juan Pérez</strong> | Paciente</span>
+                <span><strong>{{ session.get('nombre_completo', 'Paciente') }}</strong> | Paciente</span>
             </div>
         </div>
     </nav>
@@ -39,7 +39,6 @@
             <h1 class="titulo-seccion">Expediente y Perfil</h1>
             <p class="subtitulo-seccion">Consulta tu información personal y registros médicos base.</p>
 
-            <!-- AVISO DE SOLO LECTURA -->
             <div class="alerta-info-perfil">
                 <i class="fa-solid fa-shield-halved"></i>
                 <div>
@@ -50,35 +49,32 @@
 
             <div class="layout-perfil">
                 
-                <!-- SIDEBAR DEL PERFIL -->
                 <aside class="perfil-sidebar">
                     <div class="tarjeta-perfil-resumen">
-                        <div class="avatar-grande">JP</div>
-                        <h2 class="nombre-perfil">Juan Pérez</h2>
+                        <div class="avatar-grande">{{ ficha.Nombre[0] }}{{ ficha.Apellido_Paterno[0] }}</div>
+                        <h2 class="nombre-perfil">{{ ficha.Nombre }} {{ ficha.Apellido_Paterno }}</h2>
                         
                         <div class="info-rapida-perfil">
                             <div class="item-info-rapida">
                                 <i class="fa-solid fa-calendar-check" style="color: var(--azul-principal);"></i>
                                 <div>
-                                    <span class="etiqueta">Citas Históricas</span>
-                                    <span class="valor">12</span>
+                                    <span class="etiqueta">Edad</span>
+                                    <span class="valor">{{ ficha.Edad }} años</span>
                                 </div>
                             </div>
                             <div class="item-info-rapida">
                                 <i class="fa-solid fa-droplet" style="color: #dc3545;"></i>
                                 <div>
                                     <span class="etiqueta">Tipo de Sangre</span>
-                                    <span class="valor">O+</span>
+                                    <span class="valor">{{ ficha.Tipo_sangre or 'No registrado' }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </aside>
 
-                <!-- CONTENIDO DEL PERFIL -->
                 <div class="perfil-contenido">
                     
-                    <!-- SECCIÓN 1: DATOS PERSONALES -->
                     <section class="tarjeta-formulario">
                         <div class="cabecera-tarjeta">
                             <h3><i class="fa-regular fa-id-card"></i> Datos Personales</h3>
@@ -88,57 +84,29 @@
                             <div class="rejilla-formulario">
                                 <div class="grupo-input span-2">
                                     <label>Nombre Completo</label>
-                                    <input type="text" value="Juan Alejandro Pérez Gómez" readonly>
-                                </div>
-                                <div class="grupo-input">
-                                    <label>CURP / ID Oficial</label>
-                                    <input type="text" value="PEGJ000515HDFRRN09" readonly>
+                                    <input type="text" value="{{ ficha.Nombre }} {{ ficha.Apellido_Paterno }} {{ ficha.Apellido_Materno }}" readonly>
                                 </div>
                                 <div class="grupo-input">
                                     <label>Fecha de Nacimiento</label>
-                                    <input type="date" value="2000-05-15" readonly>
-                                </div>
-                                <div class="grupo-input">
-                                    <label>Género</label>
-                                    <input type="text" value="Masculino" readonly>
+                                    <input type="date" value="{{ ficha.Fecha_nacimiento }}" readonly>
                                 </div>
                                 <div class="grupo-input">
                                     <label>Número de Teléfono</label>
-                                    <input type="tel" value="55 1234 5678" readonly>
+                                    <input type="tel" value="{{ ficha.Telefono or 'No registrado' }}" readonly>
                                 </div>
                                 <div class="grupo-input span-2">
                                     <label>Correo Electrónico</label>
-                                    <input type="email" value="juan.perez@email.com" readonly>
+                                    <input type="email" value="{{ ficha.Correo or 'No registrado' }}" readonly>
                                 </div>
                                 <div class="grupo-input span-2">
-                                    <label>Dirección Registrada</label>
-                                    <input type="text" value="Av. Insurgentes Sur 123, Col. Roma, CDMX, C.P. 06700" readonly>
+                                    <label>Estatura y Peso</label>
+                                    <input type="text" value="{{ ficha.Estatura or '--' }} m / {{ ficha.Peso or '--' }} kg" readonly>
                                 </div>
                             </div>
                         </form>
                     </section>
 
-                    <!-- SECCIÓN 2: CONTACTO DE EMERGENCIA Y ANTECEDENTES -->
                     <div class="rejilla-secciones-secundarias">
-                        
-                        <!-- Contacto de Emergencia -->
-                        <section class="tarjeta-formulario">
-                            <div class="cabecera-tarjeta">
-                                <h3><i class="fa-solid fa-phone-volume"></i> Contacto de Emergencia</h3>
-                            </div>
-                            <div class="cuerpo-tarjeta-datos">
-                                <div class="dato-bloque">
-                                    <label>Nombre del Contacto</label>
-                                    <p>María Gómez (Madre)</p>
-                                </div>
-                                <div class="dato-bloque">
-                                    <label>Teléfono de Emergencia</label>
-                                    <p>55 9876 5432</p>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Antecedentes Médicos -->
                         <section class="tarjeta-formulario">
                             <div class="cabecera-tarjeta">
                                 <h3><i class="fa-solid fa-notes-medical"></i> Registro Médico</h3>
@@ -147,19 +115,15 @@
                                 <div class="dato-bloque">
                                     <label>Alergias Conocidas</label>
                                     <div class="contenedor-tags">
-                                        <span class="tag-alergia">Penicilina</span>
-                                        <span class="tag-alergia">Ibuprofeno</span>
-                                    </div>
-                                </div>
-                                <div class="dato-bloque" style="margin-top: 15px;">
-                                    <label>Padecimientos Crónicos</label>
-                                    <div class="contenedor-tags">
-                                        <span class="tag-padecimiento">Asma Leve</span>
+                                        {% if ficha.Alergias %}
+                                            <span class="tag-alergia">{{ ficha.Alergias }}</span>
+                                        {% else %}
+                                            <span style="color: var(--texto-gris); font-size: 0.9rem;">Sin alergias registradas</span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
                         </section>
-
                     </div>
 
                 </div>

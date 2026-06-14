@@ -2,7 +2,7 @@ USE CentroMedicoRASA;
 GO
 
 -- ============================================================
--- Funcion: Verifica si la cita es en el horario del doctor
+-- Funcion: Verifica si el doctor tiene otra cita a esa hora (Cero empalmes)
 -- ============================================================
 CREATE OR ALTER FUNCTION fn_DoctorDisponible
 (
@@ -13,31 +13,20 @@ CREATE OR ALTER FUNCTION fn_DoctorDisponible
 RETURNS BIT
 AS
 BEGIN
-    DECLARE @Disponible BIT = 0;
-    DECLARE @DiaSemana VARCHAR(20);
+    DECLARE @Disponible BIT;
 
-    -- Asegura el mapeo correcto independientemente del idioma del servidor
-    SET @DiaSemana = CASE DATEPART(WEEKDAY, @Fecha_cita)
-        WHEN 1 THEN 'Domingo'
-        WHEN 2 THEN 'Lunes'
-        WHEN 3 THEN 'Martes'
-        WHEN 4 THEN 'Miércoles'
-        WHEN 5 THEN 'Jueves'
-        WHEN 6 THEN 'Viernes'
-        WHEN 7 THEN 'Sábado'
-    END;
-
-    -- Verifica que el dia y la hora esten dentro del horario del doctor
+    -- Revisa si YA EXISTE una cita activa para ese doctor, ese día y a esa hora
     IF EXISTS (
         SELECT 1
-        FROM DOCTOR D
-        INNER JOIN HORARIO H ON D.Id_Horario = H.Id_Horario
-        WHERE D.Id_doctor   = @Id_doctor
-          AND H.Dia         = @DiaSemana
-          AND @Hora_cita   >= H.Hora_Inicio
-          AND @Hora_cita   <  H.Hora_Fin
+        FROM CITA
+        WHERE Id_doctor = @Id_doctor
+          AND Fecha_cita = @Fecha_cita
+          AND hora_cita = @Hora_cita
+          AND Estatus = 1
     )
-        SET @Disponible = 1;
+        SET @Disponible = 0; -- Ocupado
+    ELSE
+        SET @Disponible = 1; -- Disponible
 
     RETURN @Disponible;
 END;
@@ -98,25 +87,46 @@ BEGIN
         RETURN;
     END
 
+    -- Validación 1: Revisar empalmes con otras citas (Usa la función corregida)
     IF dbo.fn_DoctorDisponible(@Id_doctor, @Fecha_cita, @Hora_cita) = 0
     BEGIN
-        RAISERROR('La cita está fuera del horario o día de atención del doctor.', 16, 7);
+        RAISERROR('El doctor ya tiene una cita ocupada en ese horario exacto.', 16, 7);
         RETURN;
     END
 
-    IF EXISTS (
-        SELECT 1 FROM CITA
-        WHERE Id_doctor  = @Id_doctor
-          AND Fecha_cita = @Fecha_cita
-          AND hora_cita  = @Hora_cita
-          AND Estatus    = 1
+    -- Validación 2: Revisar turno y día de trabajo del doctor (MÉTODO DETERMINÍSTICO SEGURO)
+    DECLARE @NumDia INT;
+    DECLARE @DiaElegido NVARCHAR(20);
+    
+    -- '19000101' fue un Lunes. Obtenemos el residuo para saber qué día de la semana es de forma matemática.
+    SET @NumDia = DATEDIFF(DAY, '19000101', @Fecha_cita) % 7;
+
+    SET @DiaElegido = CASE @NumDia
+        WHEN 0 THEN 'Lunes'
+        WHEN 1 THEN 'Martes'
+        WHEN 2 THEN 'Miércoles'
+        WHEN 3 THEN 'Jueves'
+        WHEN 4 THEN 'Viernes'
+        WHEN 5 THEN 'Sábado'
+        WHEN 6 THEN 'Domingo'
+    END;
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM DOCTOR d
+        JOIN EMPLEADO_HORARIO eh ON d.Id_empleado = eh.Id_empleado
+        JOIN HORARIO h ON eh.Id_Horario = h.Id_Horario
+        WHERE d.Id_doctor = @Id_doctor
+            AND h.Dia COLLATE Latin1_General_CI_AI = @DiaElegido 
+            AND @Hora_cita >= h.Hora_Inicio 
+            AND @Hora_Fin <= h.Hora_Fin
     )
     BEGIN
-        RAISERROR('El doctor ya tiene una cita en esa fecha y hora.', 16, 8);
+        RAISERROR ('El horario elegido no corresponde a los días o turnos de atención del doctor.', 16, 1);
         RETURN;
     END
 
-    -- Cita valida (Removidos Diagnostico y Tratamiento, pertenecen a RECETA)
+    -- Cita valida
     INSERT INTO CITA (
         Id_paciente, Id_doctor, Id_consultorio, Id_receta,
         Fecha_cita, hora_cita, Dia, Mes, Estatus, Hora_Fin

@@ -27,7 +27,7 @@
 
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Juan Pérez</strong> | Paciente</span>
+                <span><strong>{{ session.get('nombre_completo', 'Paciente') }}</strong> | Paciente</span>
             </div>
         </div>
     </nav>
