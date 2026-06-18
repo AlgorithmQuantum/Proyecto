@@ -32,7 +32,7 @@
 
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Ana Martínez</strong> | Recepción</span>
+                <span><strong>{{ session.get('nombre_completo', 'Recepcionista') }}</strong> | Recepción</span>
             </div>
         </div>
     </nav>
@@ -62,86 +62,21 @@
                     <div class="avatar-grande">
                         <i class="fa-solid fa-user-doctor"></i>
                     </div>
-                    <h2 class="nombre-doctor-perfil">Dr. Roberto Sánchez</h2>
-                    <span class="especialidad-badge"><i class="fa-solid fa-heart-pulse"></i> Cardiología</span>
-                    
-                    <div class="status-actual">
-                        <span class="status-badge en-servicio" style="font-size: 0.8rem;">EN SERVICIO ACTUALMENTE</span>
+                    <h2>{{ doctor.Nombre }} {{ doctor.Apellido_Paterno }}</h2>
+                    <span class="etiqueta-estado-paciente estable">{{ doctor.Especialidad }}</span>
+                    <p class="texto-gris" style="margin-top: 15px; font-weight: 600;">ID Sistema: #MED-{{ doctor.Id_doctor }}</p>
+                    <div style="margin-top: 10px;"><span>Consultorio</span><strong>{{ doctor.Consultorio or 'S/N' }}, Piso {{ doctor.Piso or 'PB' }}</strong></div>
+
+                    <div class="cuadricula-horarios">
+                        {% for h in horarios %}
+                        <div class="bloque-hora" style="border: 1px solid var(--azul-principal); color: var(--azul-principal); background: #f0f9ff;">
+                            <strong>{{ h.Dia }}</strong><br>
+                            {{ h.Hora_Inicio }} - {{ h.Hora_Fin }}
+                        </div>
+                        {% else %}
+                        <p>Sin horario asignado.</p>
+                        {% endfor %}
                     </div>
-
-                    <div class="divisor-ligero" style="margin: 20px 0;"></div>
-
-                    <ul class="info-contacto-lista">
-                        <li>
-                            <div class="icono-lista"><i class="fa-solid fa-door-open"></i></div>
-                            <div class="textos-lista">
-                                <span>Ubicación Asignada</span>
-                                <strong>Consultorio 101 (Ala Norte)</strong>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="icono-lista"><i class="fa-solid fa-phone"></i></div>
-                            <div class="textos-lista">
-                                <span>Teléfono Interno / Extensión</span>
-                                <strong>Ext. 1010</strong>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="icono-lista"><i class="fa-regular fa-envelope"></i></div>
-                            <div class="textos-lista">
-                                <span>Correo Institucional</span>
-                                <strong>r.sanchez@rasa-med.com</strong>
-                            </div>
-                        </li>
-                    </ul>
-                </aside>
-
-                <!-- COLUMNA DERECHA: HORARIOS Y ACCIONES -->
-                <section class="contenido-perfil-principal">
-                    
-                    <!-- BLOQUE DE ACCIONES RÁPIDAS -->
-                    <div class="tarjeta-base" style="margin-bottom: 25px;">
-                        <div class="cabecera-seccion-form" style="margin-bottom: 15px;">
-                            <div class="icono-seccion azul"><i class="fa-solid fa-bolt"></i></div>
-                            <h3 style="margin: 0; font-size: 1.1rem;">Acciones Rápidas de Recepción</h3>
-                        </div>
-                        <div style="display: flex; gap: 15px;">
-                            
-                            <a href="/recepcion/agenda" class="btn-accion-principal" style="flex: 1; text-align: center; text-decoration: none;">
-                                <i class="fa-regular fa-calendar-check"></i> Ver su Agenda del Día
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- BLOQUE DE HORARIOS -->
-                    <div class="tarjeta-base">
-                        <div class="cabecera-seccion-form" style="margin-bottom: 20px;">
-                            <div class="icono-seccion naranja"><i class="fa-regular fa-clock"></i></div>
-                            <h3 style="margin: 0; font-size: 1.1rem;">Esquema de Trabajo</h3>
-                        </div>
-
-                        <div class="grid-inputs-2" style="margin-bottom: 20px;">
-                            <div class="grupo-input">
-                                <label>Turno Asignado</label>
-                                <div class="input-form bloque-solo-lectura-mini">Matutino</div>
-                            </div>
-                            <div class="grupo-input">
-                                <label>Días Laborables</label>
-                                <div class="input-form bloque-solo-lectura-mini">Lunes a Viernes</div>
-                            </div>
-                        </div>
-
-                        <label>Bloques de Horario de Consulta (1 Hora)</label>
-                        <div class="cuadricula-horarios">
-                            <div class="bloque-hora">07:00 AM - 08:00 AM</div>
-                            <div class="bloque-hora">08:00 AM - 09:00 AM</div>
-                            <div class="bloque-hora">09:00 AM - 10:00 AM</div>
-                            <div class="bloque-hora">10:00 AM - 11:00 AM</div>
-                            <div class="bloque-hora">11:00 AM - 12:00 PM</div>
-                            <div class="bloque-hora">12:00 PM - 01:00 PM</div>
-                            <div class="bloque-hora">01:00 PM - 02:00 PM</div>
-                            <div class="bloque-hora">02:00 PM - 03:00 PM</div>
-                        </div>
                     </div>
 
                     <!-- RESTRICCIÓN DE SEGURIDAD -->

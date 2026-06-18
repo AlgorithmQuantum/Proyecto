@@ -52,11 +52,11 @@
     <div class="separador"></div>
 </nav>
 
-        <div class="perfil-usuario-inferior">
-            <div class="info-user">
-                <strong>Ana Martínez</strong>
-                <span>Recepción</span>
+        <div class="perfil-usuario">
+            <div class="info-usuario-texto flat">
+                <span><strong>{{ session.get('nombre_completo', 'Recepcionista') }}</strong> | Recepción</span>
             </div>
+        </div>
             <button class="btn-cerrar" onclick="cerrarSesion()">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </button>
@@ -76,29 +76,26 @@
             <div class="grid-kpis">
                 <div class="tarjeta-kpi">
                     <div class="info-kpi">
-                        <span>Pacientes Activos</span>
-                        <strong>12</strong>
-                        <span class="tendencia positiva"><i class="fa-solid fa-arrow-trend-up"></i> +2% sobre el promedio</span>
+                        <span>Citas Totales (Hoy)</span>
+                        <strong>{{ kpis[2] if kpis else 0 }}</strong>
                     </div>
-                    <div class="icono-kpi azul"><i class="fa-solid fa-hospital-user"></i></div>
+                    <div class="icono-kpi azul"><i class="fa-regular fa-calendar-check"></i></div>
                 </div>
                 
                 <div class="tarjeta-kpi">
                     <div class="info-kpi">
                         <span>Pacientes en Espera</span>
-                        <strong>8</strong>
-                        <span class="tendencia neutra"><i class="fa-regular fa-hourglass-half"></i> Espera prom: 14m</span>
+                        <strong>{{ kpis[1] if kpis else 0 }}</strong>
                     </div>
                     <div class="icono-kpi naranja"><i class="fa-solid fa-users"></i></div>
                 </div>
 
                 <div class="tarjeta-kpi">
                     <div class="info-kpi">
-                        <span>Citas Totales (Hoy)</span>
-                        <strong>45</strong>
-                        <span class="tendencia negativa"><i class="fa-solid fa-arrow-trend-down"></i> -3% vs ayer</span>
+                        <span>Pacientes Atendidos</span>
+                        <strong>{{ kpis[0] if kpis else 0 }}</strong>
                     </div>
-                    <div class="icono-kpi verde"><i class="fa-regular fa-calendar-check"></i></div>
+                    <div class="icono-kpi verde"><i class="fa-solid fa-check-double"></i></div>
                 </div>
             </div>
 
@@ -123,42 +120,32 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for cita in agenda %}
                             <tr>
                                 <td>
                                     <div class="paciente-info">
-                                        <div class="avatar-letra" style="background: var(--azul-claro); color: var(--azul-principal);">JM</div>
-                                        <span>James Miller</span>
+                                        <div class="avatar-letra" style="background: var(--azul-claro); color: var(--azul-principal);">{{ cita.iniciales }}</div>
+                                        <span>{{ cita.nombre_paciente }}</span>
                                     </div>
                                 </td>
-                                <td class="texto-secundario">Dr. Roberto Sánchez</td>
-                                <td><strong>10:30 AM</strong></td>
-                                <td><span class="badge badge-verde">LLEGÓ</span></td>
-                                <td><button class="btn-opciones"><i class="fa-solid fa-ellipsis"></i></button></td>
-                            </tr>
-                            <tr>
+                                <td class="texto-secundario">Dr. {{ cita.nombre_doctor }}</td>
+                                <td><strong>{{ cita.hora_cita }}</strong></td>
                                 <td>
-                                    <div class="paciente-info">
-                                        <div class="avatar-letra" style="background: #f3e8ff; color: #9333ea;">EL</div>
-                                        <span>Emily Logan</span>
-                                    </div>
+                                    {% if cita.Diagnostico %}
+                                        <span class="badge badge-verde">ATENDIDO</span>
+                                    {% elif cita.Estatus == 0 %}
+                                        <span class="badge" style="background: #fee2e2; color: #991b1b;">CANCELADA</span>
+                                    {% else %}
+                                        <span class="badge badge-naranja">EN ESPERA</span>
+                                    {% endif %}
                                 </td>
-                                <td class="texto-secundario">Dra. Sarah Smith</td>
-                                <td><strong>11:15 AM</strong></td>
-                                <td><span class="badge badge-naranja">EN ESPERA</span></td>
                                 <td><button class="btn-opciones"><i class="fa-solid fa-ellipsis"></i></button></td>
                             </tr>
+                            {% else %}
                             <tr>
-                                <td>
-                                    <div class="paciente-info">
-                                        <div class="avatar-letra" style="background: #fce7f3; color: #db2777;">KA</div>
-                                        <span>Kevin Adams</span>
-                                    </div>
-                                </td>
-                                <td class="texto-secundario">Dra. Lisa Wong</td>
-                                <td><strong>11:45 AM</strong></td>
-                                <td><span class="badge badge-gris">PROGRAMADA</span></td>
-                                <td><button class="btn-opciones"><i class="fa-solid fa-ellipsis"></i></button></td>
+                                <td colspan="5" style="text-align: center; color: var(--texto-gris);">No hay citas agendadas para el día de hoy.</td>
                             </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -166,34 +153,34 @@
                 <!-- COLUMNA LATERAL (ACCIONES Y ESTADÍSTICAS) -->
                 <div class="col-lateral">
                     <div class="tarjeta-panel">
-    <h3 style="margin-bottom: 20px;">Acciones Rápidas</h3>
-    <div class="grid-acciones">
-        <a href="/auth/registro-empleado/paciente" class="btn-accion-cuadro">
-            <i class="fa-solid fa-user-plus"></i>
-            <span>ALTA PACIENTE</span>
-        </a>
-        <a href="/auth/registro-empleado/doctor" class="btn-accion-cuadro">
-            <i class="fa-solid fa-user-doctor"></i>
-            <span>ALTA DOCTOR</span>
-        </a>
-        <a href="/auth/registro-empleado/recepcionista" class="btn-accion-cuadro">
-            <i class="fa-solid fa-user-nurse"></i>
-            <span>ALTA RECEP.</span>
-        </a>
-        <a href="agendarCita.html" class="btn-accion-cuadro">
-            <i class="fa-solid fa-calendar-plus"></i>
-            <span>AGENDAR CITA</span>
-        </a>
-        <a href="checkin.html" class="btn-accion-cuadro">
-            <i class="fa-solid fa-clipboard-check"></i>
-            <span>CHECK-IN</span>
-        </a>
-        <a href="cancelarCita.html" class="btn-accion-cuadro">
-            <i class="fa-solid fa-calendar-xmark"></i>
-            <span>CANCELAR CITA</span>
-        </a>
-    </div>
-</div>
+                        <h3 style="margin-bottom: 20px;">Acciones Rápidas</h3>
+                        <div class="grid-acciones">
+                            <a href="/auth/registro-empleado/paciente" class="btn-accion-cuadro">
+                                <i class="fa-solid fa-user-plus"></i>
+                                <span>ALTA PACIENTE</span>
+                            </a>
+                            <a href="/auth/registro-empleado/doctor" class="btn-accion-cuadro">
+                                <i class="fa-solid fa-user-doctor"></i>
+                                <span>ALTA DOCTOR</span>
+                            </a>
+                            <a href="/auth/registro-empleado/recepcionista" class="btn-accion-cuadro">
+                                <i class="fa-solid fa-user-nurse"></i>
+                                <span>ALTA RECEP.</span>
+                            </a>
+                            <a href="agendarCita.html" class="btn-accion-cuadro">
+                                <i class="fa-solid fa-calendar-plus"></i>
+                                <span>AGENDAR CITA</span>
+                            </a>
+                            <a href="checkin.html" class="btn-accion-cuadro">
+                                <i class="fa-solid fa-clipboard-check"></i>
+                                <span>CHECK-IN</span>
+                            </a>
+                            <a href="cancelarCita.html" class="btn-accion-cuadro">
+                                <i class="fa-solid fa-calendar-xmark"></i>
+                                <span>CANCELAR CITA</span>
+                            </a>
+                        </div>
+                    </div>
 
                     <div class="tarjeta-panel oscura">
                         <h3>Ocupación en Clínica</h3>

@@ -32,7 +32,7 @@
 
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Ana Martínez</strong> | Recepción</span>
+                <span><strong>{{ session.get('nombre_completo', 'Recepcionista') }}</strong> | Recepción</span>
             </div>
         </div>
     </nav>
@@ -97,121 +97,71 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- BLOQUE 07:00 AM - 08:00 AM (Apenas va a llegar) -->
-                        <tr>
+                        {% for cita in citas %}
+                        <tr {% if cita.estatus == 'Cancelada' %}style="background-color: #f8fafc; opacity: 0.7;"{% endif %}>
                             <td>
                                 <div style="display: flex; flex-direction: column;">
-                                    <strong style="color: var(--texto-oscuro); font-size: 1.05rem;">07:00 AM</strong>
-                                    <span style="color: var(--texto-gris); font-size: 0.8rem; font-weight: 600;">a 08:00 AM</span>
+                                    {% if cita.estatus == 'Cancelada' %}
+                                        <strong style="color: var(--texto-gris); font-size: 1.05rem; text-decoration: line-through;">{{ cita.hora_inicio }}</strong>
+                                        <span style="color: var(--texto-gris); font-size: 0.8rem; font-weight: 600; text-decoration: line-through;">a {{ cita.hora_fin }}</span>
+                                    {% else %}
+                                        <strong style="color: var(--texto-oscuro); font-size: 1.05rem;">{{ cita.hora_inicio }}</strong>
+                                        <span style="color: var(--texto-gris); font-size: 0.8rem; font-weight: 600;">a {{ cita.hora_fin }}</span>
+                                    {% endif %}
                                 </div>
                             </td>
                             <td>
                                 <div class="info-paciente-tabla">
-                                    <strong>Carlos Mendoza Soto</strong>
-                                    <span>Folio: P-10294</span>
+                                    <strong>{{ cita.paciente }}</strong>
+                                    <span>Folio: P-{{ cita.id_cita }}</span>
                                 </div>
                             </td>
                             <td>
                                 <div class="info-doctor-tabla">
-                                    <strong>Dr. Roberto Sánchez</strong>
-                                    <span>Cardiología</span>
+                                    <strong>{{ cita.doctor }}</strong>
+                                    <span>{{ cita.especialidad }}</span>
                                 </div>
                             </td>
-                            <td><span class="status-badge badge-gris">PROGRAMADA</span></td>
                             <td>
-                                <!-- NUEVO BOTÓN DE CHECK-IN -->
-                                <div style="display: flex; gap: 8px;">
-                                    <a href="checkin.html" class="btn-checkin">
-                                        <i class="fa-solid fa-clipboard-user"></i> Check-in
+                                {% if cita.estatus == 'Programada' %}
+                                    <span class="status-badge badge-gris">PROGRAMADA</span>
+                                {% elif cita.estatus == 'En Espera' %}
+                                    <span class="status-badge badge-naranja">EN ESPERA</span>
+                                {% elif cita.estatus == 'En Consulta' %}
+                                    <span class="status-badge badge-verde">EN CONSULTA</span>
+                                {% elif cita.estatus == 'Cancelada' %}
+                                    <span class="status-badge" style="background: #fee2e2; color: #991b1b;">CANCELADA</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cita.estatus == 'Programada' %}
+                                    <div style="display: flex; gap: 8px;">
+                                        <a href="/recepcion/checkin/{{ cita.id_cita }}" class="btn-checkin">
+                                            <i class="fa-solid fa-clipboard-user"></i> Check-in
+                                        </a>
+                                        <a href="/citas/cancelar/{{ cita.id_cita }}" class="btn-cancelar-cita" style="text-decoration: none;">
+                                            <i class="fa-solid fa-ban"></i>
+                                        </a>
+                                    </div>
+                                {% elif cita.estatus == 'En Espera' %}
+                                    <a href="/citas/cancelar/{{ cita.id_cita }}" class="btn-cancelar-cita" style="text-decoration: none;">
+                                        <i class="fa-solid fa-ban"></i> Cancelar
                                     </a>
-                                    <a href="cancelarCita.html" class="btn-cancelar-cita" style="text-decoration: none;">
-                                        <i class="fa-solid fa-ban"></i>
-                                    </a>
-                                </div>
+                                {% elif cita.estatus == 'En Consulta' %}
+                                    <span style="color: var(--texto-gris); font-size: 0.85rem; font-style: italic;">Sin acciones</span>
+                                {% elif cita.estatus == 'Cancelada' %}
+                                    <span style="color: var(--rojo-alerta); font-size: 0.8rem; font-weight: 700;">Cancelada en sistema</span>
+                                {% endif %}
                             </td>
                         </tr>
-
-                        <!-- BLOQUE 08:00 AM - 09:00 AM (Ya hizo check-in, está esperando) -->
+                        {% else %}
                         <tr>
-                            <td>
-                                <div style="display: flex; flex-direction: column;">
-                                    <strong style="color: var(--texto-oscuro); font-size: 1.05rem;">08:00 AM</strong>
-                                    <span style="color: var(--texto-gris); font-size: 0.8rem; font-weight: 600;">a 09:00 AM</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="info-paciente-tabla">
-                                    <strong>Lucía Fernández Gómez</strong>
-                                    <span>Folio: P-09821</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="info-doctor-tabla">
-                                    <strong>Dra. Laura Gómez</strong>
-                                    <span>Dermatología</span>
-                                </div>
-                            </td>
-                            <td><span class="status-badge badge-naranja">EN ESPERA</span></td>
-                            <td>
-                                <!-- Como ya está en espera, solo queda la opción de cancelar si algo sale mal -->
-                                <a href="cancelarCita.html" class="btn-cancelar-cita" style="text-decoration: none;">
-                                    <i class="fa-solid fa-ban"></i> Cancelar
-                                </a>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: var(--texto-gris);">
+                                <i class="fa-regular fa-calendar-xmark" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                No hay citas registradas para este día.
                             </td>
                         </tr>
-
-                        <!-- BLOQUE 09:00 AM - 10:00 AM (Ya pasó con el doc) -->
-                        <tr>
-                            <td>
-                                <div style="display: flex; flex-direction: column;">
-                                    <strong style="color: var(--texto-oscuro); font-size: 1.05rem;">09:00 AM</strong>
-                                    <span style="color: var(--texto-gris); font-size: 0.8rem; font-weight: 600;">a 10:00 AM</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="info-paciente-tabla">
-                                    <strong>Santiago Ruiz Pérez</strong>
-                                    <span>Folio: P-11203</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="info-doctor-tabla">
-                                    <strong>Dra. Mariana Casos</strong>
-                                    <span>Pediatría</span>
-                                </div>
-                            </td>
-                            <td><span class="status-badge badge-verde">EN CONSULTA</span></td>
-                            <td>
-                                <span style="color: var(--texto-gris); font-size: 0.85rem; font-style: italic;">Sin acciones</span>
-                            </td>
-                        </tr>
-
-                        <!-- BLOQUE 10:00 AM - 11:00 AM (Cancelada) -->
-                        <tr style="background-color: #f8fafc; opacity: 0.7;">
-                            <td>
-                                <div style="display: flex; flex-direction: column;">
-                                    <strong style="color: var(--texto-gris); font-size: 1.05rem; text-decoration: line-through;">10:00 AM</strong>
-                                    <span style="color: var(--texto-gris); font-size: 0.8rem; font-weight: 600; text-decoration: line-through;">a 11:00 AM</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="info-paciente-tabla">
-                                    <strong>Miguel Ángel Torres</strong>
-                                    <span>Folio: P-08372</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="info-doctor-tabla">
-                                    <strong>Dr. Roberto Sánchez</strong>
-                                    <span>Cardiología</span>
-                                </div>
-                            </td>
-                            <td><span class="status-badge" style="background: #fee2e2; color: #991b1b;">CANCELADA</span></td>
-                            <td>
-                                <span style="color: var(--rojo-alerta); font-size: 0.8rem; font-weight: 700;">Canceló: Doctor</span>
-                            </td>
-                        </tr>
-
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

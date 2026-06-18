@@ -32,7 +32,7 @@
 
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Ana Martínez</strong> | Recepción</span>
+                <span><strong>{{ session.get('nombre_completo', 'Recepcionista') }}</strong> | Recepción</span>
             </div>
         </div>
     </nav>
@@ -62,8 +62,8 @@
                     <div class="avatar-grande" style="background-color: #f1f5f9; color: #94a3b8; border-color: #f8fafc;">
                         <i class="fa-solid fa-user"></i>
                     </div>
-                    <h2 class="nombre-doctor-perfil">Juan Pérez Gómez</h2>
-                    <span class="id-paciente" style="margin-bottom: 15px; font-size: 1rem;">#PAC-1021</span>
+                    <h2>{{ paciente.Nombre }} {{ paciente.Apellido_Paterno }} {{ paciente.Apellido_Materno or '' }}</h2>
+                    <p class="texto-gris" style="margin-top: 15px; font-weight: 600;">ID Paciente: #PAC-{{ paciente.Id_paciente }}</p>
                     
                     <div class="status-actual">
                         <span class="status-badge" style="font-size: 0.8rem; background-color: #d1fae5; color: #065f46;">CUENTA ACTIVA</span>
@@ -74,24 +74,16 @@
                     <ul class="info-contacto-lista">
                         <li>
                             <div class="icono-lista"><i class="fa-solid fa-phone"></i></div>
-                            <div class="textos-lista">
-                                <span>Teléfono Móvil</span>
-                                <strong>55-1234-5678</strong>
-                            </div>
+                            <div><span>Teléfono</span><strong>{{ paciente.Telefono or 'No registrado' }}</strong></div>
                         </li>
                         <li>
                             <div class="icono-lista"><i class="fa-regular fa-envelope"></i></div>
-                            <div class="textos-lista">
-                                <span>Correo Electrónico</span>
-                                <strong>jperez89@email.com</strong>
-                            </div>
+                            <div><span>Correo</span><strong>{{ paciente.Correo or 'No registrado' }}</strong></div>
                         </li>
                         <li>
                             <div class="icono-lista" style="background-color: #fef2f2; color: #ef4444;"><i class="fa-solid fa-truck-medical"></i></div>
                             <div class="textos-lista">
-                                <span style="color: #ef4444;">Contacto de Emergencia</span>
-                                <strong>María Gómez (Madre)</strong>
-                                <strong>55-8765-4321</strong>
+                            <div><span>Edad y Tipo Sangre</span><strong>{{ paciente.Edad }} años | {{ paciente.Tipo_sangre or 'NR' }}</strong></div>
                             </div>
                         </li>
                     </ul>
@@ -138,22 +130,26 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {% for cita in historial %}
                                     <tr>
                                         <td>
-                                            <strong style="color: var(--texto-oscuro); display: block;">12 Mar 2026</strong>
-                                            <span style="color: var(--texto-gris); font-size: 0.85rem;">10:00 AM</span>
+                                            <strong style="color: var(--texto-oscuro); display: block;">{{ cita.Fecha_cita }}</strong>
+                                            <span style="color: var(--texto-gris); font-size: 0.85rem;">{{ cita.hora_cita }}</span>
                                         </td>
-                                        <td>Dr. Roberto Sánchez<br><span style="color: var(--texto-gris); font-size: 0.8rem;">Cardiología</span></td>
-                                        <td><span class="status-badge" style="background: #e2e8f0; color: #475569;">FINALIZADA (PAGADA)</span></td>
-                                    </tr>
-                                    <tr>
+                                        <td>{{ cita.Doctor }}<br><span style="color: var(--texto-gris); font-size: 0.8rem;">{{ cita.Especialidad }}</span></td>
                                         <td>
-                                            <strong style="color: var(--texto-oscuro); display: block;">05 Feb 2026</strong>
-                                            <span style="color: var(--texto-gris); font-size: 0.85rem;">09:00 AM</span>
+                                            {% if cita.Estatus == 0 %}
+                                                <span class="status-badge" style="background: #fee2e2; color: #991b1b;">CANCELADA</span>
+                                            {% else %}
+                                                <span class="status-badge" style="background: #e2e8f0; color: #475569;">{{ cita.Estatus_pago or 'PENDIENTE' }}</span>
+                                            {% endif %}
                                         </td>
-                                        <td>Dr. Carlos Rivera<br><span style="color: var(--texto-gris); font-size: 0.8rem;">Medicina General</span></td>
-                                        <td><span class="status-badge" style="background: #e2e8f0; color: #475569;">FINALIZADA (PAGADA)</span></td>
                                     </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" style="text-align: center;">Este paciente no tiene historial de citas.</td>
+                                    </tr>
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>
