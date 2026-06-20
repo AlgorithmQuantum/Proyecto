@@ -72,6 +72,9 @@
                             <a href="/doctor/expediente/{{ p.Id_paciente }}" class="btn-accion-tabla" title="Abrir Expediente Médico">
                                 <i class="fa-solid fa-folder-open"></i>
                             </a>
+                            <button onclick="abrirBitacora('{{ p.Id_paciente }}')" class="btn-accion-tabla" style="background: #e0f2fe; color: #0284c7; margin-left: 5px;" title="Ver Bitácora de Citas">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </button>
                         </td>
                     </tr>
                     {% else %}
@@ -85,5 +88,61 @@
             </table>
         </div>
     </main>
+    <div id="modal-bitacora" class="oculto" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center;">
+        <div style="background: white; width: 90%; max-width: 800px; border-radius: 10px; padding: 20px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="color: var(--texto-oscuro);"><i class="fa-solid fa-clock-rotate-left"></i> Bitácora de Movimientos del Paciente</h3>
+                <button onclick="document.getElementById('modal-bitacora').style.display='none'" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <table class="tabla-datos" style="width: 100%; text-align: left; border-collapse: collapse;">
+                <thead style="background: #f1f5f9;">
+                    <tr>
+                        <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">Fecha Movimiento</th>
+                        <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">Folio Cita</th>
+                        <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">Estatus Cita</th>
+                        <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">Costo</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-bitacora">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    async function abrirBitacora(idPaciente) {
+        const modal = document.getElementById('modal-bitacora');
+        const tbody = document.getElementById('cuerpo-bitacora');
+        modal.style.display = 'flex';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">Cargando bitácora...</td></tr>';
+
+        try {
+            const res = await fetch(`/doctor/api/paciente/bitacora?paciente=${idPaciente}`);
+            const datos = await res.json();
+
+            if (!res.ok) throw new Error(datos.error);
+            if (datos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">No hay movimientos registrados para este paciente.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            datos.forEach(b => {
+                const color = b.Estatus_Cita.includes('Cancelada') ? '#ef4444' : '#10b981';
+                tbody.innerHTML += `
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 10px; font-size: 0.9em; color: #64748b;">${b.Fecha_Movimiento}</td>
+                        <td style="padding: 10px;"><b>#${b.Folio_Cita}</b><br><small>${b.Fecha_cita}</small></td>
+                        <td style="padding: 10px; color: ${color}; font-weight: bold;">${b.Estatus_Cita}</td>
+                        <td style="padding: 10px;">$${b.Costo}</td>
+                    </tr>
+                `;
+            });
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color: red;">Error: ${err.message}</td></tr>`;
+        }
+    }
+</script>
 </body>
 </html>

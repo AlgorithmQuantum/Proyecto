@@ -71,9 +71,24 @@
             <section class="tarjeta-expediente">
                 <h3 class="titulo-seccion-expediente"><i class="fa-solid fa-weight-scale"></i> Somatometría y Signos</h3>
                 <div class="grid-somatometria">
-                    <div class="dato-bloque-medico"><label>Tipo de Sangre</label><div class="valor-destacado rojo">{{ paciente.Tipo_sangre or '--' }}</div></div>
-                    <div class="dato-bloque-medico"><label>Peso Actual</label><div class="valor-destacado">{{ paciente.Peso or '--' }} kg</div></div>
-                    <div class="dato-bloque-medico"><label>Estatura</label><div class="valor-destacado">{{ paciente.Estatura or '--' }} m</div></div>
+                    <div class="dato-bloque-medico">
+                        <label>Tipo de Sangre</label>
+                        <div class="valor-destacado rojo">{{ paciente.Tipo_sangre or '--' }}</div>
+                    </div>
+                    <div class="dato-bloque-medico">
+                        <label>Peso Actual</label>
+                        <div class="valor-destacado">{{ paciente.Peso or '--' }} kg</div>
+                    </div>
+                    <div class="dato-bloque-medico">
+                        <label>Estatura</label>
+                        <div class="valor-destacado">{{ paciente.Estatura or '--' }} m</div>
+                    </div>
+                    <div class="dato-bloque-medico" style="grid-column: span 3;">
+                        <label>Alergias Conocidas</label>
+                        <div class="valor-destacado" style="background: #fee2e2; color: #991b1b; font-size: 1rem; border: 1px solid #fca5a5;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> {{ paciente.Alergias or 'Ninguna registrada en el sistema' }}
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>

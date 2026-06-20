@@ -161,6 +161,68 @@
             </aside>
 
         </div>
+        <section style="margin-top: 40px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <h3 style="color: var(--texto-oscuro); margin-bottom: 15px;"><i class="fa-solid fa-file-prescription"></i> Consultar Recetas Emitidas</h3>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="buscador-recetas" placeholder="Buscar por Folio (Ej: 12) o Fecha (YYYY-MM-DD)" style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                <button onclick="cargarMisRecetas()" class="btn-guardar-ajustes" style="width: auto;"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                        <tr>
+                            <th style="padding: 12px;">Folio</th>
+                            <th style="padding: 12px;">Fecha</th>
+                            <th style="padding: 12px;">Paciente</th>
+                            <th style="padding: 12px;">Diagnóstico</th>
+                            <th style="padding: 12px;">Medicamentos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-recetas-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <script>
+        async function cargarMisRecetas() {
+            const busqueda = document.getElementById('buscador-recetas').value;
+            const tbody = document.getElementById('tabla-recetas-body');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">Buscando recetas...</td></tr>';
+
+            try {
+                const res = await fetch(`/doctor/api/mis-recetas?busqueda=${busqueda}`);
+                const recetas = await res.json();
+
+                if (!res.ok) throw new Error(recetas.error);
+
+                tbody.innerHTML = '';
+                if (recetas.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">No se encontraron recetas con ese criterio.</td></tr>';
+                    return;
+                }
+
+                recetas.forEach(r => {
+                    tbody.innerHTML += `
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 12px;"><b>#${r.Num_Receta}</b></td>
+                            <td style="padding: 12px; font-size: 0.9em;">${r.Fecha}</td>
+                            <td style="padding: 12px;">${r.Nombre_Paciente}</td>
+                            <td style="padding: 12px; color: #475569;">${r.Diagnostico}</td>
+                            <td style="padding: 12px; font-size: 0.85em;">${r.Medicamentos || 'Ninguno'}</td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center; padding:20px;">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        // Cargar todas las recetas automáticamente al entrar a la página
+        document.addEventListener('DOMContentLoaded', cargarMisRecetas);
+        </script>
     </main>
 
     <!-- SCRIPT DE LA LÓGICA DE LA RECETA -->

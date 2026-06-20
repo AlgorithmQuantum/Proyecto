@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, session, request, redirect
+from flask import Blueprint, render_template, session, request, redirect, jsonify
 from utils.decorador import login_requerido, rol_requerido
 from database.db import get_coneccion
+import pyodbc
 from datetime import datetime, timedelta
 
 doctor_bp = Blueprint("doctor", __name__, url_prefix="/doctor")
@@ -150,6 +151,142 @@ def crearReceta(id_cita):
 
     return render_template("doctor/recetasDoctor.html", cita=cita_info, nombre_completo=session.get("nombre_completo"))
 
+
+@doctor_bp.route("/api/receta/generar", methods=["POST"])
+@login_requerido
+@rol_requerido("Doctor")
+def generar_receta():
+    data = request.json
+    id_cita = data.get("id_cita")
+    diagnostico = data.get("diagnostico")
+    tratamiento = data.get("tratamiento")
+    indicaciones = data.get("indicaciones")
+    medicamentos = data.get("medicamentos", []) # Lista de diccionarios
+    
+    try:
+        with get_coneccion() as conn:
+            cursor = conn.cursor()
+
+            # 1. Validar la fecha de la cita y que no tenga receta ya
+            cursor.execute("""
+                SELECT c.Fecha_cita, c.Id_paciente, c.Id_doctor, c.Id_receta 
+                FROM CITA c WHERE c.Id_cita = ?
+            """, id_cita)
+            cita = cursor.fetchone()
+
+            if not cita:
+                return jsonify({"error": "Cita no encontrada"}), 404
+            if cita[3] is not None:
+                return jsonify({"error": "Esta cita ya fue atendida (ya cuenta con receta)."}), 400
+            
+            # Validación de fecha estricta pedida en la rúbrica
+            if str(cita[0]) != datetime.now().strftime("%Y-%m-%d"):
+                return jsonify({"error": "Solo se pueden generar recetas el día exacto de la cita médica."}), 400
+
+            id_paciente, id_doctor = cita[1], cita[2]
+
+            # 2. Generar la Receta
+            cursor.execute("""
+                INSERT INTO RECETA (Id_paciente, Id_doctor, Fecha, Diagnostico, Tratamiento, Indicaciones)
+                OUTPUT INSERTED.Id_receta
+                VALUES (?, ?, GETDATE(), ?, ?, ?)
+            """, id_paciente, id_doctor, diagnostico, tratamiento, indicaciones)
+            id_receta = cursor.fetchone()[0]
+
+            # 3. Insertar Medicamentos
+            for med in medicamentos:
+                cursor.execute("""
+                    INSERT INTO RECETA_MEDICINA (Id_receta, Id_medicamento, Dosis, Frecuencia, Indicaciones, Cantidad)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, id_receta, med["id_medicamento"], med["dosis"], med["frecuencia"], med["indicaciones"], med.get("cantidad", 1))
+
+            # 4. MARCAR COMO ATENDIDA (Asignando la receta a la cita)
+            cursor.execute("UPDATE CITA SET Id_receta = ? WHERE Id_cita = ?", id_receta, id_cita)
+            
+            conn.commit()
+            
+        return jsonify({"mensaje": "Receta generada y cita marcada como ATENDIDA.", "id_receta": id_receta}), 201
+
+    except pyodbc.Error as e:
+        return jsonify({"error": str(e)}), 500
+
+@doctor_bp.route("/api/paciente/bitacora", methods=["GET"])
+@login_requerido
+@rol_requerido("Doctor")
+def bitacora_paciente():
+    parametro = request.args.get("paciente", "")
+    id_empleado = session.get("id_entidad")
+
+    try:
+        with get_coneccion() as conn:
+            cursor = conn.cursor()
+            
+            # Buscamos en la tabla BITACORA_CITA haciendo joins con CITA, PACIENTE y ESPECIALIDAD
+            cursor.execute("""
+                SELECT 
+                    b.Id_bitacora,
+                    b.Fecha_cambio AS Fecha_Movimiento,
+                    c.Id_cita AS Folio_Cita,
+                    c.Fecha_cita,
+                    CASE WHEN b.Estatus_cita = 1 THEN 'Activa/Atendida' ELSE 'Cancelada/No Acudió' END AS Estatus_Cita,
+                    e.Nombre + ' ' + e.Apellido_Paterno AS Nombre_Doctor,
+                    esp.Nombre AS Especialidad,
+                    esp.Costo_Consulta AS Costo,
+                    p.Nombre + ' ' + p.Apellido_Paterno AS Nombre_Paciente,
+                    ISNULL(r.Diagnostico, 'Sin diagnóstico') AS Diagnostico
+                FROM BITACORA_CITA b
+                JOIN CITA c ON b.Id_cita = c.Id_cita
+                JOIN DOCTOR d ON c.Id_doctor = d.Id_doctor
+                JOIN EMPLEADO e ON d.Id_empleado = e.Id_empleado
+                JOIN ESPECIALIDAD esp ON d.Id_especialidad = esp.Id_especialidad
+                JOIN PACIENTE p ON c.Id_paciente = p.Id_paciente
+                LEFT JOIN RECETA r ON c.Id_receta = r.Id_receta
+                WHERE d.Id_empleado = ? AND 
+                      (CAST(p.Id_paciente AS VARCHAR) = ? OR p.Nombre LIKE '%' + ? + '%')
+                ORDER BY b.Fecha_cambio DESC
+            """, id_empleado, parametro, parametro)
+            
+            columnas = [column[0] for column in cursor.description]
+            bitacora = [dict(zip(columnas, fila)) for fila in cursor.fetchall()]
+
+        return jsonify(bitacora), 200
+
+    except pyodbc.Error as err:
+        return jsonify({"error": str(err)}), 500
+
+@doctor_bp.route("/api/paciente/<int:id_paciente>/historial-medico", methods=["GET"])
+@login_requerido
+@rol_requerido("Doctor")
+def ver_historial_medico(id_paciente):
+    try:
+        with get_coneccion() as conn:
+            cursor = conn.cursor()
+            # Esta consulta llama directamente a la vista VW_Historial_Medico que ya tienes en tu SQL
+            cursor.execute("""
+                SELECT 
+                    Nombre, 
+                    Apellido_Paterno, 
+                    Tipo_sangre, 
+                    Estatura, 
+                    Peso, 
+                    Edad, 
+                    Alergias 
+                FROM VW_Historial_Medico 
+                WHERE Id_paciente = ?
+            """, id_paciente)
+            
+            fila = cursor.fetchone()
+            if not fila:
+                return jsonify({"error": "No se encontró historial para este paciente"}), 404
+                
+            columnas = [column[0] for column in cursor.description]
+            historial = dict(zip(columnas, fila))
+
+        return jsonify(historial), 200
+
+    except pyodbc.Error as err:
+        return jsonify({"error": str(err)}), 500
+
 # ── 5. PERFIL, LABORATORIO Y AJUSTES ─────────────────────────────────────────
 @doctor_bp.route("/perfil")
 @login_requerido
@@ -201,3 +338,54 @@ def laboratorio():
 def ajustes():
     # Renderizado estático adaptado para pasar el nombre de sesión
     return render_template("doctor/ajustesDoctor.html", nombre_completo=session.get("nombre_completo"))
+
+@doctor_bp.route("/api/mis-recetas", methods=["GET"])
+@login_requerido
+@rol_requerido("Doctor")
+def obtener_recetas_doctor():
+    # Parámetros de búsqueda permitidos por la rúbrica
+    busqueda = request.args.get("busqueda", "")
+    id_empleado = session.get("id_entidad")
+
+    try:
+        with get_coneccion() as conn:
+            cursor = conn.cursor()
+            
+            query = """
+                SELECT 
+                    r.Id_receta AS Num_Receta,
+                    r.Fecha,
+                    p.Nombre + ' ' + p.Apellido_Paterno AS Nombre_Paciente,
+                    e.Nombre + ' ' + e.Apellido_Paterno AS Nombre_Medico,
+                    r.Diagnostico,
+                    r.Tratamiento,
+                    r.Indicaciones AS Observaciones,
+                    -- Subconsulta para agrupar medicamentos en un solo string
+                    STUFF((SELECT ', ' + m.Nombre + ' (' + rm.Frecuencia + ')' 
+                           FROM RECETA_MEDICINA rm 
+                           JOIN MEDICAMENTO m ON rm.Id_medicamento = m.Id_medicamento 
+                           WHERE rm.Id_receta = r.Id_receta 
+                           FOR XML PATH('')), 1, 2, '') AS Medicamentos
+                FROM RECETA r
+                JOIN DOCTOR d ON r.Id_doctor = d.Id_doctor
+                JOIN EMPLEADO e ON d.Id_empleado = e.Id_empleado
+                JOIN PACIENTE p ON r.Id_paciente = p.Id_paciente
+                WHERE d.Id_empleado = ?
+            """
+            
+            # Filtro dinámico si el usuario busca por fecha o número de receta
+            parametros = [id_empleado]
+            if busqueda:
+                query += " AND (CAST(r.Id_receta AS VARCHAR) = ? OR CAST(r.Fecha AS VARCHAR) = ?)"
+                parametros.extend([busqueda, busqueda])
+                
+            query += " ORDER BY r.Fecha DESC"
+            
+            cursor.execute(query, parametros)
+            columnas = [column[0] for column in cursor.description]
+            recetas = [dict(zip(columnas, fila)) for fila in cursor.fetchall()]
+
+        return jsonify(recetas), 200
+
+    except pyodbc.Error as err:
+        return jsonify({"error": str(err)}), 500

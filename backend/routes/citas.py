@@ -320,13 +320,21 @@ def agendar_cita():
             if not id_paciente:
                 return jsonify({"error": "Paciente no encontrado"}), 404
 
-            # Consultorio del doctor
+            # 1. Validar que el paciente no tenga citas pendientes
             cursor.execute("""
                 SELECT 1 FROM CITA 
                 WHERE Id_paciente = ? AND Estatus = 1 AND Id_receta IS NULL
             """, id_paciente)
             if cursor.fetchone():
                 return jsonify({"error": "Ya tienes una cita agendada pendiente. Debes concluirla o cancelarla antes de reservar otra."}), 409
+            
+            # 2. Obtener el consultorio del doctor (¡ESTA ES LA CONSULTA QUE FALTABA!)
+            cursor.execute("""
+                SELECT TOP 1 Id_consultorio 
+                FROM CONSULTORIO 
+                WHERE Id_Doctor = ?
+            """, id_doctor)
+            
             con = cursor.fetchone()
             if not con:
                 return jsonify({"error": "El doctor no tiene consultorio asignado"}), 400
@@ -334,7 +342,7 @@ def agendar_cita():
 
             hora_fin = (datetime.strptime(hora, "%H:%M") + timedelta(minutes=30)).strftime("%H:%M")
 
-            # Validar traslape server-side
+            # 3. Validar traslape server-side
             cursor.execute("""
                 SELECT COUNT(*) FROM CITA
                 WHERE Id_doctor = ? AND Fecha_cita = ? AND Estatus = 1
@@ -343,8 +351,7 @@ def agendar_cita():
             if cursor.fetchone()[0] > 0:
                 return jsonify({"error": "El horario ya no está disponible. Elige otro."}), 409
 
-            fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
-
+            # 4. Ejecutar el procedimiento almacenado
             cursor.execute("""
                 EXEC sp_CrearCita
                     @Id_paciente    = ?,
@@ -355,10 +362,13 @@ def agendar_cita():
                     @Hora_Fin       = ?
             """, id_paciente, id_doctor, id_consultorio, fecha, hora, hora_fin)
 
+            # Confirmar la transacción
             conn.commit()
 
+            # 5. Obtener el ID de la cita recién creada
             cursor.execute("SELECT @@IDENTITY")
-            id_cita = int(cursor.fetchone()[0])
+            row_id = cursor.fetchone()
+            id_cita = int(row_id[0]) if row_id and row_id[0] else None
 
         return jsonify({
             "mensaje": "Cita agendada exitosamente",
@@ -377,7 +387,7 @@ def agendar_cita():
         return jsonify({"error": error_limpio}), 400
 
 
-# ── API: Mis citas (lista para citasPaciente.html) ────────────────────────────
+# ── API: Mis citas ────────────────────────────
 
 @citas_bp.route("/mis-citas", methods=["GET"])
 @login_required

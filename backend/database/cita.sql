@@ -155,6 +155,40 @@ BEGIN
 END;
 GO
 
+CREATE OR ALTER PROCEDURE sp_ActualizarCitasExpiradas
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Si la fecha ya pasó y el doctor nunca le asignó una receta,
+    -- desactivamos el estatus de la cita (Estatus = 0) para marcar que expiró.
+    UPDATE CITA
+    SET Estatus = 0
+    WHERE Fecha_cita < CAST(GETDATE() AS DATE)
+      AND Estatus = 1
+      AND Id_receta IS NULL;
+
+    PRINT 'Citas vencidas actualizadas a (No acudió) correctamente.';
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_ActualizarCitasExpiradas
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Si la fecha ya pasó y el doctor nunca le asignó una receta,
+    -- desactivamos el estatus de la cita (Estatus = 0) para marcar que expiró.
+    UPDATE CITA
+    SET Estatus = 0
+    WHERE Fecha_cita < CAST(GETDATE() AS DATE)
+      AND Estatus = 1
+      AND Id_receta IS NULL;
+
+    PRINT 'Citas vencidas actualizadas a (No acudió) correctamente.';
+END;
+GO
+
 -- ============================================================
 -- FUNCIONES DEL SISTEMA
 -- ============================================================
