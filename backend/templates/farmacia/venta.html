@@ -23,12 +23,12 @@
             <li><a href="/farmacia/validacion">Validar Receta</a></li>
             <li class="activo"><a href="/farmacia/ventas">Venta</a></li>
             <li><a href="/farmacia/historialVentas">Historial</a></li>
-            <li><a href="/farmacia/proveedores">Provedores</a></li>
+            <li><a href="/farmacia/proveedores">Proveedores</a></li>
         </ul>
 
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Elena Rivas</strong> | Farmacéutico </span>
+                <span><strong>{{ session.get('nombre_completo', 'Farmacéutico') }}</strong> | Farmacéutico </span>
             </div>
         </div>
     </nav>
@@ -64,42 +64,6 @@
                             </tr>
                         </thead>
                         <tbody id="catalogo-productos">
-                            <tr class="fila-producto">
-                                <td><strong>Paracetamol 500mg</strong><br><span style="font-size: 11px; color: #64748b;">Stock: 120 u.</span></td>
-                                <td>$25.00</td>
-                                <td><span class="badge badge-verde">LIBRE</span></td>
-                                <td><button class="btn-agregar" onclick="agregarAlCarrito('Paracetamol 500mg', 25.00)"><i class="fa-solid fa-plus"></i> Añadir</button></td>
-                            </tr>
-                            <tr class="fila-producto">
-                                <td><strong>Ibuprofeno 400mg</strong><br><span style="font-size: 11px; color: #64748b;">Stock: 85 u.</span></td>
-                                <td>$35.50</td>
-                                <td><span class="badge badge-verde">LIBRE</span></td>
-                                <td><button class="btn-agregar" onclick="agregarAlCarrito('Ibuprofeno 400mg', 35.50)"><i class="fa-solid fa-plus"></i> Añadir</button></td>
-                            </tr>
-                            <tr class="fila-producto">
-                                <td><strong>Omeprazol 20mg</strong><br><span style="font-size: 11px; color: #64748b;">Stock: 95 u.</span></td>
-                                <td>$40.00</td>
-                                <td><span class="badge badge-verde">LIBRE</span></td>
-                                <td><button class="btn-agregar" onclick="agregarAlCarrito('Omeprazol 20mg', 40.00)"><i class="fa-solid fa-plus"></i> Añadir</button></td>
-                            </tr>
-                            <tr class="fila-producto">
-                                <td><strong>Amoxicilina 500mg</strong><br><span style="font-size: 11px; color: #64748b;">Stock: 30 u.</span></td>
-                                <td>$70.00</td>
-                                <td><span class="badge badge-roja">RECETA</span></td>
-                                <td><button class="btn-agregar" onclick="agregarAlCarrito('Amoxicilina 500mg', 70.00, true)"><i class="fa-solid fa-plus"></i> Añadir</button></td>
-                            </tr>
-                            <tr class="fila-producto">
-                                <td><strong>Clonazepam 2mg</strong><br><span style="font-size: 11px; color: #64748b;">Stock: 8 u.</span></td>
-                                <td>$200.00</td>
-                                <td><span class="badge badge-roja">RECETA</span></td>
-                                <td><button class="btn-agregar" onclick="agregarAlCarrito('Clonazepam 2mg', 200.00, true)"><i class="fa-solid fa-plus"></i> Añadir</button></td>
-                            </tr>
-                            <tr class="fila-producto">
-                                <td><strong>Electrolitos Orales (Fresa)</strong><br><span style="font-size: 11px; color: #64748b;">Stock: 45 u.</span></td>
-                                <td>$22.00</td>
-                                <td><span class="badge badge-verde">LIBRE</span></td>
-                                <td><button class="btn-agregar" onclick="agregarAlCarrito('Electrolitos Orales', 22.00)"><i class="fa-solid fa-plus"></i> Añadir</button></td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -233,6 +197,38 @@
             document.getElementById('buscador-productos').value = '';
             filtrarCatalogo();
         }
+
+        async function cargarCatalogoVenta() {
+        const catalogo = document.getElementById('catalogo-productos');
+        catalogo.innerHTML = '<tr><td colspan="4" style="text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando inventario...</td></tr>';
+        
+        try {
+            const res = await fetch('/farmacia/api/inventario');
+            const datos = await res.json();
+            catalogo.innerHTML = '';
+            
+            datos.forEach(m => {
+                if (m.Stock > 0) { // Mostrar solo si hay inventario
+                    const badge = m.Requiere_Receta ? '<span class="badge badge-roja">RECETA</span>' : '<span class="badge badge-verde">LIBRE</span>';
+                    
+                    catalogo.innerHTML += `
+                        <tr class="fila-producto">
+                            <td><strong>${m.Nombre}</strong><br><span style="font-size: 11px; color: #64748b;">Stock: ${m.Stock} u.</span></td>
+                            <td>$${m.Precio.toFixed(2)}</td>
+                            <td>${badge}</td>
+                            <td>
+                                <button class="btn-agregar" onclick="agregarAlCarrito('${m.Nombre}', ${m.Precio}, ${m.Requiere_Receta})">
+                                    <i class="fa-solid fa-plus"></i> Añadir
+                                </button>
+                            </td>
+                        </tr>`;
+                }
+            });
+        } catch (error) { console.error(error); }
+    }
+    
+    // Añade el llamado a la función cuando inicie la página
+    document.addEventListener('DOMContentLoaded', cargarCatalogoVenta);
     </script>
 </body>
 </html>

@@ -21,33 +21,17 @@
     </div>
         
     <nav class="navegacion-principal">
-
-        <a href="/dashboard" class="item-menu activo">
-            <i class="fa-solid fa-user-nurse"></i> Inicio
-        </a>
-
-        <a href="/farmacia/validacion" class="item-menu">
-            <i class="fa-solid fa-file-prescription"></i> Validación Recetas
-        </a>
-
-        <a href="/farmacia/ventas" class="item-menu">
-            <i class="fa-solid fa-truck"></i> Venta
-        </a>
-
-        <a href="/farmacia/historialVentas" class="item-menu">
-            <i class="fa-solid fa-clock-rotate-left"></i> Historial    
-        </a>
-
-        <a href="/farmacia/proveedores" class="item-menu">
-            <i class="fa-solid fa-truck-ramp-box"></i> Proveedores
-        </a>
-            
+        <a href="/dashboard" class="item-menu activo"><i class="fa-solid fa-user-nurse"></i> Inicio</a>
+        <a href="/farmacia/validacion" class="item-menu"><i class="fa-solid fa-file-prescription"></i> Validación Recetas</a>
+        <a href="/farmacia/ventas" class="item-menu"><i class="fa-solid fa-truck"></i> Venta</a>
+        <a href="/farmacia/historialVentas" class="item-menu"><i class="fa-solid fa-clock-rotate-left"></i> Historial</a>
+        <a href="/farmacia/proveedores" class="item-menu"><i class="fa-solid fa-truck-ramp-box"></i> Proveedores</a>
         <div class="separador"></div>
     </nav>
 
     <div class="perfil-usuario-inferior">
         <div class="info-user">
-            <strong>Elena Rivas</strong>
+            <strong>{{ session.get('nombre_completo', 'Farmacéutico') }}</strong>
             <span>Farmacéutico</span>
         </div>
         <button class="btn-cerrar" onclick="cerrarSesion()">
@@ -84,14 +68,8 @@
                             <th>ESTADO</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr><td>Paracetamol 500mg</td><td>Analgésico / Fiebre</td><td>120 u.</td><td><span class="badge badge-verde">LIBRE</span></td></tr>
-                        <tr><td>Ibuprofeno 400mg</td><td>Antiinflamatorio</td><td>85 u.</td><td><span class="badge badge-verde">LIBRE</span></td></tr>
-                        <tr><td>Loratadina 10mg</td><td>Antihistamínico</td><td>40 u.</td><td><span class="badge badge-verde">LIBRE</span></td></tr>
-                        <tr><td>Naproxeno 550mg</td><td>Dolor Muscular</td><td>62 u.</td><td><span class="badge badge-verde">LIBRE</span></td></tr>
-                        <tr><td>Omeprazol 20mg</td><td>Protector Gástrico</td><td>95 u.</td><td><span class="badge badge-verde">LIBRE</span></td></tr>
-                        <tr><td>Ambrosol Jarabe</td><td>Expectorante</td><td>18 u.</td><td><span class="badge badge-verde">LIBRE</span></td></tr>
-                        <tr><td>Salbutamol</td><td>Inhalador Asma</td><td>12 u.</td><td><span class="badge badge-naranja">OPCIONAL</span></td></tr>
+                    <tbody id="tabla-libre-body">
+
                     </tbody>
                 </table>
             </section>
@@ -109,15 +87,8 @@
                             <th>RECETA</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr><td>Amoxicilina 500mg</td><td>Antibiótico</td><td>30 u.</td><td><span class="badge badge-roja">REQUERIDA</span></td></tr>
-                        <tr><td>Ciprofloxacino 500mg</td><td>Infecciones Bacterianas</td><td>25 u.</td><td><span class="badge badge-roja">REQUERIDA</span></td></tr>
-                        <tr><td>Tramadol 50mg</td><td>Analgésico Fuerte</td><td>15 u.</td><td><span class="badge badge-roja">REQUERIDA</span></td></tr>
-                        <tr><td>Clonazepam 2mg</td><td>Ansiolítico</td><td>8 u.</td><td><span class="badge badge-roja">CONTROLADO</span></td></tr>
-                        <tr><td>Diazepam 10mg</td><td>Relajante / Sedante</td><td>5 u.</td><td><span class="badge badge-roja">CONTROLADO</span></td></tr>
-                        <tr><td>Insulina Glargina</td><td>Diabetes</td><td>22 u.</td><td><span class="badge badge-roja">REQUERIDA</span></td></tr>
-                        <tr><td>Metformina 850mg</td><td>Control Glucosa</td><td>54 u.</td><td><span class="badge badge-roja">REQUERIDA</span></td></tr>
-                        <tr><td>Gabapentina 300mg</td><td>Dolor Neuropático</td><td>14 u.</td><td><span class="badge badge-roja">REQUERIDA</span></td></tr>
+                    <tbody id="tabla-controlados-body">
+
                     </tbody>
                 </table>
             </section>
@@ -151,5 +122,49 @@
         </div>
     </main>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script>
+        async function cargarInventarioDashboard() {
+            const bodyLibre = document.getElementById('tabla-libre-body');
+            const bodyControlados = document.getElementById('tabla-controlados-body');
+            
+            bodyLibre.innerHTML = '<tr><td colspan="4" style="text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
+            bodyControlados.innerHTML = '<tr><td colspan="4" style="text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
+            
+            try {
+                const res = await fetch('/farmacia/api/inventario');
+                const datos = await res.json();
+                
+                bodyLibre.innerHTML = '';
+                bodyControlados.innerHTML = '';
+                
+                datos.forEach(m => {
+                    const stockBadge = m.Stock < 15 ? `<span style="color:var(--rojo); font-weight:bold;">${m.Stock} u.</span>` : `${m.Stock} u.`;
+                    const concentracionText = m.Concentracion ? ` <span class="txt-gris">(${m.Concentracion})</span>` : '';
+                    
+                    if (m.Requiere_Receta) {
+                        bodyControlados.innerHTML += `
+                            <tr>
+                                <td><strong>${m.Nombre}</strong>${concentracionText}</td>
+                                <td>${m.Categoria}</td>
+                                <td>${stockBadge}</td>
+                                <td><span class="badge badge-roja">REQUERIDA</span></td>
+                            </tr>`;
+                    } else {
+                        bodyLibre.innerHTML += `
+                            <tr>
+                                <td><strong>${m.Nombre}</strong>${concentracionText}</td>
+                                <td>${m.Categoria}</td>
+                                <td>${stockBadge}</td>
+                                <td><span class="badge badge-verde">LIBRE</span></td>
+                            </tr>`;
+                    }
+                });
+            } catch (error) { 
+                bodyLibre.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">Error de conexión</td></tr>`;
+                bodyControlados.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">Error de conexión</td></tr>`;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', cargarInventarioDashboard);
+    </script>
 </body>
 </html>

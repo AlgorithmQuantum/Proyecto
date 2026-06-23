@@ -23,13 +23,13 @@
             <li><a href="/dashboard">Inicio</a></li>
             <li class="activo"><a href="/farmacia/validacion">Validar Receta</a></li>
             <li><a href="/farmacia/ventas">Venta</a></li>
-            <li><a href="/farmacia/historialVentas">Historial </a></li>
-            <li><a href="/farmacia/proveedores">Provedores</a></li>
+            <li><a href="/farmacia/historialVentas">Historial</a></li>
+            <li><a href="/farmacia/proveedores">Proveedores</a></li>
         </ul>
 
         <div class="perfil-usuario">
             <div class="info-usuario-texto flat">
-                <span><strong>Elena Rivas</strong> | Farmacéutico</span>
+                <span><strong>{{ session.get('nombre_completo', 'Farmacéutico') }}</strong> | Farmacéutico </span>
             </div>
         </div>
         
