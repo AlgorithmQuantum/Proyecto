@@ -81,12 +81,22 @@
                         </div>
                         <p><strong>Dr. {{ cita.nombre_doctor }}</strong></p>
                         
-                        <div class="etiquetas-registro">
+                    <div class="etiquetas-registro">
                             {% if cita.Estatus == 1 %}
-                                <span class="tag tag-ok"><i class="fa-solid fa-check-circle"></i> Atendida</span>
+                                {% if cita.Pago_Estatus == 1 %}
+                                    <span class="tag tag-ok" style="background-color: #d1fae5; color: #059669; border-color: #059669;">
+                                        <i class="fa-solid fa-check-double"></i> Pagada, por atender
+                                    </span>
+                                {% else %}
+                                    <span class="tag tag-alerta" style="background-color: #fef3c7; color: #d97706; border-color: #d97706;">
+                                        <i class="fa-solid fa-money-bill"></i> Por Pagar
+                                    </span>
+                                {% endif %}
+
                                 {% if cita.Id_receta %}
                                     <span class="tag tag-receta"><i class="fa-solid fa-file-prescription"></i> Con Receta</span>
                                 {% endif %}
+                                
                             {% else %}
                                 <span class="tag tag-error"><i class="fa-solid fa-circle-xmark"></i> Cancelada</span>
                             {% endif %}

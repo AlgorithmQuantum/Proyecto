@@ -16,7 +16,7 @@
             <strong>Centro Médico<br>R.A.S.A</strong>
         </div>
         <ul class="menu-principal">
-            <li><a href="/dashboard">Panel</a></li>
+            <li><a href="/paciente/dashboard">Panel</a></li>
             <li class="activo"><a href="/paciente/citas">Citas</a></li>
             <li><a href="/paciente/historial">Historial</a></li>
         </ul>
@@ -27,7 +27,6 @@
         </div>
     </nav>
 
-    <!-- Skeleton -->
     <main class="contenedor-principal" id="skeleton-detalles">
         <div style="text-align:center;padding:80px 20px;color:#64748b;">
             <i class="fa-solid fa-spinner fa-spin" style="font-size:2.5rem;margin-bottom:16px;display:block;"></i>
@@ -35,7 +34,6 @@
         </div>
     </main>
 
-    <!-- Contenido real -->
     <main class="contenedor-principal oculto" id="contenido-detalles">
         <div class="columna-izquierda" style="flex:100%;max-width:800px;margin:0 auto;">
 
@@ -106,11 +104,12 @@
                         </div>
                         <div style="text-align:right;">
                             <span class="etiqueta-dato">ESTADO DE PAGO</span>
-                            <p class="valor-dato" style="font-size:1rem;" id="det-pago">—</p>
+                            <span id="tag-pago-detalle" class="tag" style="background-color: #e2e8f0; color: #64748b; border-color: #cbd5e1; display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 4px;">
+                                <i class="fa-solid fa-spinner fa-spin"></i> Verificando...
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Diagnóstico / Tratamiento (solo si existe) -->
                     <div id="det-bloque-diagnostico" class="oculto" style="margin-top:20px;">
                         <div class="caja-instrucciones">
                             <strong><i class="fa-solid fa-notes-medical"></i> Diagnóstico:</strong>
@@ -135,23 +134,29 @@
                     <i class="fa-solid fa-arrow-left"></i> Volver a Citas
                 </a>
                 <div class="botones-derecha" id="det-botones-accion">
-                    <!-- Se rellenan dinámicamente -->
-                </div>
+                    </div>
             </div>
 
         </div>
     </main>
     <div id="paginaData" data-id-cita="{{ id_cita }}" hidden></div>
+    
     <script>
-    // Flask inyecta el id desde la URL /citas/detalles/<id_cita>
+    // Flask inyecta el id desde la URL
     const ID_CITA = parseInt(document.getElementById('paginaData').dataset.idCita);
 
     function fmt12h(hhmm) {
-        if (!hhmm) return '—';
-        const [h, m] = hhmm.split(':').map(Number);
+        if (!hhmm || hhmm === 'Sin definir' || hhmm === 'None' || hhmm === 'Por definir') {
+            return 'Por definir';
+        }
+        const parts = hhmm.split(':');
+        const h = parseInt(parts[0]);
+        if (isNaN(h)) return hhmm;
+        
+        const m = parts[1] ? parts[1].replace(/[^0-9]/g, '') : '00';
         const ampm = h >= 12 ? 'PM' : 'AM';
         const h12  = h > 12 ? h - 12 : h === 0 ? 12 : h;
-        return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+        return `${h12}:${m.padStart(2, '0')} ${ampm}`;
     }
 
     function formatearFecha(isoStr) {
@@ -161,8 +166,10 @@
 
     async function cargarDetalles() {
         try {
-            const res = await fetch(`/citas/${ID_CITA}`, {
-                headers: { 'Accept': 'application/json' }
+            // Se actualizó la ruta para que apunte correctamente a la API
+            const res = await fetch(`/paciente/api/citas/${ID_CITA}`, {
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-store'
             });
             const d = await res.json();
             if (!res.ok) throw new Error(d.error || 'Error al cargar los detalles');
@@ -190,19 +197,22 @@
             // Paciente
             document.getElementById('det-paciente').textContent = d.paciente.nombre_completo;
 
-            // Pago
-            const pagoEl = document.getElementById('det-pago');
-            if (d.pago.estatus === 'Pagado') {
-                pagoEl.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--verde-exito);"></i>
-                    Pagado ($${Number(d.pago.monto).toLocaleString('es-MX')} MXN)`;
-                pagoEl.style.color = 'var(--verde-exito)';
+            // Pago Dinámico
+            const tagPago = document.getElementById('tag-pago-detalle');
+            if (d.pago && d.pago.estatus === 'Pagado') {
+                tagPago.innerHTML = '<i class="fa-solid fa-check-double"></i> Pagada';
+                tagPago.style.backgroundColor = '#d1fae5';
+                tagPago.style.color = '#059669';
+                tagPago.style.borderColor = '#059669';
             } else {
-                pagoEl.innerHTML = `<i class="fa-solid fa-clock" style="color:#f59e0b;"></i> Pendiente en caja`;
-                pagoEl.style.color = '#f59e0b';
+                tagPago.innerHTML = '<i class="fa-solid fa-money-bill"></i> Por Pagar';
+                tagPago.style.backgroundColor = '#fef3c7';
+                tagPago.style.color = '#d97706';
+                tagPago.style.borderColor = '#d97706';
             }
 
             // Diagnóstico (solo si existe)
-            if (d.diagnostico) {
+            if (d.diagnostico && d.diagnostico !== "Por determinar" && d.diagnostico !== "Por determinar en la consulta") {
                 document.getElementById('det-diagnostico').textContent = d.diagnostico;
                 document.getElementById('det-bloque-diagnostico').classList.remove('oculto');
             }
@@ -210,11 +220,12 @@
             // Botones de acción según estatus
             const botonesDiv = document.getElementById('det-botones-accion');
             if (d.estatus === 'Activa') {
+                // Se actualizaron las rutas para que apunten a /paciente/
                 botonesDiv.innerHTML = `
-                    <a href="/citas/comprobante/${ID_CITA}" class="btn-contorno">
+                    <a href="/paciente/comprobante/${ID_CITA}" class="btn-contorno">
                         <i class="fa-solid fa-file-pdf"></i> Ver Comprobante
                     </a>
-                    <a href="/citas/cancelar/${ID_CITA}" class="btn-peligro-contorno">
+                    <a href="/paciente/cancelacion/${ID_CITA}" class="btn-peligro-contorno">
                         Cancelar Cita
                     </a>`;
             } else {

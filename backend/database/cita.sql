@@ -35,6 +35,9 @@ GO
 -- ============================================================
 -- Procedimiento: Agendar cita
 -- ============================================================
+USE CentroMedicoRASA;
+GO
+
 CREATE OR ALTER PROCEDURE sp_CrearCita
     @Id_paciente        INT,
     @Id_doctor          INT,
@@ -58,10 +61,10 @@ BEGIN
         RETURN;
     END
 
-    -- [VALIDACIÓN PREVIA EXISTENTE] Ventana de 48 horas
-    IF DATEDIFF(HOUR, @Ahora, @FechaHora) < 48
+    -- [NUEVO] Cambio de 48 horas exactas a "Mínimo al día siguiente (24 hrs lógicas)"
+    IF DATEDIFF(DAY, CAST(@Ahora AS DATE), @Fecha_cita) < 1
     BEGIN
-        RAISERROR('La cita debe agendarse con al menos 48 horas de anticipación.', 16, 2);
+        RAISERROR('La cita debe agendarse al menos para el día de mañana.', 16, 2);
         RETURN;
     END
 
@@ -155,23 +158,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_ActualizarCitasExpiradas
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Si la fecha ya pasó y el doctor nunca le asignó una receta,
-    -- desactivamos el estatus de la cita (Estatus = 0) para marcar que expiró.
-    UPDATE CITA
-    SET Estatus = 0
-    WHERE Fecha_cita < CAST(GETDATE() AS DATE)
-      AND Estatus = 1
-      AND Id_receta IS NULL;
-
-    PRINT 'Citas vencidas actualizadas a (No acudió) correctamente.';
-END;
-GO
-
+-- ============================================================
+-- Procedimiento: Actualizar citas expiradas 
+-- ============================================================
 CREATE OR ALTER PROCEDURE sp_ActualizarCitasExpiradas
 AS
 BEGIN
@@ -194,9 +183,9 @@ GO
 -- ============================================================
 
 --========================================================
---Funcion:Calcula el total usando la cantidad y el costo real del servicio.
+--Funcion: Calcula el total usando la cantidad y el costo real del servicio.
 --========================================================
-CREATE FUNCTION FN_TotalServicios
+CREATE OR ALTER FUNCTION FN_TotalServicios
 (
     @IdCita INT
 )
@@ -216,12 +205,10 @@ BEGIN
 END;
 GO
 
-SELECT dbo.FN_TotalServicios(1) AS TotalServicios;
-
 --========================================================
 --Funcion: Obtiene la cantidad total de medicamentos prescritos en una receta.
 --========================================================
-CREATE FUNCTION FN_TotalMedicamentosReceta
+CREATE OR ALTER FUNCTION FN_TotalMedicamentosReceta
 (
     @IdReceta INT
 )
@@ -239,12 +226,10 @@ BEGIN
 END;
 GO
 
-SELECT dbo.FN_TotalMedicamentosReceta(1) AS TotalMedicamentos;
-
 --========================================================
 --Funcion: Cuenta cuántos pacientes diferentes ha atendido un doctor mediante las citas activas.
 --========================================================
-CREATE FUNCTION FN_PacientesAtendidosDoctor
+CREATE OR ALTER FUNCTION FN_PacientesAtendidosDoctor
 (
     @IdDoctor INT
 )
@@ -263,7 +248,21 @@ BEGIN
 END;
 GO
 
+-- ============================================================
+-- PRUEBAS DE FUNCIONES (AHORA CORRECTAMENTE SEPARADAS)
+-- ============================================================
+
+-- Prueba de FN_TotalServicios
+SELECT dbo.FN_TotalServicios(1) AS TotalServicios;
+GO
+
+-- Prueba de FN_TotalMedicamentosReceta
+SELECT dbo.FN_TotalMedicamentosReceta(1) AS TotalMedicamentos;
+GO
+
+-- Prueba de FN_PacientesAtendidosDoctor
 SELECT dbo.FN_PacientesAtendidosDoctor(2) AS PacientesAtendidos;
+GO
 
 -- ============================================================
 -- VISTAS DEL SISTEMA

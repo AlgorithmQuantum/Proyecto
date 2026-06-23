@@ -41,7 +41,8 @@ def dashboard():
         cursor.execute("""
             SELECT TOP 5 c.Id_cita, c.Fecha_cita, c.hora_cita, c.Hora_Fin, c.Estatus,
                          e.Nombre + ' ' + e.Apellido_Paterno AS nombre_doctor,
-                         esp.Nombre AS specialty, con.Numero AS consultorio
+                         esp.Nombre AS specialty, con.Numero AS consultorio,
+                         ISNULL((SELECT TOP 1 Estatus FROM PAGO p WHERE p.Id_cita = c.Id_cita), 0) AS Pago_Estatus
             FROM CITA c
             JOIN DOCTOR d ON c.Id_doctor = d.Id_doctor
             JOIN EMPLEADO e ON d.Id_empleado = e.Id_empleado
@@ -86,15 +87,17 @@ def historial():
     with get_coneccion() as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT c.Id_cita, c.Fecha_cita, c.hora_cita, c.Estatus, c.Id_receta,
-                   e.Nombre + ' ' + e.Apellido_Paterno AS nombre_doctor,
-                   esp.Nombre AS especialidad
+            SELECT TOP 5 c.Id_cita, c.Fecha_cita, c.hora_cita, c.Hora_Fin, c.Estatus,
+                         e.Nombre + ' ' + e.Apellido_Paterno AS nombre_doctor,
+                         esp.Nombre AS specialty, con.Numero AS consultorio,
+                         ISNULL((SELECT TOP 1 Estatus FROM PAGO p WHERE p.Id_cita = c.Id_cita), 0) AS Pago_Estatus
             FROM CITA c
             JOIN DOCTOR d ON c.Id_doctor = d.Id_doctor
             JOIN EMPLEADO e ON d.Id_empleado = e.Id_empleado
             JOIN ESPECIALIDAD esp ON d.Id_especialidad = esp.Id_especialidad
-            WHERE c.Id_paciente = ?
-            ORDER BY c.Fecha_cita DESC, c.hora_cita DESC
+            LEFT JOIN CONSULTORIO con ON c.Id_consultorio = con.Id_consultorio
+            WHERE c.Id_paciente = ? AND c.Estatus = 1 AND c.Fecha_cita >= CAST(GETDATE() AS DATE)
+            ORDER BY c.Fecha_cita, c.hora_cita
         """, id_paciente)
         historial_citas = cursor.fetchall()
     return render_template("paciente/historialPaciente.html", historial=historial_citas)
@@ -252,39 +255,78 @@ def api_agendar():
 @paciente_bp.route("/api/citas/<int:id_cita>")
 @login_requerido
 def api_citas_detalles(id_cita):
-    with get_coneccion() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT c.Id_cita, c.Fecha_cita, c.hora_cita, c.Hora_Fin, c.Estatus, c.Diagnostico,
-                   e.Nombre + ' ' + e.Apellido_Paterno AS doctor_nombre, esp.Nombre AS especialidad, esp.Costo_Consulta,
-                   con.Piso, con.Numero, p.Nombre + ' ' + p.Apellido_Paterno AS paciente_nombre
-            FROM CITA c
-            JOIN DOCTOR d ON c.Id_doctor = d.Id_doctor
-            JOIN EMPLEADO e ON d.Id_empleado = e.Id_empleado
-            JOIN ESPECIALIDAD esp ON d.Id_especialidad = esp.Id_especialidad
-            LEFT JOIN CONSULTORIO con ON c.Id_consultorio = con.Id_consultorio
-            JOIN PACIENTE p ON c.Id_paciente = p.Id_paciente
-            WHERE c.Id_cita = ?
-        """, id_cita)
-        r = cursor.fetchone()
+    # Obtenemos quién es el paciente logueado actualmente
+    id_paciente_actual = session.get("id_entidad")
+    
+    try:
+        with get_coneccion() as conn:
+            cursor = conn.cursor()
+            # Traemos la información, incluyendo el c.Id_paciente para validar
+            cursor.execute("""
+                SELECT c.Id_cita, c.Fecha_cita, c.hora_cita, c.Hora_Fin, c.Estatus,
+                       e.Nombre + ' ' + e.Apellido_Paterno AS doctor_nombre, esp.Nombre AS especialidad, esp.Costo_Consulta,
+                       con.Piso, con.Numero, p.Nombre + ' ' + p.Apellido_Paterno AS paciente_nombre,
+                       c.Id_paciente
+                FROM CITA c
+                JOIN DOCTOR d ON c.Id_doctor = d.Id_doctor
+                JOIN EMPLEADO e ON d.Id_empleado = e.Id_empleado
+                JOIN ESPECIALIDAD esp ON d.Id_especialidad = esp.Id_especialidad
+                LEFT JOIN CONSULTORIO con ON c.Id_consultorio = con.Id_consultorio
+                JOIN PACIENTE p ON c.Id_paciente = p.Id_paciente
+                WHERE c.Id_cita = ?
+            """, id_cita)
+            r = cursor.fetchone()
 
-        if not r:
-            return jsonify({"error": "Cita no encontrada"}), 404
+            if not r:
+                return jsonify({"error": "Cita no encontrada"}), 404
+            
+            # Si el ID del paciente de la cita no es el mismo que el logueado, lo bloqueamos
+            if r[11] != id_paciente_actual:
+                return jsonify({"error": "Acceso denegado. Este comprobante pertenece a otro paciente."}), 403
 
-    # Mapeo idéntico a las necesidades de tu frontend JS
-    datos = {
-        "folio": f"CIT-{r[0]}",
-        "estatus": "Activa" if r[4] == 1 else "Cancelada",
-        "fecha": str(r[1]),
-        "hora_inicio": str(r[2])[:5],
-        "hora_fin": str(r[3])[:5],
-        "diagnostico": r[5],
-        "doctor": {"nombre_completo": r[6], "especialidad": r[7], "costo_consulta": float(r[8])},
-        "consultorio": {"piso": r[9] if r[9] is not None else "PB", "numero": r[10] if r[10] is not None else "S/N"},
-        "paciente": {"nombre_completo": r[11]},
-        "pago": {"estatus": "Pendiente", "monto": float(r[8])} # Ajustar según tu tabla de pagos si existe
-    }
-    return jsonify(datos)
+        # Función interna rápida para asegurar que la hora vaya limpia hacia el frontend
+        def limpiar_hora(hora_sql):
+            if not hora_sql: return "Sin definir"
+            hora_str = str(hora_sql)
+            if hora_str == "None": return "Sin definir"
+            
+            # Cortamos estrictamente los primeros 5 caracteres (Ej. '09:00:00' -> '09:00')
+            partes = hora_str.split(':')
+            if len(partes) >= 2:
+                return f"{partes[0].zfill(2)}:{partes[1]}"
+            return hora_str
+        
+        # Consultamos si existe un registro en la tabla PAGO para esta cita
+        cursor.execute("SELECT Estatus FROM PAGO WHERE Id_cita = ?", id_cita)
+        pago_db = cursor.fetchone()
+        
+        # Como en BD es un bit (1 o 0), lo traducimos para que el frontend lo entienda
+        if pago_db and pago_db[0] == 1:
+            estatus_del_pago = "Pagado"
+        else:
+            estatus_del_pago = "Pendiente"
+
+        # Tu diccionario modificado
+        datos = {
+            "id_cita": r[0],
+            "folio": f"CIT-{r[0]}",
+            "estatus": "Activa" if r[4] == 1 else "Cancelada",
+            "fecha": str(r[1]),
+            "hora_inicio": limpiar_hora(r[2]),
+            "hora_fin": limpiar_hora(r[3]),
+            "diagnostico": "Por determinar", 
+            "doctor": {"nombre_completo": r[5], "especialidad": r[6], "costo_consulta": float(r[7])},
+            "consultorio": {"piso": r[8] if r[8] is not None else "PB", "numero": r[9] if r[9] is not None else "S/N"},
+            "paciente": {"nombre_completo": r[10]},
+            "pago": {
+                "estatus": estatus_del_pago, # <--- Enviará "Pagado" o "Pendiente" al Frontend
+                "monto": float(r[7])
+            }
+        }
+        return jsonify(datos)
+        
+    except Exception as e:
+        return jsonify({"error": f"Error interno en la base de datos: {str(e)}"}), 500
 
 
 @paciente_bp.route("/api/citas/<int:id_cita>/reembolso")
@@ -347,3 +389,38 @@ def api_cancelar_procesar(id_cita):
         "porcentaje": reem_datos.get("porcentaje"),
         "status": "success"
     })
+
+@paciente_bp.route("/api/citas/<int:id_cita>/pagar", methods=["POST"])
+@login_requerido
+def api_pagar_cita(id_cita):
+    try:
+        with get_coneccion() as conn:
+            cursor = conn.cursor()
+            
+            # 1. Verificamos si ya está pagada para evitar pagos dobles
+            cursor.execute("SELECT Id_pago FROM PAGO WHERE Id_cita = ?", id_cita)
+            if cursor.fetchone():
+                return jsonify({"mensaje": "La cita ya se encuentra pagada"}), 200
+
+            # 2. Obtenemos el costo de la consulta
+            cursor.execute("""
+                SELECT esp.Costo_Consulta 
+                FROM CITA c
+                JOIN DOCTOR d ON c.Id_doctor = d.Id_doctor
+                JOIN ESPECIALIDAD esp ON d.Id_especialidad = esp.Id_especialidad
+                WHERE c.Id_cita = ?
+            """, id_cita)
+            row = cursor.fetchone()
+            monto = float(row[0]) if row else 0.0
+
+            # 3. Insertamos el registro. OJO: Mandamos 1 al campo Estatus (BIT)
+            cursor.execute("""
+                INSERT INTO PAGO (Fecha_pago, Monto, Linea_pago, Estatus, Id_cita)
+                VALUES (GETDATE(), ?, 'PAGO-ONLINE', 1, ?)
+            """, (monto, id_cita))
+            
+            conn.commit()
+            
+        return jsonify({"status": "success", "mensaje": "Pago registrado en BD"})
+    except Exception as e:
+        return jsonify({"error": f"Error al registrar pago: {str(e)}"}), 500

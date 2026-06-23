@@ -192,35 +192,48 @@ function formatearFecha(isoStr) {
 }
 
 function fmt12h(hhmm) {
-    if (!hhmm) return '—';
+    // 1. Filtro de seguridad: Si viene nulo, vacío o con textos de error, regresamos un estado limpio.
+    if (!hhmm || hhmm === 'Sin definir' || hhmm === 'None') {
+        return 'Por definir';
+    }
+    
     const parts = hhmm.split(':');
     const h = parseInt(parts[0]);
-    const m = parts[1] || '00';
+    
+    // 2. Si a pesar del filtro, 'h' no es un número válido, evitamos el 'NaN' mostrando el texto original.
+    if (isNaN(h)) return hhmm; 
+    
+    // 3. Limpiamos cualquier carácter extraño (como comas o espacios) que pueda venir pegado a los minutos.
+    const m = parts[1] ? parts[1].replace(/[^0-9]/g, '') : '00';
     const ampm = h >= 12 ? 'PM' : 'AM';
     const h12  = h > 12 ? h - 12 : h === 0 ? 12 : h;
-    return `${h12}:${m} ${ampm}`;
+    
+    return `${h12}:${m.padStart(2, '0')} ${ampm}`;
 }
 
 async function cargarComprobante() {
     try {
-        const res  = await fetch(`/citas/comprobante/${ID_CITA}/datos`, {
-            headers: { 'Accept': 'application/json' }
+        const res  = await fetch(`/paciente/api/citas/${ID_CITA}`, {
+            headers: { 'Accept': 'application/json' },
+            cache: 'no-store' 
         });
+        
         const d = await res.json();
+        
         if (!res.ok) throw new Error(d.error || 'Error al cargar comprobante');
 
-        // Rellenar todos los campos
+        // Rellenar todos los campos (CORREGIDO: quitamos d.cita y usamos d directo)
         document.getElementById('comp-folio').textContent          = d.folio;
         document.getElementById('comp-paciente-nombre').textContent = d.paciente.nombre_completo;
         document.getElementById('comp-paciente-id').textContent    = `P-${String(d.id_cita).padStart(8,'0')}`;
-        document.getElementById('comp-fecha').textContent          = formatearFecha(d.cita.fecha);
-        document.getElementById('comp-horario').textContent        = `${fmt12h(d.cita.hora_inicio)} — ${fmt12h(d.cita.hora_fin)}`;
+        document.getElementById('comp-fecha').textContent          = formatearFecha(d.fecha);
+        document.getElementById('comp-horario').textContent        = `${fmt12h(d.hora_inicio)} — ${fmt12h(d.hora_fin)}`;
         document.getElementById('comp-doctor').textContent         = d.doctor.nombre_completo;
         document.getElementById('comp-especialidad').textContent   = d.doctor.especialidad;
         document.getElementById('comp-consultorio').textContent    = `Piso ${d.consultorio.piso}, Consultorio ${d.consultorio.numero}`;
         document.getElementById('comp-monto').textContent          = `$${Number(d.doctor.costo_consulta).toLocaleString('es-MX')} MXN`;
         document.getElementById('comp-fecha-generacion').textContent = d.fecha_generacion || new Date().toLocaleDateString('es-MX');
-        document.getElementById('comp-codigo-barras').textContent  = d.codigo_barras;
+        document.getElementById('comp-codigo-barras').textContent  = d.folio; // Ajustado para usar el folio como código de barras
 
         // Estado de pago y control del botón
         const estadoEl = document.getElementById('comp-estado-pago');
@@ -229,8 +242,9 @@ async function cargarComprobante() {
         if (d.pago && d.pago.estatus === 'Pagado') {
             estadoEl.className = 'estado-pago-completado';
             estadoEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> PAGO COMPLETADO';
+            if(btnPago) btnPago.style.display = 'none';
         } else {
-            // Si no está pagado, mostramos el botón de pago (si existe en el HTML)
+            // Si no está pagado, mostramos el botón de pago
             if(btnPago) btnPago.style.display = 'inline-block';
         }
 
@@ -249,7 +263,7 @@ async function cargarComprobante() {
     }
 }
 
-function simularPago() {
+async function simularPago() {
     const btn = document.getElementById('btn-simular-pago');
     const estadoEl = document.getElementById('comp-estado-pago');
 
@@ -258,22 +272,35 @@ function simularPago() {
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
     btn.style.opacity = '0.7';
 
-    // 2. Simular un retraso de red de 2 segundos
-    setTimeout(() => {
-        // 3. Actualizar la interfaz para mostrar pago exitoso
+    try {
+        // 2. Hacer la petición POST real a Flask/SQL Server
+        const res = await fetch(`/paciente/api/citas/${ID_CITA}/pagar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        // 3. Actualizar la interfaz solo si la BD respondió con éxito
         estadoEl.className = 'estado-pago-completado';
-        // Agregamos un estilo en línea verde por si no tienes la clase definida en tu CSS
         estadoEl.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #10b981;"></i> <span style="color: #10b981; font-weight: bold;">PAGO COMPLETADO</span>';
 
-        // 4. Cambiar el botón a estado de éxito y ocultarlo poco después
         btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Pago Exitoso!';
-        btn.style.backgroundColor = '#059669'; // Un verde más oscuro para el éxito
+        btn.style.backgroundColor = '#059669'; 
         
+        // 4. Ocultar el botón después de pagar
         setTimeout(() => {
             btn.style.display = 'none';
         }, 1500);
 
-    }, 2000);
+    } catch (error) {
+        alert("Error de conexión con el banco/servidor: " + error.message);
+        // Si falla, regresamos el botón a la normalidad
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Hacer Pago';
+        btn.style.opacity = '1';
+    }
 }
 
 document.addEventListener('DOMContentLoaded', cargarComprobante);
