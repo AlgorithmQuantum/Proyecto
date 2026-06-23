@@ -1,1 +1,77 @@
-este lo hago angel
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bitácora Historial Médico - R.A.S.A</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <main style="padding: 40px; margin-left: 260px;">
+        <h2><i class="fa-solid fa-file-waveform"></i> Auditoría de Modificaciones Médicas</h2>
+        <p class="txt-gris">Registro de alteraciones en historiales clínicos de pacientes.</p>
+        
+        <div style="margin-top: 20px; overflow-x: auto; background: white; padding: 20px; border-radius: 8px;">
+            <table class="tabla-logs" style="width: 100%; text-align: left;">
+                <thead style="background-color: #f8fafc;">
+                    <tr>
+                        <th>Fecha de Modificación</th>
+                        <th>ID Paciente</th>
+                        <th>Médico que modificó</th>
+                        <th>Campo Alterado</th>
+                        <th>Valor Anterior</th>
+                        <th>Nuevo Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 12px; color: #64748b;">2026-06-22 14:30:00</td>
+                        <td><strong>PAC-012</strong></td>
+                        <td>Dr. Roberto Sánchez</td>
+                        <td>Alergias</td>
+                        <td style="color: #ef4444; text-decoration: line-through;">Penicilina</td>
+                        <td style="color: #10b981; font-weight: bold;">Penicilina, Sulfa</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 12px; color: #64748b;">2026-06-21 09:15:22</td>
+                        <td><strong>PAC-045</strong></td>
+                        <td>Dra. Mariana Casos</td>
+                        <td>Peso</td>
+                        <td style="color: #ef4444; text-decoration: line-through;">75.5 kg</td>
+                        <td style="color: #10b981; font-weight: bold;">72.1 kg</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <script>
+        async function cargarBitacoraHistorial() {
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Cargando auditoría...</td></tr>';
+            try {
+                const res = await fetch('/admin/api/bitacora/historial-medico');
+                const datos = await res.json();
+                tbody.innerHTML = '';
+                
+                if (datos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No hay modificaciones registradas en historiales.</td></tr>';
+                    return;
+                }
+                
+                datos.forEach(b => {
+                    tbody.innerHTML += `
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 12px; color: #64748b;">${b.Fecha_Modificacion}</td>
+                            <td><strong>${b.Id_paciente}</strong></td>
+                            <td>${b.Medico_Modifico}</td>
+                            <td>${b.Campo_Alterado}</td>
+                            <td style="color: #ef4444; text-decoration: line-through;">${b.Valor_Anterior}</td>
+                            <td style="color: #10b981; font-weight: bold;">${b.Nuevo_Valor}</td>
+                        </tr>`;
+                });
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="6" style="color:red; text-align:center;">Error de conexión</td></tr>`; }
+        }
+        document.addEventListener('DOMContentLoaded', cargarBitacoraHistorial);
+    </script>
+</body>
+</html>

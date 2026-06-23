@@ -19,13 +19,13 @@
         </div>
         
         <ul class="menu-principal">
-            <li><a href="inicioAdmin.html">Inicio</a></li>
-            <li><a href="bitacorasAdmin.html">Bitácoras</a></li>
-            <li class="activo"><a href="doctores.html">Doctores</a></li>
-            <li><a href="recepcion.html">Recepcion</a></li>
-            <li><a href="farmacia.html">Farmacia</a></li>
-            <li><a href="catalogos.html">Catalogos</a></li>
-            <li><a href="especialidades.html">Especialidades</a></li>
+            <li><a href="/admin/dashboard">Inicio</a></li>
+            <li><a href="/admin/bitacoras">Bitácoras</a></li>
+            <li class="activo"><a href="/admin/doctores">Doctores</a></li>
+            <li><a href="/admin/recepcion">Recepción</a></li>
+            <li><a href="/admin/farmacia">Farmacia</a></li>
+            <li><a href="/admin/catalogos">Catálogos</a></li>
+            <li><a href="/admin/especialidades">Especialidades</a></li>
         </ul>
 
         <div class="perfil-usuario">
@@ -36,7 +36,7 @@
     <main class="contenedor-principal">
         
         <div class="migas-pan">
-            <a href="inicioAdmin.html" class="btn-texto"><i class="fa-solid fa-arrow-left"></i> Volver al Panel</a>
+            <a href="/admin/dashboard" class="btn-texto"><i class="fa-solid fa-arrow-left"></i> Volver al Panel</a>
             <span class="separador-migas">|</span>
             <span class="texto-migas">Gestión RR.HH > Directorio Médico</span>
         </div>
@@ -71,58 +71,7 @@
                         <th style="text-align: center;">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">CED-884210</td>
-                        <td><strong>Dr. Roberto Sánchez</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">roberto.sanchez@rasa.com</span></td>
-                        <td>Cardiología</td>
-                        <td><span class="badge-azul">Matutino</span></td>
-                        <td>Cons. 101</td>
-                        <td class="col-estatus"><span class="badge-verde">Activa</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar" onclick="editarMedico('Dr. Roberto Sánchez', 'CED-884210', 'roberto.sanchez@rasa.com', 'Cardiología', 'Matutino (07:00 AM - 03:00 PM)', 'Cons. 101')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto btn-toggle-estatus" style="color: var(--rojo-error); margin-left: 10px;" title="Suspender" onclick="cambiarEstatus(this)"><i class="fa-solid fa-ban"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">CED-992314</td>
-                        <td><strong>Dra. Ana Valdez</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">ana.valdez@rasa.com</span></td>
-                        <td>Cardiología</td>
-                        <td><span class="badge-azul">Matutino</span></td>
-                        <td>Cons. 102</td>
-                        <td class="col-estatus"><span class="badge-verde">Activa</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar" onclick="editarMedico('Dra. Ana Valdez', 'CED-992314', 'ana.valdez@rasa.com', 'Cardiología', 'Matutino (07:00 AM - 03:00 PM)', 'Cons. 102')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto btn-toggle-estatus" style="color: var(--rojo-error); margin-left: 10px;" title="Suspender" onclick="cambiarEstatus(this)"><i class="fa-solid fa-ban"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">CED-551239</td>
-                        <td><strong>Dr. Luis Torres</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">luis.torres@rasa.com</span></td>
-                        <td>Cardiología</td>
-                        <td><span class="badge-morado">Vespertino</span></td>
-                        <td>Cons. 101</td>
-                        <td class="col-estatus"><span class="badge-rojo">Inactiva</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar" onclick="editarMedico('Dr. Luis Torres', 'CED-551239', 'luis.torres@rasa.com', 'Cardiología', 'Vespertino (01:00 PM - 09:00 PM)', 'Cons. 101')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto btn-toggle-estatus" style="color: var(--texto-gris); margin-left: 10px;" title="Reactivar" onclick="cambiarEstatus(this)"><i class="fa-solid fa-rotate-left"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">CED-773412</td>
-                        <td><strong>Dra. Laura Gómez</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">laura.gomez@rasa.com</span></td>
-                        <td>Dermatología</td>
-                        <td><span class="badge-azul">Matutino</span></td>
-                        <td>Cons. 201</td>
-                        <td class="col-estatus"><span class="badge-verde">Activa</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar" onclick="editarMedico('Dra. Laura Gómez', 'CED-773412', 'laura.gomez@rasa.com', 'Dermatología', 'Matutino (07:00 AM - 03:00 PM)', 'Cons. 201')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto btn-toggle-estatus" style="color: var(--rojo-error); margin-left: 10px;" title="Suspender" onclick="cambiarEstatus(this)"><i class="fa-solid fa-ban"></i></button>
-                        </td>
-                    </tr>
+                <tbody id="tabla-doctores-body">
 
                 </tbody>
             </table>
@@ -282,6 +231,73 @@
             textoPaginacion.innerText = `Mostrando ${inicio}-${fin} de 40 médicos registrados.`;
         }
     </script>
+    <script>
+    async function cargarDoctores() {
+        const tbody = document.getElementById('tabla-doctores-body');
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando doctores...</td></tr>';
+        
+        try {
+            const res = await fetch('/admin/api/lista-doctores');
+            const doctores = await res.json();
+
+            if (!res.ok) throw new Error(doctores.error);
+            
+            tbody.innerHTML = '';
+            
+            doctores.forEach(doc => {
+                // Configurar si está activo o suspendido
+                const estatusBadge = doc.Activo 
+                    ? '<span class="badge-verde">Activa</span>' 
+                    : '<span class="badge-rojo">Suspendida</span>';
+                
+                const botonAccion = doc.Activo 
+                    ? `<button class="btn-icono-accion rojo" onclick="darBajaDoctor(${doc.Id_doctor})" title="Dar de baja"><i class="fa-solid fa-ban"></i></button>`
+                    : `<button class="btn-icono-accion" style="color:var(--texto-gris);" title="Doctor Inactivo"><i class="fa-solid fa-rotate-left"></i></button>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <div class="info-usuario-tabla">
+                                <div class="avatar-tabla"><i class="fa-solid fa-user-doctor"></i></div>
+                                <div>
+                                    <strong>Dr(a). ${doc.NombreCompleto}</strong><br>
+                                    <span class="txt-gris">${doc.Correo}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${doc.Especialidad}</td>
+                        <td>${doc.Consultorio}</td>
+                        <td><span class="badge-azul">Matutino</span></td> <td class="col-estatus">${estatusBadge}</td>
+                        <td class="celda-acciones">
+                            ${botonAccion}
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            tbody.innerHTML = `<tr><td colspan="7" style="color: red; text-align: center;">Error: ${error.message}</td></tr>`;
+        }
+    }
+
+    // Ya tenías el endpoint de dar de baja que hicimos antes, lo llamamos aquí:
+    async function darBajaDoctor(idDoctor) {
+        if(!confirm("¿Estás seguro de dar de baja a este médico? Verificaremos que no tenga citas pendientes.")) return;
+        
+        try {
+            const res = await fetch(`/admin/api/doctores/${idDoctor}/baja`, { method: 'POST' });
+            const data = await res.json();
+            
+            if(!res.ok) throw new Error(data.error);
+            
+            alert(data.mensaje);
+            cargarDoctores(); // Recargar la tabla
+        } catch(err) {
+            alert(err.message);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarDoctores);
+</script>
 
 </body>
 </html>

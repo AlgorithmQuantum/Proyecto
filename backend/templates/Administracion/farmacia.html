@@ -6,7 +6,7 @@
     <title>Inventario de Farmacia - Admin R.A.S.A</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='hospital.svg') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body>
 
@@ -19,13 +19,13 @@
         </div>
         
         <ul class="menu-principal">
-            <li><a href="inicioAdmin.html">Inicio</a></li>
-            <li><a href="bitacorasAdmin.html">Bitácoras</a></li>
-            <li><a href="doctores.html">Doctores</a></li>
-            <li><a href="recepcion.html">Recepcion</a></li>
-            <li class="activo"><a href="farmacia.html">Farmacia</a></li>
-            <li><a href="catalogos.html">Catalogos</a></li>
-            <li><a href="especialidades.html">Especialidades</a></li>
+            <li><a href="/admin/dashboard">Inicio</a></li>
+            <li><a href="/admin/bitacoras">Bitácoras</a></li>
+            <li><a href="/admin/doctores">Doctores</a></li>
+            <li><a href="/admin/recepcion">Recepción</a></li>
+            <li class="activo"><a href="/admin/farmacia">Farmacia</a></li>
+            <li><a href="/admin/catalogos">Catálogos</a></li>
+            <li><a href="/admin/especialidades">Especialidades</a></li>
         </ul>
 
         <div class="perfil-usuario">
@@ -36,7 +36,7 @@
     <main class="contenedor-principal">
         
         <div class="migas-pan">
-            <a href="inicioAdmin.html" class="btn-texto"><i class="fa-solid fa-arrow-left"></i> Volver al Panel</a>
+            <a href="/admin/dashboard" class="btn-texto"><i class="fa-solid fa-arrow-left"></i> Volver al Panel</a>
             <span class="separador-migas">|</span>
             <span class="texto-migas">Catálogos > Inventario de Farmacia</span>
         </div>
@@ -72,84 +72,6 @@
                     </tr>
                 </thead>
                 <tbody id="tabla-farmacia-body">
-                    
-                    <tr class="fila-medicamento">
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">MED-1001</td>
-                        <td><strong>Paracetamol 500mg</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">Caja con 20 tabletas</span></td>
-                        <td>Analgésico</td>
-                        <td style="font-weight: 600;">$ 45.00</td>
-                        <td>124 Cajas</td>
-                        <td><span class="badge-verde">Óptimo</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto" style="color: var(--rojo-error); margin-left: 10px;" title="Dar de baja"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr class="fila-medicamento">
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">MED-1045</td>
-                        <td><strong>Amoxicilina 500mg</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">Caja con 12 cápsulas</span></td>
-                        <td>Antibiótico</td>
-                        <td style="font-weight: 600;">$ 120.00</td>
-                        <td>85 Cajas</td>
-                        <td><span class="badge-verde">Óptimo</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto" style="color: var(--rojo-error); margin-left: 10px;" title="Dar de baja"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr class="fila-medicamento">
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">MED-2033</td>
-                        <td><strong>Ketorolaco 10mg</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">Caja con 10 tabletas sublinguales</span></td>
-                        <td>Analgésico</td>
-                        <td style="font-weight: 600;">$ 65.00</td>
-                        <td style="color: #6d28d9; font-weight: 700;">12 Cajas</td>
-                        <td><span class="badge-morado">Stock Bajo</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto" style="color: var(--rojo-error); margin-left: 10px;" title="Dar de baja"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr class="fila-medicamento">
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">MED-3091</td>
-                        <td><strong>Loratadina 10mg</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">Caja con 20 tabletas</span></td>
-                        <td>Antihistamínico</td>
-                        <td style="font-weight: 600;">$ 35.00</td>
-                        <td style="color: var(--rojo-error); font-weight: 700;">0 Cajas</td>
-                        <td><span class="badge-rojo">Agotado</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto" style="color: var(--rojo-error); margin-left: 10px;" title="Dar de baja"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr class="fila-medicamento">
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">MED-4102</td>
-                        <td><strong>Omeprazol 20mg</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">Frasco con 14 cápsulas</span></td>
-                        <td>Antiácido</td>
-                        <td style="font-weight: 600;">$ 80.00</td>
-                        <td>56 Frascos</td>
-                        <td><span class="badge-verde">Óptimo</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto" style="color: var(--rojo-error); margin-left: 10px;" title="Dar de baja"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr class="fila-medicamento">
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">MED-5011</td>
-                        <td><strong>Ibuprofeno 400mg</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">Caja con 10 tabletas</span></td>
-                        <td>Antiinflamatorio</td>
-                        <td style="font-weight: 600;">$ 55.00</td>
-                        <td>92 Cajas</td>
-                        <td><span class="badge-verde">Óptimo</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto" style="color: var(--rojo-error); margin-left: 10px;" title="Dar de baja"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                    </tr>
 
                 </tbody>
             </table>
@@ -235,6 +157,54 @@
         function prepararModalNuevo() {
             abrirModal('modal-medicamento');
         }
+
+        async function cargarFarmacia() {
+            const tbody = document.getElementById('tabla-farmacia-body');
+            try {
+                const res = await fetch('/admin/api/lista-farmacia');
+                const datos = await res.json();
+                tbody.innerHTML = '';
+                datos.forEach(m => {
+                    const badgeStock = m.Stock > 20 ? '<span class="badge-verde">Suficiente</span>' : '<span class="badge-rojo">Bajo</span>';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${m.Nombre}</strong><br><small class="txt-gris">${m.Descripcion} - ${m.Concentracion}</small></td>
+                            <td>MED-${m.Id_medicamento}</td>
+                            <td>$${m.Precio}</td>
+                            <td>${m.Stock} Unidades</td>
+                            <td>${badgeStock}</td>
+                        </tr>`;
+                });
+            } catch (err) { console.error(err); }
+        }
+        document.addEventListener('DOMContentLoaded', cargarFarmacia);
+        
+        async function cargarCatalogos() {
+            const tbody = document.getElementById('tabla-catalogos-body');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando catálogos...</td></tr>';
+            
+            try {
+                const res = await fetch('/admin/api/lista-catalogos');
+                const datos = await res.json();
+                
+                if (!res.ok) throw new Error(datos.error);
+                tbody.innerHTML = '';
+                
+                datos.forEach(item => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${item.Especialidad || 'No asignada'}</strong></td>
+                            <td>Cons. ${item.Numero} (Piso ${item.Piso})</td>
+                            <td>${item.Doctor || '<span class="txt-gris">Sin médico asignado</span>'}</td>
+                            <td><span class="badge-azul">Dinámico</span></td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="4" style="color: red; text-align: center;">Error: ${error.message}</td></tr>`;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', cargarCatalogos);
     </script>
 
 </body>

@@ -1,1 +1,54 @@
-este lo hago yo angel
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bitácora de Citas - R.A.S.A</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <main style="padding: 40px; margin-left: 260px;"> <h2><i class="fa-solid fa-clock-rotate-left"></i> Historial Transaccional de Citas</h2>
+        <p class="txt-gris">Registro inmutable generado por Triggers de SQL Server.</p>
+        
+        <div style="margin-top: 20px; overflow-x: auto; background: white; padding: 20px; border-radius: 8px;">
+            <table class="tabla-logs" style="width: 100%; text-align: left;">
+                <thead>
+                    <tr>
+                        <th>Fecha Movimiento</th>
+                        <th>Paciente</th>
+                        <th>Folio Cita</th>
+                        <th>Fecha Cita</th>
+                        <th>Médico</th>
+                        <th>Estatus Final</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-bitacora-citas">
+                    <tr><td colspan="6" style="text-align: center;">Cargando registros...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const tbody = document.getElementById('tabla-bitacora-citas');
+            try {
+                const res = await fetch('/admin/api/bitacora/global'); // Usa el endpoint que ya creamos
+                const datos = await res.json();
+                tbody.innerHTML = '';
+                datos.forEach(b => {
+                    const color = b.Estatus.includes('Cancelada') ? '#ef4444' : '#10b981';
+                    tbody.innerHTML += `
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 10px;">${b.FechaMovimiento}</td>
+                            <td><strong>${b.Paciente}</strong></td>
+                            <td>FOL-${b.FolioCita}</td>
+                            <td>${b.Fecha_cita}</td>
+                            <td>${b.Doctor}</td>
+                            <td style="color:${color}; font-weight:bold;">${b.Estatus}</td>
+                        </tr>`;
+                });
+            } catch(e) { tbody.innerHTML = '<tr><td colspan="6">Error de conexión</td></tr>'; }
+        });
+    </script>
+</body>
+</html>

@@ -19,13 +19,13 @@
         </div>
         
         <ul class="menu-principal">
-            <li><a href="inicioAdmin.html">Inicio</a></li>
-            <li><a href="bitacorasAdmin.html">Bitácoras</a></li>
-            <li><a href="doctores.html">Doctores</a></li>
-            <li class="activo"><a href="recepcion.html">Recepcion</a></li>
-            <li><a href="farmacia.html">Farmacia</a></li>
-            <li><a href="catalogos.html">Catalogos</a></li>
-            <li><a href="especialidades.html">Especialidades</a></li>
+            <li><a href="/admin/dashboard">Inicio</a></li>
+            <li><a href="/admin/bitacoras">Bitácoras</a></li>
+            <li><a href="/admin/doctores">Doctores</a></li>
+            <li class="activo"><a href="/admin/recepcion">Recepción</a></li>
+            <li><a href="/admin/farmacia">Farmacia</a></li>
+            <li><a href="/admin/catalogos">Catálogos</a></li>
+            <li><a href="/admin/especialidades">Especialidades</a></li>
         </ul>
 
         <div class="perfil-usuario">
@@ -36,7 +36,7 @@
     <main class="contenedor-principal">
         
         <div class="migas-pan">
-            <a href="inicioAdmin.html" class="btn-texto"><i class="fa-solid fa-arrow-left"></i> Volver al Panel</a>
+            <a href="/admin/dashboard" class="btn-texto"><i class="fa-solid fa-arrow-left"></i> Volver al Panel</a>
             <span class="separador-migas">|</span>
             <span class="texto-migas">Gestión RR.HH > Personal de Recepción</span>
         </div>
@@ -71,62 +71,8 @@
                         <th style="text-align: center;">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">EMP-1045</td>
-                        <td><strong>Ana Martínez</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">ana.martinez@rasa.com</span></td>
-                        <td>Recepción Principal</td>
-                        <td><span class="badge-azul">Matutino</span></td>
-                        <td>Caja y Agenda</td>
-                        <td class="col-estatus"><span class="badge-verde">Activa</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar" onclick="editarRecepcionista('Ana Martínez', 'EMP-1045', 'ana.martinez@rasa.com', 'Recepción Principal', 'Matutino (07:00 AM - 03:00 PM)', 'Caja y Agenda')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto" style="color: var(--naranja-alerta); margin-left: 10px;" title="Resetear Contraseña"><i class="fa-solid fa-key"></i></button>
-                            <button class="btn-texto btn-toggle-estatus" style="color: var(--rojo-error); margin-left: 10px;" title="Suspender" onclick="cambiarEstatus(this)"><i class="fa-solid fa-ban"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">EMP-1082</td>
-                        <td><strong>Carlos Gómez</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">carlos.gomez@rasa.com</span></td>
-                        <td>Módulo Especialidades</td>
-                        <td><span class="badge-azul">Matutino</span></td>
-                        <td>Solo Agenda</td>
-                        <td class="col-estatus"><span class="badge-verde">Activa</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar" onclick="editarRecepcionista('Carlos Gómez', 'EMP-1082', 'carlos.gomez@rasa.com', 'Módulo Especialidades', 'Matutino (07:00 AM - 03:00 PM)', 'Solo Agenda')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto" style="color: var(--naranja-alerta); margin-left: 10px;" title="Resetear Contraseña"><i class="fa-solid fa-key"></i></button>
-                            <button class="btn-texto btn-toggle-estatus" style="color: var(--rojo-error); margin-left: 10px;" title="Suspender" onclick="cambiarEstatus(this)"><i class="fa-solid fa-ban"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">EMP-1104</td>
-                        <td><strong>Sofía López</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">sofia.lopez@rasa.com</span></td>
-                        <td>Recepción Principal</td>
-                        <td><span class="badge-morado">Vespertino</span></td>
-                        <td>Caja y Agenda</td>
-                        <td class="col-estatus"><span class="badge-verde">Activa</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar" onclick="editarRecepcionista('Sofía López', 'EMP-1104', 'sofia.lopez@rasa.com', 'Recepción Principal', 'Vespertino (01:00 PM - 09:00 PM)', 'Caja y Agenda')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto" style="color: var(--naranja-alerta); margin-left: 10px;" title="Resetear Contraseña"><i class="fa-solid fa-key"></i></button>
-                            <button class="btn-texto btn-toggle-estatus" style="color: var(--rojo-error); margin-left: 10px;" title="Suspender" onclick="cambiarEstatus(this)"><i class="fa-solid fa-ban"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="font-family: monospace; font-weight: 600; color: var(--texto-gris);">EMP-1129</td>
-                        <td><strong>Luis Ramírez</strong><br><span style="font-size: 0.8rem; color: var(--texto-gris);">luis.ramirez@rasa.com</span></td>
-                        <td>Módulo Urgencias</td>
-                        <td><span class="badge-morado">Vespertino</span></td>
-                        <td>Caja Especial</td>
-                        <td class="col-estatus"><span class="badge-rojo">Suspendida</span></td>
-                        <td style="text-align: center;">
-                            <button class="btn-texto" title="Editar" onclick="editarRecepcionista('Luis Ramírez', 'EMP-1129', 'luis.ramirez@rasa.com', 'Módulo Urgencias', 'Vespertino (01:00 PM - 09:00 PM)', 'Caja Especial')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-texto" style="color: var(--naranja-alerta); margin-left: 10px;" title="Resetear Contraseña"><i class="fa-solid fa-key"></i></button>
-                            <button class="btn-texto btn-toggle-estatus" style="color: var(--texto-gris); margin-left: 10px;" title="Reactivar" onclick="cambiarEstatus(this)"><i class="fa-solid fa-rotate-left"></i></button>
-                        </td>
-                    </tr>
+                <tbody id="tabla-recepcion-body">
+                    
                 </tbody>
             </table>
             
@@ -253,6 +199,31 @@
                 boton.title = 'Suspender';
             }
         }
+    </script>
+    <script>
+        async function cargarRecepcion() {
+            const tbody = document.getElementById('tabla-recepcion-body');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>';
+            try {
+                const res = await fetch('/admin/api/lista-recepcion');
+                const datos = await res.json();
+                tbody.innerHTML = '';
+                datos.forEach(r => {
+                    const estatus = r.Activo ? '<span class="badge-verde">Activo</span>' : '<span class="badge-rojo">Baja</span>';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${r.Nombre}</strong><br><small class="txt-gris">${r.Correo}</small></td>
+                            <td>REC-${r.Id_Recepcionista}</td>
+                            <td><span class="badge-azul">${r.Turno}</span></td>
+                            <td class="col-estatus">${estatus}</td>
+                            <td class="celda-acciones">
+                                <button class="btn-icono-accion"><i class="fa-solid fa-pen-to-square"></i></button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="5">Error</td></tr>`; }
+        }
+        document.addEventListener('DOMContentLoaded', cargarRecepcion);
     </script>
 
 </body>

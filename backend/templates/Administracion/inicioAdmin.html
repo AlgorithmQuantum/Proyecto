@@ -46,19 +46,18 @@
 
             <div class="kpi-grid">
                 <div class="tarjeta-kpi">
-                    <div class="kpi-info"><p>CITAS HOY</p><h3>42</h3></div>
+                    <div class="kpi-info"><p>CITAS HOY</p><h3 id="kpi-citas">0</h3></div>
                     <i class="fa-solid fa-calendar-check kpi-icono"></i>
                 </div>
                 <div class="tarjeta-kpi verde">
-                    <div class="kpi-info"><p>INGRESOS</p><h3>$24,500</h3></div>
+                    <div class="kpi-info"><p>INGRESOS</p><h3 id="kpi-ingresos">$0.00</h3></div>
                     <i class="fa-solid fa-money-bill-trend-up kpi-icono"></i>
                 </div>
                 <div class="tarjeta-kpi rojo">
-                    <div class="kpi-info"><p>CANCELACIONES</p><h3>3</h3></div>
-                    <i class="fa-solid fa-user-xmark kpi-icono"></i>
+                    <div class="kpi-info"><p>CANCELACIONES</p><h3 id="kpi-doctores">0</h3></div> <i class="fa-solid fa-user-xmark kpi-icono"></i>
                 </div>
                 <div class="tarjeta-kpi naranja">
-                    <div class="kpi-info"><p>PACIENTES</p><h3>1,284</h3></div>
+                    <div class="kpi-info"><p>PACIENTES</p><h3 id="kpi-pacientes">0</h3></div>
                     <i class="fa-solid fa-hospital-user kpi-icono"></i>
                 </div>
             </div>
@@ -115,5 +114,19 @@
             </div>
         </main>
     </div>
+    <script>
+        async function cargarKPIs() {
+            try {
+                const res = await fetch('/admin/api/dashboard-kpis');
+                const data = await res.json();
+                // Asegúrate de ponerle estos id's a los <h3> de tus tarjetas de estadísticas en inicioAdmin.html
+                document.getElementById('kpi-pacientes').innerText = data.pacientes;
+                document.getElementById('kpi-doctores').innerText = data.doctores;
+                document.getElementById('kpi-citas').innerText = data.citas_hoy;
+                document.getElementById('kpi-ingresos').innerText = '$' + data.ingresos.toFixed(2);
+            } catch (error) { console.error(error); }
+        }
+        document.addEventListener('DOMContentLoaded', cargarKPIs);
+    </script>
 </body>
 </html>
